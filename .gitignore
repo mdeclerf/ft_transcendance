@@ -1,7 +1,15 @@
+<<<<<<< HEAD
+=======
+# compiled output
+/dist
+/node_modules
+
+>>>>>>> 2d04aab2093a1b404c90007625b18c4ddbe1c33c
 # Logs
 logs
 *.log
 npm-debug.log*
+<<<<<<< HEAD
 yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
@@ -136,6 +144,19 @@ dist
 
 # dependencies
 /node_modules
+=======
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# OS
+.DS_Store
+
+# Tests
+/coverage
+/.nyc_output
+>>>>>>> 2d04aab2093a1b404c90007625b18c4ddbe1c33c
 
 # IDEs and editors
 /.idea
@@ -151,6 +172,7 @@ dist
 !.vscode/settings.json
 !.vscode/tasks.json
 !.vscode/launch.json
+<<<<<<< HEAD
 !.vscode/extensions.json
 
 # misc
@@ -166,3 +188,6 @@ testem.log
 # System Files
 .DS_Store
 Thumbs.db
+=======
+!.vscode/extensions.json
+>>>>>>> 2d04aab2093a1b404c90007625b18c4ddbe1c33c
