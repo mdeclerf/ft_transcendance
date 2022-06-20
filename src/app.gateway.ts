@@ -9,6 +9,7 @@ import {
 import { Socket, Server } from 'socket.io';
 import { AppService } from './app.service';
 import { Chat } from './chat.entity';
+import { Logger } from '@nestjs/common';
 
 @WebSocketGateway({
   cors: {
@@ -21,6 +22,7 @@ export class AppGateway
  constructor(private appService: AppService) {}
  
  @WebSocketServer() server: Server;
+ private logger: Logger = new Logger('AppGateway');
  
  @SubscribeMessage('sendMessage')
  async handleSendMessage(client: Socket, payload: Chat): Promise<void> {
@@ -29,17 +31,17 @@ export class AppGateway
  }
  
  afterInit(server: Server) {
-   console.log(server);
+  this.logger.log('Init');
    //Do stuffs
  }
  
  handleDisconnect(client: Socket) {
-   console.log(`Disconnected: ${client.id}`);
+    this.logger.log(`Client disconnected: ${client.id}`);
    //Do stuffs
  }
  
  handleConnection(client: Socket, ...args: any[]) {
-   console.log(`Connected ${client.id}`);
+  this.logger.log(`Client connected: ${client.id}`);
    //Do stuffs
  }
 }

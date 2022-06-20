@@ -32,7 +32,7 @@ function loadDate(data) {
   data.map((message) => {
     messages += ` <li class="bg-primary p-2 rounded mb-2 text-light">
        <span class="fw-bolder">${message.email}</span>
-       ${message.text}
+       ${message.text}   <FONT size="-4" maxlength="4"><br>send at ${message.createdAt}</FONT>
      </li>`;
   });
   msgCont.innerHTML = messages;

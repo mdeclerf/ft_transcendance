@@ -6,7 +6,7 @@ import { Chat } from './chat.entity';
 export class AppController {
  constructor(private readonly appService: AppService) {}
  
- @Get('/chat')
+ @Get('')
  @Render('index')
  Home() {
    return;
