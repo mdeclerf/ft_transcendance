@@ -23,6 +23,7 @@ export class AppGateway
  
  @WebSocketServer() server: Server;
  private logger: Logger = new Logger('AppGateway');
+ users: number = 0;
  
  @SubscribeMessage('sendMessage')
  async handleSendMessage(client: Socket, payload: Chat): Promise<void> {
@@ -37,11 +38,15 @@ export class AppGateway
  
  handleDisconnect(client: Socket) {
     this.logger.log(`Client disconnected: ${client.id}`);
+    this.users--;
+    this.server.emit('users', this.users);
    //Do stuffs
  }
  
  handleConnection(client: Socket, ...args: any[]) {
   this.logger.log(`Client connected: ${client.id}`);
+  this.users++;
+  this.server.emit('users', this.users);
    //Do stuffs
  }
 }

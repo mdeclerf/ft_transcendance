@@ -10,9 +10,9 @@ export class AppService {
  ) {}
  async createMessage(chat: Chat): Promise<Chat> {
    return await this.chatRepository.save(chat);
- }
- 
- async getMessages(): Promise<Chat[]> {
-   return await this.chatRepository.find();
- }
+  }
+  
+  async getMessages(): Promise<Chat[]> {
+    return await this.chatRepository.find();
+  }
 }
