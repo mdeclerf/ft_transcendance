@@ -45,6 +45,7 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 			socket.on("send_message", (data) => {
 				let message : CreateChatDto = new CreateChatDto();
 				message.body = data.message;
+				message.room_number = data.room;
 				this.chatService.createMessage(message);
 				socket.to(data.room).emit("receive_message", data);
 			});

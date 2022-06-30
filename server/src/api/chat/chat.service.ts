@@ -22,6 +22,7 @@ export class ChatService {
 	public createMessage(body: CreateChatDto) : Promise<Chat> {
 		const message: Chat = new Chat();
 
+		message.room_number = body.room_number;
 		message.body = body.body;
 		return this.repository.save(message);
 	}
