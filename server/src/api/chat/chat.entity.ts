@@ -5,6 +5,9 @@ export class Chat {
 
 	@PrimaryGeneratedColumn()
 	public message_id!: number;
+	
+	@Column ({type: 'integer'})
+	public room_number: number;
 
 	@Column({type: 'text'})
 	public body: string;
