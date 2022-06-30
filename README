@@ -1,19 +1,23 @@
 To install : 
 
-Server folder : 
-	npm install
+./start.sh
 
-	-> Install dependencies
-	npm i --save @nestjs/websockets
-	npm i --save @nestjs/platform-express
-	npm i --save socket.io
-	npm i --save @nestjs/platform-socket.io
+OR manually :
 
-Client folder :
-	npm install
+	Server folder : 
+		npm install
 
-	-> Install dependencies
-	npm i --save socket.io-client
+		-> Install dependencies
+		npm i --save @nestjs/websockets
+		npm i --save @nestjs/platform-express
+		npm i --save socket.io
+		npm i --save @nestjs/platform-socket.io
 
-To run (on both) :
-	npm start
+	Client folder :
+		npm install
+
+		-> Install dependencies
+		npm i --save socket.io-client
+
+	To run (on both) :
+		npm start
