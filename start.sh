@@ -12,3 +12,4 @@ npm i --save @nestjs/websockets
 npm i --save @nestjs/platform-express
 npm i --save socket.io
 npm i --save @nestjs/platform-socket.io
+echo "Done :)"
