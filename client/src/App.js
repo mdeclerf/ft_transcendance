@@ -2,7 +2,7 @@ import './App.css';
 import io from 'socket.io-client'
 import {useEffect, useState } from "react";
 
-const socket = io.connect('http://localhost:3001');
+const socket = io('http://localhost:3001');
 
 function App() {
   const [room, setRoom] = useState("");
@@ -21,8 +21,15 @@ function App() {
   useEffect(() => {
     socket.on("receive_message", (data) => {
       setMessageReceived(data.message);
+    });
+
+    
+    socket.once("disconnected", () => {
+      console.log("police");
+      socket.close();
+      socket.disconnect();
     })
-  })
+  },[])
 
   return (
     <div className="App">

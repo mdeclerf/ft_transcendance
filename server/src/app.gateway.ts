@@ -18,6 +18,7 @@ import { ChatService } from './api/chat/chat.service';
 	},
 })
 
+@WebSocketGateway({ cors: true })
 export class AppGateway
 implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 {
@@ -32,13 +33,14 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 	handleDisconnect(client: Socket) {
 		console.log(`User Disconnected: ${client.id}`);
 		this.users--;
+		client.emit("disconnected");
 	}
 
 	handleConnection(client: Socket, ...args: any[]) {
-		this.server.on("connection", (socket) => {
+		this.server.once("connection", (socket) => {
 			console.log(`User Connected: ${socket.id}`);
 
-			socket.on("join_room", (data) => {
+			socket.once("join_room", (data) => {
 				socket.join(data);
 			});
 

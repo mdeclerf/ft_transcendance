@@ -6,6 +6,7 @@ npm install
 echo "Installing dependencies in client"
 npm i --save socket.io-client
 echo "Installing npm in server"
+cd ../server/
 npm install
 echo "Installing dependencies in server"
 npm i --save @nestjs/websockets
