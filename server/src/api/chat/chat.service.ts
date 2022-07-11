@@ -26,4 +26,13 @@ export class ChatService {
 		message.body = body.body;
 		return this.repository.save(message);
 	}
+
+	public copyMessage(body: CreateChatDto) : Chat {
+		const message: Chat = new Chat();
+		message.room_number = body.room_number;
+		message.body = body.body;
+		message.createdAt = body.createdAt;
+		return message;
+	}
+	
 }

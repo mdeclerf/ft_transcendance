@@ -18,8 +18,8 @@ const useStyles = makeStyles((theme) =>
       marginBottom: "10px",
       padding: "10px",
       backgroundColor: "#A8DDFD",
-      width: "60%",
-      //height: "50px",
+      width: "100%",
+      height: "20px",
       textAlign: "left",
       font: "400 .9em 'Open Sans', sans-serif",
       border: "1px solid #97C6E3",
@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme) =>
       padding: "10px",
       backgroundColor: "#f8e896",
       width: "60%",
-      //u9iheight: "50px",
+      u9iheight: "50px",
       textAlign: "left",
       font: "400 .9em 'Open Sans', sans-serif",
       border: "1px solid #dfd087",
@@ -88,12 +88,20 @@ const useStyles = makeStyles((theme) =>
       margin: 0
     },
     messageTimeStampRight: {
-      position: "absolute",
+      position: "relative",
       fontSize: ".85em",
        fontWeight: "100",
       marginTop: "10px",
       bottom: "-3px",
       right: "5px"
+    },
+    messageTimeStampLeft: {
+      position: "relative",
+      fontSize: "0.85em",
+       fontWeight: "100",
+      marginTop: "10px",
+      bottom: "10px",
+      right: "px"
     },
 
     orange: {
@@ -114,7 +122,6 @@ const useStyles = makeStyles((theme) =>
   })
 );
 
-//avatarが左にあるメッセージ（他人）
 export const MessageLeft = (props) => {
   const message = props.message ? props.message : "no message";
   const timestamp = props.timestamp ? props.timestamp : "";
@@ -135,14 +142,14 @@ export const MessageLeft = (props) => {
             <div>
               <p className={classes.messageContent}>{message}</p>
             </div>
-            <div className={classes.messageTimeStampRight}>{timestamp}</div>
+            <div className={classes.messageTimeStampLeft}>{timestamp}</div>
           </div>
         </div>
       </div>
     </>
   );
 };
-//avatarが右にあるメッセージ（自分）
+
 export const MessageRight = (props) => {
   const classes = useStyles();
   const message = props.message ? props.message : "no message";

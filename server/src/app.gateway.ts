@@ -1,4 +1,4 @@
-import { Inject } from '@nestjs/common';
+import { Inject, UseGuards } from '@nestjs/common';
 import {
 	WebSocketGateway,
 	OnGatewayInit,
@@ -10,6 +10,7 @@ import { Socket, Server } from 'socket.io';
 import { AppService } from './app.service';
 import { CreateChatDto } from './api/chat/chat.dto';
 import { ChatService } from './api/chat/chat.service';
+import { JwtAuthGuard } from './api/jwt-auth.guard';
 
 @WebSocketGateway({
 	cors: {
@@ -18,6 +19,7 @@ import { ChatService } from './api/chat/chat.service';
 	},
 })
 
+@UseGuards(JwtAuthGuard)
 @WebSocketGateway({ cors: true })
 export class AppGateway
 implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -31,14 +33,17 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 	}
 
 	handleDisconnect(client: Socket) {
-		console.log(`User Disconnected: ${client.id}`);
 		this.users--;
+		console.log(`User Disconnected: ${client.id} and there is ${this.users} clients connected`);
 		client.emit("disconnected");
 	}
 
 	handleConnection(client: Socket, ...args: any[]) {
 		this.server.once("connection", (socket) => {
-			console.log(`User Connected: ${socket.id}`);
+			if (this.users <= 0)
+				this.users = 0;
+			this.users++;
+			console.log(`User Connected: ${socket.id} and there is ${this.users} clients connected`);
 
 			socket.once("join_room", (data) => {
 				socket.join(data);
@@ -47,9 +52,11 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 			socket.on("send_message", (data) => {
 				let message : CreateChatDto = new CreateChatDto();
 				message.body = data.message;
-				message.room_number = data.room;
+				message.room_number = data.room ? data.room : 0;
+				message.createdAt = new Date();
 				this.chatService.createMessage(message);
-				socket.to(data.room).emit("receive_message", data);
+				socket.to(data.room).emit("receive_message", message);
+				console.log(message);
 			});
 		});
 	}

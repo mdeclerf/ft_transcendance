@@ -58,37 +58,34 @@ const useStyles = makeStyles((theme) =>
   })
 );
 
+
 function App() {
   const classes = useStyles();
-  const [room, setRoom] = useState("");
+  const [room, setRoom] = useState("0");
   const [message, setMessage] = useState("");
   const [messageReceived, setMessageReceived] = useState("");
-  const [messageDate, setMessageDate] = useState("");
-  const [messageSender, setMessageSender] = useState("");
+  const [createdAt, setCreatedAt] = useState('');
   const sendMessage = () => {
+    //room = room ? room : 0;
     socket.emit('send_message', { message, room });
   };
 
   const joinRoom = () => {
     if (room !== "") {
-      socket.emit("join_room", room);
+      socket.emit("join_room", room ? room : 0);
     }
   };
 
+  const formatDate = (createdAt) => {
+    const options = { year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric" }
+    return new Date(createdAt).toLocaleDateString(undefined, options)
+  }
+
   useEffect(() => {
     socket.on("receive_message", (data) => {
-      setMessageReceived(data.message);
-      setMessageDate(data.createdAt);
-      console.log(data.createdAt);
-      setMessageSender(data.message_id);
+      setMessageReceived(data.body);
+      setCreatedAt(data.createdAt);
     });
-
-    
-    //socket.once("disconnected", () => {
-    //  console.log("police");
-    //  socket.close();
-    //  socket.disconnect();
-    //})
   },[])
 
   return (
@@ -113,28 +110,26 @@ function App() {
       <Paper id="style-1" className={classes.messagesBody}>
         <MessageLeft
           message={messageReceived}
-          timestamp={messageDate}
+          timestamp={formatDate(createdAt)}
           photoURL="https://lh3.googleusercontent.com/a-/AOh14Gi4vkKYlfrbJ0QLJTg_DLjcYyyK7fYoWRpz2r4s=s96-c"
           displayName="talker"
           avatarDisp={true}
         />
         <MessageLeft
           message="yo"
-          timestamp="MM/DD 00:00"
+          timestamp=''
           photoURL=""
           displayName="talker 2"
           avatarDisp={false}
         />
         <MessageRight
           message="coucou"
-          timestamp="MM/DD 00:00"
           photoURL="https://lh3.googleusercontent.com/a-/AOh14Gi4vkKYlfrbJ0QLJTg_DLjcYyyK7fYoWRpz2r4s=s96-c"
           displayName="adidion"
           avatarDisp={true}
         />
         <MessageRight
           message="salut"
-          timestamp="MM/DD 00:00"
           photoURL="https://lh3.googleusercontent.com/a-/AOh14Gi4vkKYlfrbJ0QLJTg_DLjcYyyK7fYoWRpz2r4s=s96-c"
           displayName="adidion"
           avatarDisp={false}
@@ -151,8 +146,6 @@ function App() {
                   if (event.key === 'Enter')
                   sendMessage();
                 }}
-                
-                //margin="normal"
             />
             <Button
                onClick={sendMessage}>
