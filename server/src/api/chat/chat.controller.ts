@@ -15,8 +15,8 @@ export class ChatController {
 	}
 	
 	@Get(':id')
-	public getMessage(@Param('id', ParseIntPipe) id: number) : Promise<Chat> {
-		return this.service.getMessage(id);
+	public getRoom(@Param('id', ParseIntPipe) id: number) : Promise<Chat[]> {
+		return this.service.getRoom(id);
 	}
 
 	@Post()

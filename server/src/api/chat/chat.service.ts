@@ -14,6 +14,12 @@ export class ChatService {
 		return this.repository.find();
 	}
 
+	public getRoom(room_id: number) : Promise<Chat[]> {
+		return this.repository.find({
+			where: [{room_number : room_id}],
+			order: {createdAt: "ASC"}
+		});
+	}
 
 	public getMessage(id: number): Promise<Chat> {
 		return this.repository.findOneBy({ message_id : id, });
