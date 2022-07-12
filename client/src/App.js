@@ -61,26 +61,45 @@ const useStyles = makeStyles((theme) =>
 
 function App() {
   const classes = useStyles();
-  const [room, setRoom] = useState("0");
+  const [room, setRoom] = useState("");
   const [message, setMessage] = useState("");
   const [messageReceived, setMessageReceived] = useState("");
   const [createdAt, setCreatedAt] = useState('');
+  const messagesRender = "";
+  
+  // SEND MESSAGE
   const sendMessage = () => {
-    //room = room ? room : 0;
     socket.emit('send_message', { message, room });
   };
-
+  
+  // JOIN A ROOM
   const joinRoom = () => {
     if (room !== "") {
-      socket.emit("join_room", room ? room : 0);
+      socket.emit("join_room", room);
     }
   };
-
+  
+  // RETURN A TIMESTAMP
   const formatDate = (createdAt) => {
     const options = { year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric" }
     return new Date(createdAt).toLocaleDateString(undefined, options)
   }
+  
+  // TRY TO MAKE THE FEED
+  const addMessage = (messageReceived, createdAt, messagesRender) => {
+    messagesRender += <MessageLeft message={messageReceived} timestamp={formatDate(createdAt)} photoURL="https://lh3.googleusercontent.com/a-/AOh14Gi4vkKYlfrbJ0QLJTg_DLjcYyyK7fYoWRpz2r4s=s96-c" displayName="talker" avatarDisp={true} />;
+    console.log(messagesRender);
+    return (messagesRender);
+  }
 
+  // SEND THE MESSAGE AND RESET (due to the onClick accepting only one function)
+  function send_and_reset()
+  {
+    sendMessage();
+    reset();
+  }
+  
+  // DEAL WITH EVENTS
   useEffect(() => {
     socket.on("receive_message", (data) => {
       setMessageReceived(data.body);
@@ -88,6 +107,12 @@ function App() {
     });
   },[])
 
+  // RESET THE FORM
+  function reset() {
+    document.getElementById("textareaInput").reset();
+  }
+  
+  // RETURN TO RENDER
   return (
     <div className="App">
       <input
@@ -108,20 +133,8 @@ function App() {
       {messageReceived}
     <Paper className={classes.paper}>
       <Paper id="style-1" className={classes.messagesBody}>
-        <MessageLeft
-          message={messageReceived}
-          timestamp={formatDate(createdAt)}
-          photoURL="https://lh3.googleusercontent.com/a-/AOh14Gi4vkKYlfrbJ0QLJTg_DLjcYyyK7fYoWRpz2r4s=s96-c"
-          displayName="talker"
-          avatarDisp={true}
-        />
-        <MessageLeft
-          message="yo"
-          timestamp=''
-          photoURL=""
-          displayName="talker 2"
-          avatarDisp={false}
-        />
+      <div {...messagesRender} className={addMessage(messageReceived, createdAt, messagesRender)}/>
+        {/* //{addMessage(messageReceived, createdAt, messagesRender)} */}
         <MessageRight
           message="coucou"
           photoURL="https://lh3.googleusercontent.com/a-/AOh14Gi4vkKYlfrbJ0QLJTg_DLjcYyyK7fYoWRpz2r4s=s96-c"
@@ -136,7 +149,7 @@ function App() {
         />
       </Paper>
       <>
-            <form className={classes.wrapForm}  noValidate autoComplete="off">
+            <form className={classes.wrapForm}  noValidate autoComplete="off" id="textareaInput">
             <TextField
                 placeholder='type your message'
                 onChange={(event) => {
@@ -144,11 +157,15 @@ function App() {
                 }}
                 onKeyDown={(event) => {
                   if (event.key === 'Enter')
-                  sendMessage();
+                  {
+                    sendMessage();
+                    event.preventDefault();//avoid refreshing at each enter
+                    reset();//clear the form
+                  }
                 }}
             />
             <Button
-               onClick={sendMessage}>
+               onClick={send_and_reset}>
                 <SendIcon />
             </Button>
             </form>
