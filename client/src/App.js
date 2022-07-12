@@ -95,7 +95,8 @@ function App() {
   // SEND THE MESSAGE AND RESET (due to the onClick accepting only one function)
   function send_and_reset()
   {
-    sendMessage();
+    if (message !== "")
+      sendMessage();
     reset();
   }
   
@@ -158,9 +159,11 @@ function App() {
                 onKeyDown={(event) => {
                   if (event.key === 'Enter')
                   {
-                    sendMessage();
+                    if (message !== "")
+                      sendMessage();
                     event.preventDefault();//avoid refreshing at each enter
                     reset();//clear the form
+                    setMessage('');
                   }
                 }}
             />
