@@ -1,6 +1,8 @@
-import { IsNotEmpty, IsString } from "class-validator";
+import { IsInt, IsNotEmpty, IsPositive, IsString, Min } from "class-validator";
 
 export class CreateChatDto{
+	@IsInt()
+	@IsPositive()
 	public room_number: number;
 
 	@IsString()
