@@ -1,12 +1,14 @@
 import './App.css';
 import io from 'socket.io-client'
 import { useEffect, useState } from "react";
-import { createStyles, makeStyles } from "@material-ui/core/styles";
+import { ChatFeed, Message } from "react-chat-ui";
 import { Paper } from "@material-ui/core";
-import { MessageLeft, MessageRight } from "./Message.js";
 import TextField from '@material-ui/core/TextField';
 import SendIcon from '@material-ui/icons/Send';
 import Button from '@material-ui/core/Button';
+import { createStyles, makeStyles } from "@material-ui/core/styles";
+//import Bubble from 'react-bubble';
+//import {View} from 'react-view';
 
 const socket = io('http://localhost:3001');
 
@@ -15,8 +17,8 @@ const useStyles = makeStyles((theme) =>
     paper: {
       width: "80vw",
       height: "80vh",
-      maxWidth: "500px",
-      maxHeight: "700px",
+      maxWidth: "2000px",
+      maxHeight: "2000px",
       display: "flex",
       alignItems: "center",
       flexDirection: "column",
@@ -24,7 +26,7 @@ const useStyles = makeStyles((theme) =>
     },
     paper2: {
       width: "80vw",
-      maxWidth: "500px",
+      maxWidth: "2000px",
       display: "flex",
       alignItems: "center",
       flexDirection: "column",
@@ -55,21 +57,29 @@ const useStyles = makeStyles((theme) =>
     button: {
         margin: theme.spacing(1),
     },
+    bubbleStyles: {
+      
+    }
   })
 );
-
 
 function App() {
   const classes = useStyles();
   const [room, setRoom] = useState("");
   const [message, setMessage] = useState("");
-  const [messageReceived, setMessageReceived] = useState("");
-  const [createdAt, setCreatedAt] = useState('');
-  const messagesRender = "";
+  const [messageReceived, setMessageReceived] = useState([]);
+  const [messages, setMessages] = useState([]);
   
   // SEND MESSAGE
   const sendMessage = () => {
     socket.emit('send_message', { message, room });
+    setMessages([...messages,
+      new Message({
+        id: 0,
+        message: message,
+        senderName: "adidion"
+      }), // Gray bubble
+    ])
   };
   
   // JOIN A ROOM
@@ -80,17 +90,10 @@ function App() {
   };
   
   // RETURN A TIMESTAMP
-  const formatDate = (createdAt) => {
-    const options = { year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric" }
-    return new Date(createdAt).toLocaleDateString(undefined, options)
-  }
-  
-  // TRY TO MAKE THE FEED
-  const addMessage = (messageReceived, createdAt, messagesRender) => {
-    messagesRender += <MessageLeft message={messageReceived} timestamp={formatDate(createdAt)} photoURL="https://lh3.googleusercontent.com/a-/AOh14Gi4vkKYlfrbJ0QLJTg_DLjcYyyK7fYoWRpz2r4s=s96-c" displayName="talker" avatarDisp={true} />;
-    console.log(messagesRender);
-    return (messagesRender);
-  }
+   //const formatDate = (createdAt) => {
+   //  const options = { year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric" }
+   //  return new Date(createdAt).toLocaleDateString(undefined, options)
+   //}
 
   // SEND THE MESSAGE AND RESET (due to the onClick accepting only one function)
   function send_and_reset()
@@ -104,9 +107,16 @@ function App() {
   useEffect(() => {
     socket.on("receive_message", (data) => {
       setMessageReceived(data.body);
-      setCreatedAt(data.createdAt);
+      setMessages([...messages,
+        new Message({
+          id: 1,
+          message: data.body,
+          senderName: "talker"
+        }), // Gray bubble
+      ])
+     // setCreatedAt(data.createdAt);
     });
-  },[])
+  },[messages])
 
   // RESET THE FORM
   function reset() {
@@ -122,7 +132,6 @@ function App() {
           setRoom(event.target.value);
         }}
       />
-      <button onClick={joinRoom}> Join Room</button>
       <input
         placeholder="Message..."
         onChange={(event) => {
@@ -132,22 +141,60 @@ function App() {
       <button onClick={sendMessage}> Send Message</button>
       <h1> Message:</h1>
       {messageReceived}
+      <button onClick={joinRoom}> Join Room</button>
+      <>
     <Paper className={classes.paper}>
       <Paper id="style-1" className={classes.messagesBody}>
-      <div {...messagesRender} className={addMessage(messageReceived, createdAt, messagesRender)}/>
-        {/* //{addMessage(messageReceived, createdAt, messagesRender)} */}
-        <MessageRight
-          message="coucou"
-          photoURL="https://lh3.googleusercontent.com/a-/AOh14Gi4vkKYlfrbJ0QLJTg_DLjcYyyK7fYoWRpz2r4s=s96-c"
-          displayName="adidion"
-          avatarDisp={true}
-        />
-        <MessageRight
-          message="salut"
-          photoURL="https://lh3.googleusercontent.com/a-/AOh14Gi4vkKYlfrbJ0QLJTg_DLjcYyyK7fYoWRpz2r4s=s96-c"
-          displayName="adidion"
-          avatarDisp={false}
-        />
+      <ChatFeed
+      messages={messages} // Boolean: list of message objects
+      isTyping={false} // Boolean: is the recipient typing
+      hasInputField={false} // Boolean: use our input, or use your own
+      showSenderName={true} // show the name of the user who sent the message
+      bubblesCentered={true} //Boolean should the bubbles be centered in the feed?
+      // JSON: Custom bubble styles
+      bubbleStyles={{
+        text: {
+          fontSize: 15
+        },
+        chatbubble: {
+          borderRadius: 20,
+          padding: 15,
+          margin: 0
+        },
+        chatbubbleWrapper: {
+          overflow: 'auto',
+      },
+      // chatbubble: {
+      //     backgroundColor: '#0084FF',
+      //     borderRadius: 20,
+      //     marginTop: 1,
+      //     marginRight: 'auto',
+      //     marginBottom: 1,
+      //     marginLeft: 'auto',
+      //     maxWidth: 425,
+      //     paddingTop: 8,
+      //     paddingBottom: 8,
+      //     paddingLeft: 14,
+      //     paddingRight: 14,
+      //     width: '-webkit-fit-content',
+      // },
+      // chatbubbleOrientationNormal: {
+      //     float: 'right',
+      // },
+      // recipientChatbubble: {
+      //     backgroundColor: '#ccc',
+      // },
+      // recipientChatbubbleOrientationNormal: {
+      //     float: 'left',
+      // },
+      // p: {
+      //     color: '#FFFFFF',
+      //     fontSize: 16,
+      //     fontWeight: '300',
+      //     margin: 0,
+      // },
+      }}
+    />
       </Paper>
       <>
             <form className={classes.wrapForm}  noValidate autoComplete="off" id="textareaInput">
@@ -174,6 +221,7 @@ function App() {
             </form>
         </>
     </Paper>
+        </>
   </div>
   );
 }

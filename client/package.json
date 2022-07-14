@@ -17,11 +17,16 @@
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.34",
     "react": "^18.2.0",
+    "react-bubble": "^1.0.5",
     "react-chat-bubble": "^0.8.7",
+    "react-chat-plugin": "^0.1.17",
+    "react-chat-ui": "^0.4.0",
     "react-chat-widget": "^3.1.4",
     "react-dom": "^18.2.0",
     "react-moment": "^1.1.2",
     "react-scripts": "5.0.1",
+    "react-text": "^3.2.4",
+    "react-view": "^2.3.7",
     "socket.io-client": "^4.5.1",
     "stream-chat": "^6.7.3",
     "stream-chat-react": "^9.1.4",
@@ -30,7 +35,7 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
+    "start": "GENERATE_SOURCEMAP=false react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
