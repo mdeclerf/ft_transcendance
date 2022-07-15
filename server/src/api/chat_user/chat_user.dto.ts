@@ -1,6 +1,6 @@
 import { IsInt, IsPositive, Max, Min } from "class-validator";
 
-export class CreateChatUserDto{
+export class CreateChatUserDto {
 
 	@IsInt()
 	@IsPositive()
