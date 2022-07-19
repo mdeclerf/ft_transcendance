@@ -1,5 +1,5 @@
 {
-  "name": "client",
+  "name": "chat",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -8,12 +8,16 @@
     "@material-ui/core": "^4.12.4",
     "@material-ui/icons": "^4.11.3",
     "@material-ui/styles": "^4.11.5",
-    "@mui/material": "^5.8.7",
+    "@mui/material": "^5.9.1",
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
-    "@typescript-eslint/parser": "^5.30.5",
-    "dompurify": "^2.3.9",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.11.45",
+    "@types/react": "^18.0.15",
+    "@types/react-dom": "^18.0.6",
+    "@typescript-eslint/parser": "^5.30.7",
+    "dompurify": "^2.3.10",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.34",
     "react": "^18.2.0",
@@ -24,12 +28,13 @@
     "react-chat-widget": "^3.1.4",
     "react-dom": "^18.2.0",
     "react-moment": "^1.1.2",
-    "react-scripts": "5.0.1",
+    "react-scripts": "^5.0.1",
     "react-text": "^3.2.4",
     "react-view": "^2.3.7",
     "socket.io-client": "^4.5.1",
     "stream-chat": "^6.7.3",
-    "stream-chat-react": "^9.1.4",
+    "stream-chat-react": "^9.1.5",
+    "typescript": "^4.7.4",
     "use-clippy": "^1.0.8",
     "use-immer": "^0.7.0",
     "web-vitals": "^2.1.4"
@@ -57,9 +62,5 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  },
-  "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^5.30.5",
-    "eslint": "^8.19.0"
   }
 }

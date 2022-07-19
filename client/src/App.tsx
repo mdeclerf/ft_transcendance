@@ -55,20 +55,43 @@ const useStyles = makeStyles((theme) =>
         width: "100%"
     },
     button: {
-        margin: theme.spacing(1),
+      backgroundColor: "#fff",
+      borderColor: "#1D2129",
+      borderStyle: "solid",
+      borderRadius: 20,
+      borderWidth: 2,
+      color: "#1D2129",
+      fontSize: 18,
+      // fontWeight: "300",
+      paddingTop: 8,
+      paddingBottom: 8,
+      paddingLeft: 16,
+      paddingRight: 16,
+      outline: "none"
     },
-    bubbleStyles: {
-      
+    selected: {
+      color: "#fff",
+      backgroundColor: "#0084FF",
+      borderColor: "#0084FF"
     }
   })
 );
 
+const customBubble = (props: any) => (
+  // <div>
+  //   <p>{`${props.message.senderName} ${props.message.id ? "says" : "said"}: ${
+  //     props.message.message
+  //   }`}</p>
+    <div className="imessage">
+    <p className={`${props.message.id ? "from-them" : "from-me"}`}>{props.message.message}</p>
+    </div>
+);
+
 function App() {
   const classes = useStyles();
-  const [room, setRoom] = useState("");
-  const [message, setMessage] = useState("");
-  const [messageReceived, setMessageReceived] = useState([]);
-  const [messages, setMessages] = useState([]);
+  const [room, setRoom] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
+  const [messages, setMessages] = useState<Array<Message>>([]);
   
   // SEND MESSAGE
   const sendMessage = () => {
@@ -89,11 +112,6 @@ function App() {
     }
   };
   
-  // RETURN A TIMESTAMP
-   //const formatDate = (createdAt) => {
-   //  const options = { year: "numeric", month: "long", day: "numeric", hour: "numeric", minute: "numeric" }
-   //  return new Date(createdAt).toLocaleDateString(undefined, options)
-   //}
 
   // SEND THE MESSAGE AND RESET (due to the onClick accepting only one function)
   function send_and_reset()
@@ -106,7 +124,7 @@ function App() {
   // DEAL WITH EVENTS
   useEffect(() => {
     socket.on("receive_message", (data) => {
-      setMessageReceived(data.body);
+
       setMessages([...messages,
         new Message({
           id: 1,
@@ -120,7 +138,7 @@ function App() {
 
   // RESET THE FORM
   function reset() {
-    document.getElementById("textareaInput").reset();
+    (document.getElementById("textareaInput") as HTMLFormElement).reset();
   }
   
   // RETURN TO RENDER
@@ -132,15 +150,6 @@ function App() {
           setRoom(event.target.value);
         }}
       />
-      <input
-        placeholder="Message..."
-        onChange={(event) => {
-          setMessage(event.target.value);
-        }}
-      />
-      <button onClick={sendMessage}> Send Message</button>
-      <h1> Message:</h1>
-      {messageReceived}
       <button onClick={joinRoom}> Join Room</button>
       <>
     <Paper className={classes.paper}>
@@ -152,48 +161,7 @@ function App() {
       showSenderName={true} // show the name of the user who sent the message
       bubblesCentered={true} //Boolean should the bubbles be centered in the feed?
       // JSON: Custom bubble styles
-      bubbleStyles={{
-        text: {
-          fontSize: 15
-        },
-        chatbubble: {
-          borderRadius: 20,
-          padding: 15,
-          margin: 0
-        },
-        chatbubbleWrapper: {
-          overflow: 'auto',
-      },
-      // chatbubble: {
-      //     backgroundColor: '#0084FF',
-      //     borderRadius: 20,
-      //     marginTop: 1,
-      //     marginRight: 'auto',
-      //     marginBottom: 1,
-      //     marginLeft: 'auto',
-      //     maxWidth: 425,
-      //     paddingTop: 8,
-      //     paddingBottom: 8,
-      //     paddingLeft: 14,
-      //     paddingRight: 14,
-      //     width: '-webkit-fit-content',
-      // },
-      // chatbubbleOrientationNormal: {
-      //     float: 'right',
-      // },
-      // recipientChatbubble: {
-      //     backgroundColor: '#ccc',
-      // },
-      // recipientChatbubbleOrientationNormal: {
-      //     float: 'left',
-      // },
-      // p: {
-      //     color: '#FFFFFF',
-      //     fontSize: 16,
-      //     fontWeight: '300',
-      //     margin: 0,
-      // },
-      }}
+      chatBubble={true && customBubble}
     />
       </Paper>
       <>
