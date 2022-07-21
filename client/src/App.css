@@ -1,6 +1,3 @@
-.App {
-  /* text-align: center; */
-}
 
 .App-logo {
   height: 40vmin;
@@ -121,7 +118,7 @@ input:focus {
   flex-direction: column;
   font-family: "SanFrancisco";
   font-size: 1.25rem;
-  /* margin: 0 auto 1rem; */
+  margin: 40 auto 1rem;
   /* max-width: 600px; */
   padding: 0.5rem 1.5rem;
 }

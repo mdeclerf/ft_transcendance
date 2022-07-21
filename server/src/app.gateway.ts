@@ -45,8 +45,14 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 			this.users++;
 			console.log(`User Connected: ${socket.id} and there is ${this.users} clients connected`);
 
-			socket.once("join_room", (data) => {
+			socket.on("join_room", (data) => {
 				socket.join(data);
+				this.chatService.getRoom(data)
+				.then(function(result){
+					const ret = Object.values(result);
+					socket.emit("joined_room", ret);
+					console.log(ret);
+				});
 			});
 
 			socket.on("send_message", (data) => {

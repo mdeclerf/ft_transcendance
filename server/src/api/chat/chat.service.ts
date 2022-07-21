@@ -34,5 +34,12 @@ export class ChatService {
 		message.createdAt = body.createdAt;
 		return message;
 	}
+
+	public getRoom(room_id: number) : Promise<Chat[]> {
+		return this.repository.find({
+			where: [{room_number : room_id}],
+			order: {createdAt: "ASC"}
+		});
+	}
 	
 }

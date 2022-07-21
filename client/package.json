@@ -1,5 +1,5 @@
 {
-  "name": "chat",
+  "name": "client",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -20,6 +20,7 @@
     "dompurify": "^2.3.10",
     "moment": "^2.29.4",
     "moment-timezone": "^0.5.34",
+    "nodemon": "^2.0.19",
     "react": "^18.2.0",
     "react-bubble": "^1.0.5",
     "react-chat-bubble": "^0.8.7",
@@ -47,8 +48,7 @@
   },
   "eslintConfig": {
     "extends": [
-      "react-app",
-      "react-app/jest"
+      "react-app"
     ]
   },
   "browserslist": {

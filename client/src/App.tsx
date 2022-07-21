@@ -123,8 +123,9 @@ function App() {
   
   // DEAL WITH EVENTS
   useEffect(() => {
+    console.log("hyyy");
     socket.on("receive_message", (data) => {
-
+      console.log("here");
       setMessages([...messages,
         new Message({
           id: 1,
@@ -133,6 +134,21 @@ function App() {
         }), // Gray bubble
       ])
      // setCreatedAt(data.createdAt);
+    });
+    socket.on("joined_room", (data) => {
+      console.log(Object.keys(data).length);
+      messages.splice(0, messages.length);
+      setMessages([]);
+      data.forEach(function(value: any, key: any) {
+        messages.push(new Message({
+            id: 1,
+            message: data[key].body,
+            senderName: "talker"
+          }), // Gray bubble
+        );
+        setMessages([...messages]);
+      })
+       // setCreatedAt(data.createdAt);
     });
   },[messages])
 
