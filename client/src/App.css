@@ -118,6 +118,7 @@ input:focus {
 
 .imessage {
   background-color: rgb(220,220,220);
+  margin: 0%;
   /* border: 1px solid #e5e5ea; */
   border-radius: 0.25rem;
   display: flex;

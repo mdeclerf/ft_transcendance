@@ -43,10 +43,7 @@ export class ChatService {
 	}
 
 	public getActiveRooms() : Promise<Chat[]> {
-		return this.repository.find({
-			select: ["room_number"],
-			order: {room_number: "ASC"}
-		});
+		return this.repository.createQueryBuilder('').select(['room_number']).orderBy('room_number').distinct().getRawMany();
 	}
 	
 }

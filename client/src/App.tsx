@@ -17,9 +17,7 @@ const useStyles = makeStyles((theme) =>
   createStyles({
     paper: {
       width: "100%",
-      height: "90vh",
-      // maxWidth: "2000px",
-      // maxHeight: "2000px",
+      height: "100vh",
       display: "inline-block",
       alignItems: "right",
       flexDirection: "column",
@@ -45,11 +43,11 @@ const useStyles = makeStyles((theme) =>
     wrapForm : {
         display: "flex",
         justifyContent: "center",
-        width: "65%",
-        margin: `${theme.spacing(0)} auto`
+        width: "100%",
+        margin: `0`
     },
     wrapText  : {
-        width: "70%"
+        width: "100%"
     },
     button: {
       backgroundColor: "#fff",
@@ -75,21 +73,20 @@ const useStyles = makeStyles((theme) =>
 );
 
 const customBubble = (props: any) => (
-  // <div>
-  //   <p>{`${props.message.senderName} ${props.message.id ? "says" : "said"}: ${
-  //     props.message.message
-  //   }`}</p>
     <div className="imessage">
     <p className={`${props.message.id ? "from-them" : "from-me"}`}>{props.message.message}</p>
     </div>
 );
+
+
 
 function App() {
   const classes = useStyles();
   const [room, setRoom] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<Array<Message>>([]);
-  
+  const [rooms, setRooms] = useState<Array<number>>([]);
+
   // SEND MESSAGE
 const sendMessage = () => {
     socket.emit('send_message', { message, room });
@@ -98,7 +95,7 @@ const sendMessage = () => {
         id: 0,
         message: message,
         senderName: "adidion"
-      }), // Gray bubble
+      }),
     ])
   };
   
@@ -107,6 +104,11 @@ const sendMessage = () => {
     if (room !== "") {
       socket.emit("join_room", room);
     }
+  };
+
+  const joinChannel = (room_number: number) => {
+    setRoom(room_number.toString());
+      socket.emit("join_room", room_number.toString());
   };
   
 
@@ -117,23 +119,21 @@ const sendMessage = () => {
       sendMessage();
     reset();
   }
+
   
   // DEAL WITH EVENTS
   useEffect(() => {
-    console.log("hyyy");
     socket.on("receive_message", (data) => {
-      console.log("here");
       setMessages([...messages,
         new Message({
           id: 1,
           message: data.body,
           senderName: "talker"
-        }), // Gray bubble
+        }),
       ])
      // setCreatedAt(data.createdAt);
     });
     socket.on("joined_room", (data) => {
-      console.log(Object.keys(data).length);
       messages.splice(0, messages.length);
       setMessages([]);
       data.forEach(function(value: any, key: any) {
@@ -141,13 +141,23 @@ const sendMessage = () => {
             id: 1,
             message: data[key].body,
             senderName: "talker"
-          }), // Gray bubble
+          }),
         );
         setMessages([...messages]);
-      })
-       // setCreatedAt(data.createdAt);
+      });
     });
-  },[messages])
+    socket.on("connected", (data) => {
+      rooms.splice(0, rooms.length);
+      setRooms([]);
+      data.forEach(function(value: any, key: any) {
+        rooms.push(data[key].room_number);
+      });
+      setRooms([...rooms]);
+      if (room === "")
+        socket.emit("join_room", "0");
+      console.log("here");
+    });
+  }, [messages, rooms, room])
 
   // RESET THE FORM
   function reset() {
@@ -156,35 +166,43 @@ const sendMessage = () => {
   
   // RETURN TO RENDER
   return (
-   // <div className="App">
-    
-      <>
+  <>
     <div className="columns">
-    <div className="col1">
-    </div>
-    <div className="col2">
-      <input
-        placeholder="Room Number..."
-        onChange={(event) => {
-          setRoom(event.target.value);
-        }}
-      />
-        <button onClick={joinRoom}> Join Room</button>
-    <Paper className={classes.paper}>
-      <Paper id="style-1" className={classes.messagesBody}>
-      <ChatFeed
-      messages={messages} // Boolean: list of message objects
-      isTyping={false} // Boolean: is the recipient typing
-      hasInputField={false} // Boolean: use our input, or use your own
-      showSenderName={true} // show the name of the user who sent the message
-      bubblesCentered={true} //Boolean should the bubbles be centered in the feed?
-      // JSON: Custom bubble styles
-      chatBubble={true && customBubble}
-    />
-      </Paper>
-      <>
+      <div className="col1">
+        <Paper className={classes.paper}>
+          <div> {rooms.map(room_number => {
+            return (
+              <button key={room_number} onClick={() =>joinChannel(room_number)}>
+                {room_number}
+              </button>
+            )
+          })}
+          </div>
+          <input
+            placeholder="Room Number..."
+            onChange={(event) => {
+              setRoom(event.target.value);
+            }}
+          />
+          <button onClick={joinRoom}> Join Room</button>
+        </Paper>
+      </div>
+      <div className="col2">
+        <Paper className={classes.paper}>
+          <Paper id="style-1" className={classes.messagesBody}>
+            <ChatFeed
+              messages={messages} // Boolean: list of message objects
+              isTyping={false} // Boolean: is the recipient typing
+              hasInputField={false} // Boolean: use our input, or use your own
+              showSenderName={true} // show the name of the user who sent the message
+              bubblesCentered={true} //Boolean should the bubbles be centered in the feed?
+              // JSON: Custom bubble styles
+              chatBubble={true && customBubble}
+            />
+          </Paper>
+          <>
             <form className={classes.wrapForm}  noValidate autoComplete="off" id="textareaInput">
-            <TextField
+              <TextField
                 placeholder='type your message'
                 onChange={(event) => {
                   setMessage(event.target.value);
@@ -199,19 +217,17 @@ const sendMessage = () => {
                     setMessage('');
                   }
                 }}
-            />
-            <Button
-               onClick={send_and_reset}>
+              />
+              <Button
+                onClick={send_and_reset}>
                 <SendIcon />
-            </Button>
+              </Button>
             </form>
-        </>
-    </Paper>
-      
+          </>
+        </Paper>
       </div>  
     </div>
-        </>
-  //</div>
+  </>
   );
 }
 
