@@ -41,5 +41,12 @@ export class ChatService {
 			order: {createdAt: "ASC"}
 		});
 	}
+
+	public getActiveRooms() : Promise<Chat[]> {
+		return this.repository.find({
+			select: ["room_number"],
+			order: {room_number: "ASC"}
+		});
+	}
 	
 }

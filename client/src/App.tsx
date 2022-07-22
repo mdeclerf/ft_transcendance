@@ -7,6 +7,7 @@ import TextField from '@material-ui/core/TextField';
 import SendIcon from '@material-ui/icons/Send';
 import Button from '@material-ui/core/Button';
 import { createStyles, makeStyles } from "@material-ui/core/styles";
+
 //import Bubble from 'react-bubble';
 //import {View} from 'react-view';
 
@@ -15,44 +16,40 @@ const socket = io('http://localhost:3001');
 const useStyles = makeStyles((theme) =>
   createStyles({
     paper: {
-      width: "80vw",
-      height: "80vh",
-      maxWidth: "2000px",
-      maxHeight: "2000px",
-      display: "flex",
-      alignItems: "center",
+      width: "100%",
+      height: "90vh",
+      // maxWidth: "2000px",
+      // maxHeight: "2000px",
+      display: "inline-block",
+      alignItems: "right",
       flexDirection: "column",
-      position: "relative"
-    },
-    paper2: {
-      width: "80vw",
-      maxWidth: "2000px",
-      display: "flex",
-      alignItems: "center",
-      flexDirection: "column",
-      position: "relative"
+      position: "relative",
+      backgroundColor: "rgb(220,220,220)",
+      verticalAlign: "right",
     },
     container: {
       width: "100vw",
       height: "100vh",
       display: "flex",
       alignItems: "center",
-      justifyContent: "center"
+      justifyContent: "center",
+      margin: "0",
     },
     messagesBody: {
-      width: "calc( 100% - 20px )",
-      margin: 10,
+      width: "calc( 100% - 000px )",
+      margin: 0,
       overflowY: "scroll",
-      height: "calc( 100% - 80px )"
+      height: "calc( 100% - 80px )",
+      backgroundColor: "rgb(220,220,220)"
     },
     wrapForm : {
         display: "flex",
         justifyContent: "center",
-        width: "95%",
+        width: "65%",
         margin: `${theme.spacing(0)} auto`
     },
     wrapText  : {
-        width: "100%"
+        width: "70%"
     },
     button: {
       backgroundColor: "#fff",
@@ -94,7 +91,7 @@ function App() {
   const [messages, setMessages] = useState<Array<Message>>([]);
   
   // SEND MESSAGE
-  const sendMessage = () => {
+const sendMessage = () => {
     socket.emit('send_message', { message, room });
     setMessages([...messages,
       new Message({
@@ -159,15 +156,20 @@ function App() {
   
   // RETURN TO RENDER
   return (
-    <div className="App">
+   // <div className="App">
+    
+      <>
+    <div className="columns">
+    <div className="col1">
+    </div>
+    <div className="col2">
       <input
         placeholder="Room Number..."
         onChange={(event) => {
           setRoom(event.target.value);
         }}
       />
-      <button onClick={joinRoom}> Join Room</button>
-      <>
+        <button onClick={joinRoom}> Join Room</button>
     <Paper className={classes.paper}>
       <Paper id="style-1" className={classes.messagesBody}>
       <ChatFeed
@@ -191,7 +193,7 @@ function App() {
                   if (event.key === 'Enter')
                   {
                     if (message !== "")
-                      sendMessage();
+                    sendMessage();
                     event.preventDefault();//avoid refreshing at each enter
                     reset();//clear the form
                     setMessage('');
@@ -205,8 +207,11 @@ function App() {
             </form>
         </>
     </Paper>
+      
+      </div>  
+    </div>
         </>
-  </div>
+  //</div>
   );
 }
 
