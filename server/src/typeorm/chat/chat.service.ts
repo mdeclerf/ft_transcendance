@@ -29,11 +29,21 @@ export class ChatService {
 		return this.repository.findOneBy({ message_id : id, });
 	}
 
+	//Add a message to the database from the DTO
 	public createMessage(body: CreateChatDto) : Promise<Chat> {
 		const message: Chat = new Chat();
 
 		message.room_number = body.room_number;
 		message.body = body.body;
 		return this.repository.save(message);
+	}
+
+	//Return the last message of a given room
+	public getLastMessage(room_id: number)  : Promise<Chat> {
+
+		return this.repository.findOne({
+			where: [{room_number : room_id}],
+			order : {createdAt: 'DESC'}
+			});
 	}
 }
