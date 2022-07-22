@@ -21,6 +21,14 @@ export class ChatService {
 		});
 	}
 
+	public getActiveRooms() : Promise<Chat[]> {
+		return this.repository.find({
+			select: ["room_number"],
+			order: {room_number: "ASC"}
+		});
+		//return this.repository.createQueryBuilder('').
+	}
+
 	public getMessage(id: number): Promise<Chat> {
 		return this.repository.findOneBy({ message_id : id, });
 	}
