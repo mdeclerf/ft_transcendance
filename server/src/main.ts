@@ -1,22 +1,33 @@
-import { ValidationPipe } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import { NestFactory } from '@nestjs/core';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import { join } from 'path';
 import { AppModule } from './app.module';
+import * as session from 'express-session';
+import * as passport from 'passport';
+import { TypeormStore } from 'connect-typeorm/out';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { Session } from './typeorm/typeorm.module';
 
 async function bootstrap() {
-  const app: NestExpressApplication = await NestFactory.create(AppModule);
-  const config: ConfigService = app.get(ConfigService);
-  const port: number = config.get<number>('PORT');
-
-  app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }));
-
-  app.setBaseViewsDir(join (__dirname, '../..', 'client/src'));
-  app.setViewEngine('ejs');
-  await app.listen(port, () => {
-    console.log('[WEB]', config.get<string>('BASE_URL'));
+  const app = await NestFactory.create(AppModule);
+  const PORT = process.env.PORT || 3001;
+  const sessionRepo = app.get(getRepositoryToken(Session));
+  app.setGlobalPrefix('api');
+  app.enableCors({
+    origin: ['http://localhost:3000'],
+    credentials: true,
   });
+  app.use(
+    session({
+      cookie: {
+        maxAge: 360000 * 24,
+      },
+      secret: process.env.COOKIE_SECRET,
+      resave: false,
+      saveUninitialized: false,
+      store: new TypeormStore().connect(sessionRepo),
+    }),
+  );
+  app.use(passport.initialize());
+  app.use(passport.session());
+  await app.listen(PORT, () => { console.log(`Running on port ${PORT}`) });
 }
-
 bootstrap();
