@@ -12,6 +12,6 @@ export class Chat {
 	@Column({type: 'text'})
 	public body: string;
 
-	@CreateDateColumn({ type: 'timestamp'})
+	@CreateDateColumn({name: 'createdat', type: 'timestamp'})
 	public createdAt!: Date;
 }

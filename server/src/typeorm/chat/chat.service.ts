@@ -10,10 +10,12 @@ export class ChatService {
 	@InjectRepository(Chat)
 	private readonly repository: Repository<Chat>;
 
+	//get all the table
 	public	getChat() : Promise<Chat[]> {
 		return this.repository.find();
 	}
 
+	//Return every message of a room
 	public getRoom(room_id: number) : Promise<Chat[]> {
 		return this.repository.find({
 			where: [{room_number : room_id}],
@@ -21,8 +23,13 @@ export class ChatService {
 		});
 	}
 
+	//Return every room with at least 1 message(s)
 	public getActiveRooms() : Promise<Chat[]> {
-		return this.repository.createQueryBuilder('').select(['room_number']).orderBy('room_number').distinct().getRawMany();
+		return this.repository.createQueryBuilder('')
+		.select(['room_number', "MAX(createdat) as createdAt"])
+		.groupBy('room_number')
+		.orderBy('createdat', 'DESC')
+		.getRawMany();
 	}
 
 	public getMessage(id: number): Promise<Chat> {
