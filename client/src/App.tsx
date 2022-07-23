@@ -58,7 +58,8 @@ const useStyles = makeStyles((theme) =>
         minWidth: "0",
         justifyContent: "center",
         width: "100%",
-        margin: `0`
+        paddingTop: "5%",
+        margin: `0`,
     },
     wrapText  : {
         width: "100%"
