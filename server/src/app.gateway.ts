@@ -44,11 +44,10 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 				this.users = 0;
 			this.users++;
 			this.chatService.getActiveRooms()
-				.then(function(result){
-					const ret = Object.values(result);
-					socket.emit("connected", ret);
-					console.log(ret);
-				});
+			.then(function(result){
+				const ret = Object.values(result);
+				socket.emit("connected", ret);
+			});
 			console.log(`User Connected: ${socket.id} and there is ${this.users} clients connected`);
 
 			socket.on("join_room", (data) => {
@@ -57,7 +56,6 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 				.then(function(result){
 					const ret = Object.values(result);
 					socket.emit("joined_room", ret);
-					console.log(ret);
 				});
 			});
 
