@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity({ name: 'users' })
 export class User {
@@ -23,4 +23,8 @@ export class User {
 
 	@Column ({default: false})
 	public isTwoFactorAuthenticationEnabled: boolean;
+
+	@ManyToMany(() => User, user => user.id)
+	@JoinTable()
+	friends: User[]
 }

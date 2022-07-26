@@ -3,9 +3,10 @@ import * as React from 'react';
 import Svg42Logo from './Svg42Logo';
 import { styled, alpha } from '@mui/material/styles';
 import { Account } from './Account';
-import { User } from '../utils/types';
+import { User, UserResponse } from '../utils/types';
 import InputBase from '@mui/material/InputBase';
 import SearchIcon from '@mui/icons-material/Search';
+import axios from 'axios';
 
 //searchbar
 const Search = styled('div')(({ theme }) => ({
@@ -68,6 +69,16 @@ export function Header (props: IHeaderProps) {
 
 	const [search, setSearch] = React.useState<string>("");
 
+	const addFriend = () => {
+		axios.get<UserResponse>(`http://localhost:3001/api/user/${search}`, { withCredentials: true })
+		.then(({ data }) => {
+			if (data.found)
+				axios.get<UserResponse>(`http://localhost:3001/api/user/${search}`, { withCredentials: true })
+			else
+				window.alert("This user doesn't exist!");
+		})
+	}
+
 	const searchBar = (
 		<Search>
 		<SearchIconWrapper>
@@ -83,7 +94,7 @@ export function Header (props: IHeaderProps) {
 			if (event.key === 'Enter')
 			{
 			  if (search !== "")
-				
+				addFriend();
 			  event.preventDefault();//avoid refreshing at each enter
 			  setSearch('');
 			}
