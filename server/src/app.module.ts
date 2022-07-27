@@ -7,7 +7,6 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { entities, OrmModule } from './typeorm/typeorm.module';
 import { UserModule } from './user/user.module';
-import { FriendlistModule } from './friendlist/friendlist.module'
 
 @Module({
   imports: [
@@ -25,7 +24,6 @@ import { FriendlistModule } from './friendlist/friendlist.module'
       synchronize: true,
     }),
     UserModule,
-	FriendlistModule,
 	OrmModule
   ],
   controllers: [AppController],

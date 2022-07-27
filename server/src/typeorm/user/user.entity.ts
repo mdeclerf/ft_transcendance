@@ -24,7 +24,7 @@ export class User {
 	@Column ({default: false})
 	public isTwoFactorAuthenticationEnabled: boolean;
 
-	@ManyToMany(() => User, user => user.id)
-	@JoinTable()
-	friends: User[]
+	// @ManyToMany(() => User, user => user.id)
+	// @JoinTable()
+	// friends: User[]
 }

@@ -39,7 +39,7 @@ function App() {
 		setTwoFactorCode(res);
 		AuthInputDivRef.current?.classList.remove('error');
 	}
-	
+
 	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 		axios
 			.post('http://localhost:3001/api/2fa/authenticate', { twoFactorAuthCode: twoFactorCode }, { withCredentials: true})

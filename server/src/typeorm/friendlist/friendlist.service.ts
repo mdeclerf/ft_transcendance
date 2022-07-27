@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { resolve } from 'path';
 import { Repository } from 'typeorm';
 import { CreateFriendlistDto } from './friendlist.dto';
 import { Friendlist } from './friendlist.entity';
@@ -26,6 +27,17 @@ export class FriendlistService {
 			where: [{friend_id : friend_id}],
 			order: {createdAt: "ASC"}
 		});
+	}
+
+	public isFriendWith(user_id: number, friend_id: number): Promise<boolean> {
+		return this.repository.count({
+			where: [
+				{user_id: user_id,
+				friend_id: friend_id}
+			]
+		}).then(function(size: number){
+			return (size != 0);
+		})
 	}
 
 	public createFriendlink(body: CreateFriendlistDto): Promise<Friendlist> {

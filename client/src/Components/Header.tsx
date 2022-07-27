@@ -73,7 +73,21 @@ export function Header (props: IHeaderProps) {
 		axios.get<UserResponse>(`http://localhost:3001/api/user/${search}`, { withCredentials: true })
 		.then(({ data }) => {
 			if (data.found)
-				axios.get<UserResponse>(`http://localhost:3001/api/user/${search}`, { withCredentials: true })
+			{
+				const friend = data.user;
+				axios.get<boolean>(`http://localhost:3001/api/friendlist/isfriend/${user?.id}/${data.user.id}`, { withCredentials: true })
+				.then(({ data }) => {
+					console.log(data);
+					if (data)
+						window.alert("You're already friends with this user!");
+					else
+						axios
+						.post('http://localhost:3001/api/friendlist', { "user_id": user?.id, "friend_id": friend.id }, { withCredentials: true })
+						.then(() => {
+							console.log("Friend added :)");
+						})
+				});
+			}
 			else
 				window.alert("This user doesn't exist!");
 		})

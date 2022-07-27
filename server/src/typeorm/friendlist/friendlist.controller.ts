@@ -19,6 +19,11 @@ export class FriendlistController {
 		return this.service.getFriendOf(id);
 	}
 
+	@Get('isFriend/:user_id/:friend_id')
+	public isFriendWith(@Param('user_id', ParseIntPipe) user_id: number, @Param('friend_id', ParseIntPipe) friend_id: number): Promise<boolean> {
+		return this.service.isFriendWith(user_id, friend_id);
+	}
+
 	@Post()
 	public createFriendlink(@Body() body: CreateFriendlistDto): Promise<Friendlist> {
 		return this.service.createFriendlink(body);
