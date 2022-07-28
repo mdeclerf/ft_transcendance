@@ -26,8 +26,7 @@ import { ChatModule } from './typeorm/chat/chat.module';
       synchronize: true,
     }),
     UserModule,
-	OrmModule,
-	ChatModule
+	OrmModule
   ],
   controllers: [AppController],
   providers: [AppService, AppGateway],

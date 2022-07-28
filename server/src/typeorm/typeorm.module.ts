@@ -19,17 +19,24 @@ import { Friendlist } from './friendlist/friendlist.entity';
 	imports: [
 		UserModule,
 		SessionModule,
-		// ChatModule,
+		ChatModule,
 		ChatUserModule,
 		FriendlistModule
 	],
 	controllers: [
 		UserController,
 		SessionController,
-		// ChatController,
+		ChatController,
 		ChatUserController,
 		FriendlistController
 	],
+	exports: [
+		UserModule,
+		SessionModule,
+		ChatModule,
+		ChatUserModule,
+		FriendlistModule
+	]
 })
 export class OrmModule {}
 
