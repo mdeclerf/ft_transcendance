@@ -7,8 +7,9 @@ import TextField from '@material-ui/core/TextField';
 import SendIcon from '@material-ui/icons/Send';
 import Button from '@material-ui/core/Button';
 import { createStyles, makeStyles } from "@material-ui/core/styles";
+import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
 
-const socket = io('http://localhost:3001');
+const socket = io('http://localhost:3001', { transports : ['websocket'], secure: true });
 
 const useStyles = makeStyles((theme) =>
   createStyles({
@@ -20,6 +21,23 @@ const useStyles = makeStyles((theme) =>
       backgroundColor: "rgb(220,220,220)",
       overflowY: "scroll",
       padding: "0",
+    },
+    settings: {
+      alignSelf: "flex-end",
+      display: "inline-block",
+      position: 'absolute',
+      top: "0px",
+      right: "20px",
+    },
+    buttonSettings: {
+      alignSelf: "flex-end",
+      display: "inline-block",
+      position: 'absolute',
+      top: "0px",
+      right: "20px",
+      padding: "16px",
+      backgroundColor: "transparent",
+      border: "0"
     },
     // PAPIER DE DROITE
     paper2: {
@@ -58,7 +76,7 @@ const useStyles = makeStyles((theme) =>
         minWidth: "0",
         justifyContent: "center",
         width: "100%",
-        paddingTop: "5%",
+        paddingTop: "3vh",
         margin: `0`,
     },
     wrapText  : {
@@ -86,6 +104,14 @@ const useStyles = makeStyles((theme) =>
     }
   })
 );
+
+function chatSettings() {
+
+  console.log("hy");
+  return (
+    <h1> coucou </h1>
+  );
+}
 
 // BULLES DE MESSAGES
 const customBubble = (props: any) => (
@@ -124,7 +150,7 @@ function App() {
   // JOIN A CHANNEL VIA LE BOUTON
   const joinChannel = (room_number: number) => {
     setRoom(room_number.toString());
-      socket.emit("join_room", room_number.toString());
+    socket.emit("join_room", room_number.toString());
   };
   
 
@@ -139,6 +165,10 @@ function App() {
   
   // DEAL WITH EVENTS
   useEffect(() => {
+    socket.on("disconnected", () => {
+      socket.close();
+    })
+
     // RECEPTION DE MESSAGES
     socket.on("receive_message", (data) => {
       setMessages([...messages,
@@ -165,22 +195,45 @@ function App() {
     });
     // CONNECTION DU CLIENT
     socket.on("connected", (data) => {
+      if (room === "")
+        socket.emit("join_room", "0");
       rooms.splice(0, rooms.length);
       setRooms([]);
       data.forEach(function(value: any, key: any) {
         rooms.push(data[key].room_number);
+        setRooms([...rooms]);
       });
-      setRooms([...rooms]);
-      if (room === "")
-        socket.emit("join_room", "0");
     });
-  }, [messages, rooms, room])
 
+    socket.on("set_rooms", (data) => {
+      rooms.splice(0, rooms.length);
+      setRooms([]);
+      data.forEach(function(value: any, key: any) {
+        rooms.push(data[key].room_number);
+        setRooms([...rooms]);
+      });
+      //console.log("here");
+    })
+
+    // setInterval(() => {
+			socket.emit("get_room");
+    //   //console.log("test");
+		// }, 100000);
+  }, [messages, rooms, room])
+  
   // RESET THE FORM
   function reset() {
     (document.getElementById("textareaInput") as HTMLFormElement).reset();
   }
   
+  const loadChannels = rooms.map(room_number => {
+    return (
+      <button className="channels" key={room_number} onClick={() =>joinChannel(room_number)}>
+          {room_number}
+        </button>
+          )
+  })
+
   // RETURN TO RENDER
   return (
   <>
@@ -190,14 +243,9 @@ function App() {
       <div className="col1">
         <Paper className={classes.paper}>
           {/* affichage des channels dispo et creation d un bouton / room */}
-          <div> {rooms.map(room_number => {
-            return (
-              <button className="channels" key={room_number} onClick={() =>joinChannel(room_number)}>
-                {room_number}
-              </button>
-            )
-          })}
-          </div>
+          <>
+          { loadChannels }
+          </>
           {/* form de creation de room */}
           <input
             placeholder="Room Number..."
@@ -223,6 +271,8 @@ function App() {
               bubblesCentered={true} //Boolean should the bubbles be centered in the feed?
               chatBubble={true && customBubble} // JSON: Custom bubble styles
             />
+            <SettingsApplicationsIcon fontSize="large" className={classes.settings}/>
+            <button className={classes.buttonSettings} onClick={chatSettings}/>
           </Paper>
           <>
             {/* formulaire pour envoyer un message */}

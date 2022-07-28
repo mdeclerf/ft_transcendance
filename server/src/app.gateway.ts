@@ -5,6 +5,7 @@ import {
 	WebSocketServer,
 	OnGatewayConnection,
 	OnGatewayDisconnect,
+	SubscribeMessage,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { AppService } from './app.service';
@@ -19,7 +20,7 @@ import { JwtAuthGuard } from './api/jwt-auth.guard';
 	},
 })
 
-@UseGuards(JwtAuthGuard)
+// @UseGuards(JwtAuthGuard)
 @WebSocketGateway({ cors: true })
 export class AppGateway
 implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
@@ -45,8 +46,7 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 			this.users++;
 			this.chatService.getActiveRooms()
 			.then(function(result){
-				const ret = Object.values(result);
-				socket.emit("connected", ret);
+				socket.emit("connected", result);
 			});
 			console.log(`User Connected: ${socket.id} and there is ${this.users} clients connected`);
 
@@ -54,8 +54,7 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 				socket.join(data);
 				this.chatService.getRoom(data)
 				.then(function(result){
-					const ret = Object.values(result);
-					socket.emit("joined_room", ret);
+					socket.emit("joined_room", result);
 				});
 			});
 
@@ -66,8 +65,17 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 				message.createdAt = new Date();
 				this.chatService.createMessage(message);
 				socket.to(data.room).emit("receive_message", message);
-				console.log(message);
+				//console.log(message);
 			});
+		});
+	}
+
+	@SubscribeMessage("get_room")
+	handleChannels(client: Socket) : void {
+		//console.log("heyy");
+		this.chatService.getActiveRooms()
+		.then(function(result){
+			client.emit("set_rooms", result);
 		});
 	}
 }
