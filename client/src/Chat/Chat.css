@@ -1,0 +1,322 @@
+.Chat {
+	background-color: #696969;
+  }
+  .Chat-logo {
+	height: 40vmin;
+	pointer-events: none;
+  }
+  
+  @media (prefers-reduced-motion: no-preference) {
+	.Chat-logo {
+	  animation: Chat-logo-spin infinite 20s linear;
+	}
+  }
+  
+  .Chat-header {
+	background-color: #282c34;
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	font-size: calc(10px + 2vmin);
+	color: white;
+  }
+  
+  .Chat-link {
+	color: #61dafb;
+  }
+  
+  @keyframes Chat-logo-spin {
+	from {
+	  transform: rotate(0deg);
+	}
+	to {
+	  transform: rotate(360deg);
+	}
+  }
+  
+  html,
+  body {
+	font-family: -apple-system;
+	margin: 0;
+	padding: 0;
+	height:99%;
+	background-color: #696969;
+  }
+  h1 {
+	font-size: 48px;
+  }
+  
+  h2 {
+	font-size: 36px;
+  }
+  
+  h5 {
+	margin-left: 30px;
+	display: block;
+  }
+  
+  .container {
+	max-width: 100%;
+	margin: 0 auto;
+	margin-top: 1%;
+  }
+  
+  .install {
+	text-align: center;
+	margin: 20px auto;
+  }
+  
+  code {
+	margin: 20px auto;
+	background-color: #eee;
+	padding: 10px 20px;
+  }
+  
+  input {
+	border: none;
+	border-top: 1px solid #ddd;
+	font-size: 16px;
+	padding: 0%;
+	padding-top: 10%;
+	padding-bottom: 10%;
+	width: 100%;
+	text-align: center;
+  }
+  
+  input:focus {
+	outline: none;
+  }
+  
+  .chatfeed-wrapper {
+	box-shadow: 0 20px 20px rgba(0, 0, 0, 0.08);
+	border-radius: 4px;
+	max-width: 450px;
+	margin: 0 auto;
+	border: 1px solid #ddd;
+  }
+  
+  #chat-panel {
+	padding: 0;
+  }
+  
+  .chat-history {
+	display: block;
+	min-height: 25%;
+  }
+  
+  .outer {
+	display: block;
+	height: 50%;
+	overflow-y: scroll;
+	position: relative;
+  }
+  
+  .inner {
+	margin: 0 auto;
+  }
+  
+  .text-center {
+	text-align: center;
+  }
+  
+  .imessage {
+	background-color: rgb(220,220,220);
+	margin: 0%;
+	border-radius: 0.25rem;
+	display: flex;
+	flex-direction: column;
+	font-family: "SanFrancisco";
+	font-size: 1.25rem;
+	padding: 0rem 1.5rem;
+  }
+  
+  .imessage p {
+	border-radius: 1.15rem;
+	line-height: 1.25;
+	max-width: 65%;
+	padding: 0.5rem .875rem;
+	position: relative;
+	word-wrap: break-word;
+  }
+  
+  .imessage p::before,
+  .imessage p::after {
+	bottom: -0.1rem;
+	content: "";
+	height: 1rem;
+	position: absolute;
+  }
+  
+  p.from-me {
+	align-self: flex-end;
+	background-color: #248bf5;
+	color: rgb(220,220,220); 
+  }
+  
+  p.from-me::before {
+	border-bottom-left-radius: 0.8rem 0.7rem;
+	border-right: 1rem solid #248bf5;
+	right: -0.35rem;
+	transform: translate(0, -0.1rem);
+  }
+  
+  p.from-me::after {
+	background-color: rgb(220,220,220);
+	border-bottom-left-radius: 0.5rem;
+	right: -40px;
+	transform:translate(-30px, -2px);
+	width: 10px;
+  }
+  
+  p[class^="from-"] {
+	margin: 0.5rem 0;
+	width: fit-content;
+  }
+  
+  p.from-me ~ p.from-me {
+	margin: 0.25rem 0 0;
+  }
+  
+  p.from-me ~ p.from-me:not(:last-child) {
+	margin: 0.25rem 0 0;
+  }
+  
+  p.from-me ~ p.from-me:last-child {
+	margin-bottom: 0.5rem;
+  }
+  
+  p.from-them {
+	align-items: flex-start;
+	background-color: #e5e5ea;
+	color: #000;
+  }
+  
+  p.from-them:before {
+	border-bottom-right-radius: 0.8rem 0.7rem;
+	border-left: 1rem solid #e5e5ea;
+	left: -0.35rem;
+	transform: translate(0, -0.1rem);
+  }
+  
+  p.from-them::after {
+	background-color: rgb(220,220,220);
+	border-bottom-right-radius: 0.5rem;
+	left: 20px;
+	transform: translate(-30px, -2px);
+	width: 10px;
+  }
+  
+  p[class^="from-"].emoji {
+	background: none;
+	font-size: 2.5rem;
+  }
+  
+  p[class^="from-"].emoji::before {
+	content: none;
+  }
+  
+  .no-tail::before {
+	display: none;
+  }
+  
+  .margin-b_none {
+	margin-bottom: 0 !important;
+  }
+  
+  .margin-b_one {
+	margin-bottom: 1rem !important;
+  }
+  
+  .margin-t_one {
+	margin-top: 1rem !important;
+  }
+
+  /* general styling */
+  @font-face {
+	font-family: "SanFrancisco";
+	src:
+	  url("https://cdn.rawgit.com/AllThingsSmitty/fonts/25983b71/SanFrancisco/sanfranciscodisplay-regular-webfont.woff2") format("woff2"),
+	  url("https://cdn.rawgit.com/AllThingsSmitty/fonts/25983b71/SanFrancisco/sanfranciscodisplay-regular-webfont.woff") format("woff");
+  }
+  
+  body {  
+	font-family: -apple-system, 
+	  BlinkMacSystemFont, 
+	  "Segoe UI", 
+	  Roboto, 
+	  Oxygen-Sans, 
+	  Ubuntu, 
+	  Cantarell, 
+	  "Helvetica Neue", 
+	  sans-serif;
+	font-weight: normal;
+	margin: 0;
+  }
+  
+  .container {
+	margin: 0 auto;
+	max-width: 70%;
+	padding: 1rem;
+  }
+  
+  h1 {
+	font-weight: normal;
+	margin-bottom: 0.5rem;
+  }
+  
+  h2 {
+	border-bottom: 1px solid #e5e5ea;
+	color: #666;
+	font-weight: normal;
+	margin-top: 0;
+	padding-bottom: 1.5rem;
+  } 
+  
+  .comment {
+	color: #222;
+	font-size: 1.25rem;
+	line-height: 1.5;
+	margin-bottom: 1.25rem;
+	max-width: 70%;
+	padding: 0;
+  }
+  
+  @media screen and (max-width: 800px) {
+  }
+  
+  .columns{
+	display: grid;
+  grid-template-columns: 30% 70%;
+  height: 100%;
+  margin:0%;
+  padding: 0%;
+  }
+  
+  .col1{
+   max-width:100%;
+   background-color: #696969;
+   margin:0%;
+	padding: 0%;
+  }
+  
+  .col2{
+	max-width:100%;
+	background-color: #696969;
+	margin:0%;
+  padding: 0%;
+  }
+  
+  .channels{
+	width: 100%;
+	height: 10vh;
+	background-color: rgb(220,220,220);
+	margin: 0%;
+	padding: 0%;
+	text-align: center;
+	display: inline-block;
+	border: #000;
+	border-style: solid;
+	border-top-style: none;
+  }
