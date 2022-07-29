@@ -2,16 +2,16 @@ import './Chat.css';
 import io from 'socket.io-client'
 import { useEffect, useState } from "react";
 import { ChatFeed, Message } from "react-chat-ui";
-import { Paper } from "@material-ui/core";
-import TextField from '@material-ui/core/TextField';
-import SendIcon from '@material-ui/icons/Send';
-import Button from '@material-ui/core/Button';
-import { createStyles, makeStyles } from "@material-ui/core/styles";
+import { Paper } from '@mui/material';
+import { TextField } from '@mui/material';
+import SendIcon from '@mui/icons-material/Send';
+import { createStyles, makeStyles } from '@mui/styles';
 import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
+import Button from '@mui/material/Button';
 
 const socket = io('http://localhost:3001', { transports : ['websocket'], secure: true });
 
-const useStyles = makeStyles((theme) =>
+const useStyles = makeStyles((theme: any) =>
   createStyles({
     // PAPIER DE GAUCHE
     paper: {
@@ -249,7 +249,7 @@ export function Chat() {
           {/* form de creation de room */}
           <input
             placeholder="Room Number..."
-            onChange={(event) => {
+            onChange={(event: any) => {
               setRoom(event.target.value);
             }}
           />
@@ -279,11 +279,11 @@ export function Chat() {
             <form className={classes.wrapForm}  noValidate autoComplete="off" id="textareaInput">
               <TextField
                 placeholder='type your message'
-                onChange={(event) => {
+                onChange={(event: any) => {
                   setMessage(event.target.value);
                 }}
                 // si on presse enter, le message s'envoit et le formulaire se vide
-                onKeyDown={(event) => {
+                onKeyDown={(event: any) => {
                   if (event.key === 'Enter')
                   {
                     if (message !== "")

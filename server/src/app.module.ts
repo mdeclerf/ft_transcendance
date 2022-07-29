@@ -9,6 +9,7 @@ import { entities, OrmModule } from './typeorm/typeorm.module';
 import { UserModule } from './user/user.module';
 import { AppGateway } from './app.gateway'
 import { ChatModule } from './typeorm/chat/chat.module';
+import { GameModule } from './game/game.module';
 
 @Module({
   imports: [
@@ -26,7 +27,8 @@ import { ChatModule } from './typeorm/chat/chat.module';
       synchronize: true,
     }),
     UserModule,
-	OrmModule
+	OrmModule,
+  GameModule,
   ],
   controllers: [AppController],
   providers: [AppService, AppGateway],

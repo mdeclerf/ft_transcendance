@@ -26,27 +26,27 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 	constructor(@Inject(ChatService) private readonly chatService: ChatService) {}
 		
 	@WebSocketServer() server: Server;
-	users: number = 0;
+	// users: number = 0;
 
 	afterInit(server: Server) {
 	}
 
 	handleDisconnect(client: Socket) {
-		this.users--;
-		console.log(`User Disconnected: ${client.id} and there is ${this.users} clients connected`);
+		// this.users--;
+		// console.log(`User Disconnected: ${client.id} and there is ${this.users} clients connected`);
 		client.emit("disconnected");
 	}
 
 	handleConnection(client: Socket, ...args: any[]) {
 		this.server.once("connection", (socket) => {
-			if (this.users <= 0)
-				this.users = 0;
-			this.users++;
+			// if (this.users <= 0)
+			// 	this.users = 0;
+			// this.users++;
 			this.chatService.getActiveRooms()
 			.then(function(result){
 				socket.emit("connected", result);
 			});
-			console.log(`User Connected: ${socket.id} and there is ${this.users} clients connected`);
+			// console.log(`User Connected: ${socket.id} and there is ${this.users} clients connected`);
 
 			socket.on("join_room", (data) => {
 				socket.join(data);

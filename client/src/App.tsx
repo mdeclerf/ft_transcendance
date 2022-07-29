@@ -2,9 +2,15 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Routes, Route} from 'react-router-dom/';
 import { LoginPage } from './Pages/LoginPage';
 import { useFetchCurrentUser } from './utils/hooks/useFetchCurrentUser';
-import { Game } from './Pages/Game';
 import { Chat } from './Chat/Chat';
 import { Logout } from './Pages/Logout';
+import Mode from './Game/mode';
+import  theme_2  from './themes/2';
+import  theme_1  from './themes/1';
+import Canvas from './Game/canvas';
+import Watch from './Game/watch';
+import { Grid } from '@mui/material';
+import { ThemeProvider } from '@mui/material/styles';
 import { Header } from './Components/Header';
 import { Avatar, Button, CircularProgress } from '@mui/material/';
 import { CenteredDiv } from './utils/styles';
@@ -22,6 +28,8 @@ function App() {
 	const AuthInputRef = useRef<AuthCodeRef>(null);
 	const AuthInputDivRef = useRef<HTMLDivElement>(null);
 	const ButtonRef = useRef<HTMLButtonElement>(null);
+
+	const [colors, setColors] = React.useState(true);
 
 	useEffect(() => {
 		const keyDownHandler = (event: KeyboardEvent) => {
@@ -57,11 +65,14 @@ function App() {
 
 	return (
 		<>
+			<ThemeProvider theme={colors ? theme_1 : theme_2}>
+			<Button variant="outlined" onClick={() => setColors((prev) => !prev)}>Toggle Theme</Button>
+
 			<Header user={user} error={error}/>
 			{((user && !user.isTwoFactorAuthenticationEnabled) || (user && user.isTwoFactorAuthenticationEnabled && user.isSecondFactorAuthenticated)) && !error ?
 				<Routes>
 					<Route path="/" element={<WelcomePage />} />
-					<Route path="/game" element={<Game />}/>
+					<Route path="/game/*" element={<Mode/> }/>
 					<Route path="/spectate" />
 					<Route path="/chat" element={<Chat />}/>
 					<Route path="/profile" element={<Profile user={user}/>} />
@@ -69,6 +80,28 @@ function App() {
 					<Route path="/account" element={<MyAccount user={user} />} />
 					<Route path="/logout" element={<Logout />}/>
 					<Route path="/2fa" element={<TwoFactor user={user} />}/>
+
+					<Route path='/chatmode' element={
+					<Grid container justifyContent='center'>
+						<Canvas/>
+					</Grid>
+				}>
+				</Route>
+
+				<Route path='/normal' element={
+					<Grid container justifyContent='center'>
+						<Canvas/>
+					</Grid>
+				}>
+				</Route>
+
+				<Route path='/watch' element={
+					<Grid container justifyContent='center'>
+						<Watch/>
+					</Grid>
+				}>
+				</Route>
+
 				</Routes>
 				:
 				<Routes>
@@ -106,6 +139,7 @@ function App() {
 					}
 				</Routes>
 			}
+			</ThemeProvider>
 		</>
 	);
 }
