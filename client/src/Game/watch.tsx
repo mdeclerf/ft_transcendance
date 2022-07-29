@@ -6,9 +6,6 @@ import { Table } from '@mui/material';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import Stack from '@mui/material/Stack';
-import { Drawer } from '@mui/material';
-import { Typography } from '@mui/material';
-import Toolbar from '@mui/material/Toolbar';
 
 const ws = io("http://localhost:3001");
 // const ws = io("http://10.2.6.5:3001");
@@ -105,41 +102,32 @@ function Watch() {
 
 	return (
 	<>
-		<Drawer variant="permanent" sx={{ width: 12}}>
-		{/* <Typography variant="caption" sx={{ fontFamily: 'Courier', }}>List of current matches</Typography> */}
-		<Toolbar>
-			<Typography variant="body1" noWrap component="div" sx={{ fontFamily: 'Courier', }}>
-				List of current matches
-			</Typography>
-		</Toolbar>
+
+		<Stack spacing={2}>
+			<br></br>
+			<Table>
+				<tbody>
+				<TableRow>
+					<TableCell sx={{ fontFamily: 'Courier', }}>Winning score</TableCell>
+					<TableCell sx={{ fontFamily: 'Courier', }} colSpan={2}>{winning_score}</TableCell>
+				</TableRow>
+
+				<TableRow>
+					<TableCell sx={{ fontFamily: 'Courier', }}>Scores</TableCell>
+					<TableCell sx={{ fontFamily: 'Courier', }}>{firstPScore}</TableCell>
+					<TableCell sx={{ fontFamily: 'Courier', }}>{secondPScore}</TableCell>
+				</TableRow>
+				</tbody>
+			</Table>
+			<canvas ref={canvasRef}></canvas>
+		</Stack>
+
 		{array.map((element: string,index: any) => {
 			return (
 			<Button variant="contained" sx={{m: 1}} endIcon={<VisibilityIcon />} key={index} onClick={(event: any) => handleClick(event, element)}>
 				{element}
 			</Button>)
 		})}
-		</Drawer>
-
-		<Stack spacing={2}>
-		<br></br>
-		<Table>
-			<tbody>
-			<TableRow>
-				<TableCell sx={{ fontFamily: 'Courier', }}>Winning score</TableCell>
-				<TableCell sx={{ fontFamily: 'Courier', }} colSpan={2}>{winning_score}</TableCell>
-			</TableRow>
-
-			<TableRow>
-				<TableCell sx={{ fontFamily: 'Courier', }}>Scores</TableCell>
-				<TableCell sx={{ fontFamily: 'Courier', }}>{firstPScore}</TableCell>
-				<TableCell sx={{ fontFamily: 'Courier', }}>{secondPScore}</TableCell>
-			</TableRow>
-			</tbody>
-		</Table>
-
-		<canvas ref={canvasRef}></canvas>
-
-		</Stack>
 	</>
 	);
 }

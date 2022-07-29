@@ -10,6 +10,7 @@ import  theme_1  from './themes/1';
 import Canvas from './Game/canvas';
 import Watch from './Game/watch';
 import { Grid } from '@mui/material';
+import { CssBaseline } from "@mui/material";
 import { ThemeProvider } from '@mui/material/styles';
 import { Header } from './Components/Header';
 import { Avatar, Button, CircularProgress } from '@mui/material/';
@@ -69,18 +70,18 @@ function App() {
 
 			<Header user={user} error={error}/>
 
-			<Button variant="outlined"  onClick={() => setColors((prev) => !prev)}>Toggle Theme</Button>
+			<CssBaseline/>
+			<Button variant="outlined"  onClick={() => setColors((prev: any) => !prev)}>Toggle Theme</Button>
 
 			{((user && !user.isTwoFactorAuthenticationEnabled) || (user && user.isTwoFactorAuthenticationEnabled && user.isSecondFactorAuthenticated)) && !error ?
 				<Routes>
 					<Route path="/" element={<WelcomePage />} />
-					<Route path="/game/*" element={<Mode/> }/>
-					<Route path="/spectate" />
-					<Route path="/chat" element={<Chat />}/>
+					<Route path="/chat" element={<Chat/>}/>
+					<Route path="/game" element={<Mode/> }/>
 					<Route path="/profile" element={<Profile user={user}/>} />
-					<Route path="/user/:username" element={<UserPage />}/>
+					<Route path="/user/:username" element={<UserPage/>}/>
 					<Route path="/account" element={<MyAccount user={user} />} />
-					<Route path="/logout" element={<Logout />}/>
+					<Route path="/logout" element={<Logout/>}/>
 					<Route path="/2fa" element={<TwoFactor user={user} />}/>
 
 					<Route path='/chatmode' element={

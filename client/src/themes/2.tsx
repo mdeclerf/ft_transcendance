@@ -3,7 +3,7 @@ import { createTheme } from '@mui/material/styles';
 const theme_2 = {
     palette: {
         primary: {
-            main: '#53e466',
+            main: '#A40C0C',
         },
         secondary: {
             main: '#E4536F',
@@ -12,7 +12,7 @@ const theme_2 = {
             main: '#8053E4',
         },
         background: {
-            default: '#faf5f7',
+            default: '#E6D3D8',
         },
     },
     sidebarWidth: 240
