@@ -66,9 +66,11 @@ function App() {
 	return (
 		<>
 			<ThemeProvider theme={colors ? theme_1 : theme_2}>
-			<Button variant="outlined" onClick={() => setColors((prev) => !prev)}>Toggle Theme</Button>
 
 			<Header user={user} error={error}/>
+
+			<Button variant="outlined"  onClick={() => setColors((prev) => !prev)}>Toggle Theme</Button>
+
 			{((user && !user.isTwoFactorAuthenticationEnabled) || (user && user.isTwoFactorAuthenticationEnabled && user.isSecondFactorAuthenticated)) && !error ?
 				<Routes>
 					<Route path="/" element={<WelcomePage />} />
@@ -82,25 +84,22 @@ function App() {
 					<Route path="/2fa" element={<TwoFactor user={user} />}/>
 
 					<Route path='/chatmode' element={
-					<Grid container justifyContent='center'>
-						<Canvas/>
-					</Grid>
-				}>
-				</Route>
+						<Grid container justifyContent='center'>
+							<Canvas/>
+						</Grid> }>
+					</Route>
 
-				<Route path='/normal' element={
-					<Grid container justifyContent='center'>
-						<Canvas/>
-					</Grid>
-				}>
-				</Route>
+					<Route path='/normal' element={
+						<Grid container justifyContent='center'>
+							<Canvas/>
+						</Grid> }>
+					</Route>
 
-				<Route path='/watch' element={
-					<Grid container justifyContent='center'>
-						<Watch/>
-					</Grid>
-				}>
-				</Route>
+					<Route path='/watch' element={
+						<Grid container justifyContent='center'>
+							<Watch/>
+						</Grid> }>
+					</Route>
 
 				</Routes>
 				:
@@ -110,7 +109,7 @@ function App() {
 							path="*" 
 							element={
 								<CenteredDiv>
-									<h1>Welcome {user.username}</h1>
+									<h1>Welcome{user.username}</h1>
 									<Avatar
 										alt={user?.username}
 										src={user?.photoURL}
