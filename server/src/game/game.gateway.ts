@@ -8,8 +8,8 @@ import {
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { Logger } from '@nestjs/common';
-import { GameService } from './game.service';
-import { GameDetails } from './types';
+import { GameService } from '../typeorm/game/game.service';
+import { GameDetails } from '../utils/types';
 import { v4 as uuidv4 } from 'uuid';
 
 let details: GameDetails = new GameDetails;
@@ -136,8 +136,8 @@ class Pong{
 				this.second_player.socket.emit("running", "false");
 				this.first_player.socket.emit("getPosition", `${this.first_player.y_pos} ${this.second_player.y_pos} ${this.ball_x} ${this.ball_y} ${this.first_player.score} ${this.second_player.score}`);
 				this.second_player.socket.emit("getPosition", `${this.second_player.y_pos} ${this.first_player.y_pos} ${700 - this.ball_x} ${this.ball_y} ${this.first_player.score} ${this.second_player.score} `);
-				// this.database_create(this.first_player.id);
-				// this.database_create(this.second_player.id);
+				this.database_create(this.first_player.id);
+				this.database_create(this.second_player.id);
 
 				if (this.mode === "chat")
 				{
@@ -216,10 +216,10 @@ class Pong{
 		if (this.first_player && this.first_player.id == id)
 		{
 			details.mode = this.mode
-			details.login = this.first_player.id;
-			details.opponent_login = this.second_player.id;
+			details.socket_id = this.first_player.id;
+			details.socket_id_opponent = this.second_player.id;
 			details.score = this.first_player.score;
-			details.opponent_score = this.second_player.score;
+			details.score_opponent = this.second_player.score;
 			if (this.first_player.score >= this.winning_score)
 			details.has_won = true;
 			else if (this.second_player.score >= this.winning_score)
@@ -229,23 +229,15 @@ class Pong{
 		else if (this.second_player && this.second_player.id == id)
 		{
 			details.mode = this.mode
-			details.login = this.second_player.id;
-			details.opponent_login = this.first_player.id;
+			details.socket_id = this.second_player.id;
+			details.socket_id_opponent = this.first_player.id;
 			details.score = this.second_player.score;
-			details.opponent_score = this.first_player.score;
+			details.score_opponent = this.first_player.score;
 			if (this.second_player.score >= this.winning_score)
 			details.has_won = true;
 			else if (this.first_player.score >= this.winning_score)
 			details.has_won = false;
 		}
-
-		this.logger.log(`details.login ${details.login}`);
-		this.logger.log(`details.opponent_login ${details.opponent_login}`);
-		this.logger.log(`details.score ${details.score}`);
-		this.logger.log(`details.opponent_score ${details.opponent_score}`);
-		this.logger.log(`details.has_won ${details.has_won}`);
-		this.logger.log(`details.mode ${details.mode}`);
-		this.logger.log(`--------------------------------`);
 	}
 
 	async database_create(id: string): Promise<void> {

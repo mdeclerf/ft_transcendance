@@ -8,8 +8,6 @@ import { AuthModule } from './auth/auth.module';
 import { entities, OrmModule } from './typeorm/typeorm.module';
 import { UserModule } from './user/user.module';
 import { AppGateway } from './app.gateway'
-import { ChatModule } from './typeorm/chat/chat.module';
-import { GameModule } from './game/game.module';
 
 @Module({
   imports: [
@@ -27,8 +25,7 @@ import { GameModule } from './game/game.module';
       synchronize: true,
     }),
     UserModule,
-	OrmModule,
-  GameModule,
+	OrmModule
   ],
   controllers: [AppController],
   providers: [AppService, AppGateway],

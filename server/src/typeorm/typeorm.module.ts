@@ -14,6 +14,9 @@ import { ChatUser } from './chat_user/chat_user.entity';
 import { FriendlistModule } from './friendlist/friendlist.module';
 import { FriendlistController } from './friendlist/friendlist.controller';
 import { Friendlist } from './friendlist/friendlist.entity';
+import { GameModule } from './game/game.module';
+import { GameController } from './game/game.controller';
+import { Game } from './game/game.entity';
 
 @Module({
 	imports: [
@@ -21,25 +24,28 @@ import { Friendlist } from './friendlist/friendlist.entity';
 		SessionModule,
 		ChatModule,
 		ChatUserModule,
-		FriendlistModule
+		FriendlistModule,
+		GameModule
 	],
 	controllers: [
 		UserController,
 		SessionController,
 		ChatController,
 		ChatUserController,
-		FriendlistController
+		FriendlistController,
+		GameController
 	],
 	exports: [
 		UserModule,
 		SessionModule,
 		ChatModule,
 		ChatUserModule,
-		FriendlistModule
+		FriendlistModule,
+		GameModule
 	]
 })
 export class OrmModule {}
 
-export const entities = [User, Session, Chat, ChatUser, Friendlist];
+export const entities = [User, Session, Chat, ChatUser, Friendlist, Game];
 
-export { User, Session, Chat, ChatUser, Friendlist };
+export { User, Session, Chat, ChatUser, Friendlist, Game };

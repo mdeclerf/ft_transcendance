@@ -13,3 +13,26 @@ export type UserDetails = {
 }
 
 export type Done = (err: Error, user: User) => void;
+
+export class GameDetails{
+
+	constructor() {
+		this.socket_id = "";
+		this.socket_id_opponent = "";
+		this.login = "";
+		this.login_opponent = "";
+		this.mode = "";
+		this.score = 0;
+		this.score_opponent = 0;
+		this.has_won = false;
+	}
+
+	public socket_id : string;
+	public socket_id_opponent : string;
+	public login : string;
+	public login_opponent : string;
+	public mode : string;
+	public score : number;
+	public score_opponent : number;
+	public has_won : boolean;
+}

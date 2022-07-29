@@ -11,19 +11,25 @@ export class Game {
     id: number;
 
     @Column({type: 'text'})
-    login: string;
-
-    @Column({type: 'text'})
-    mode: string;
+    socket_id: string;
 
 	@Column({type: 'text'})
-    opponent_login: string;
+    socket_id_opponent: string;
+
+	@Column({type: 'text'})
+    login: string;
+	
+	@Column({type: 'text'})
+    login_opponent: string;
+	
+    @Column({type: 'text'})
+    mode: string;
 
 	@Column({type: 'integer'})
     score: number;
 
 	@Column({type: 'integer'})
-    opponent_score: number;
+    score_opponent: number;
 
 	@Column({type: 'boolean'})
 	has_won: boolean;
