@@ -249,7 +249,7 @@ class Pong{
 ////////////////////////////////////////////////////////////////
 
 @WebSocketGateway({ cors: true })
-export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
+export class GameGateway implements OnGatewayDisconnect {
 
 	constructor(private gameService: GameService) {}
 	@WebSocketServer() wss: Server;
@@ -265,13 +265,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 		if (!this.Game.has(message))
 			this.Game.set(message, new Pong(this.gameService, message, "chat"));
 		this.Game.get(message).add_player(new Player(client.id, client));
-	}
-
-	afterInit() {
-	}
-
-	handleConnection() {
-		console.log("here");
 	}
 
 	@SubscribeMessage("monitor")
