@@ -65,6 +65,8 @@ implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect
 				socket.to(data.room).emit("chat_receive_message", message);
 				console.log(message);
 			});
+
+			socket.on()
 		});
 	}
 

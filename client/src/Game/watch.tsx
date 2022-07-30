@@ -1,13 +1,10 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { io, Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import Button from '@mui/material/Button';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Table } from '@mui/material';
-import TableRow from '@mui/material/TableRow';
-import TableCell from '@mui/material/TableCell';
+import { Typography } from '@mui/material';
 import Stack from '@mui/material/Stack';
-
-// const ws = io("http://10.2.6.5:3001");
+import { useTheme } from '@mui/material/styles';
 
 let winning_score: number;
 const CANVAS_WIDTH = 700;
@@ -30,7 +27,7 @@ const draw_players = (context:any, ball_color: string, paddle_color: string, pla
 
 function Watch(props: any) {
 	const ws: Socket = props.socket;;
-	
+	const theme = useTheme();
 	const [array, setArray] = useState<string[]>([]);
 	const [idAdd, setIdAdd] = useState<string>("");
 	const [lastRemoved, setLastRemoved] = useState<string>("");
@@ -60,7 +57,7 @@ function Watch(props: any) {
 			ws.emit("monitor");
 		}, 500);
 
-	}, [array, idAdd, lastRemoved]);
+	}, [array, idAdd, lastRemoved, ws]);
 
 	/////////
 
@@ -105,20 +102,9 @@ function Watch(props: any) {
 
 		<Stack spacing={2}>
 			<br></br>
-			<Table>
-				<tbody>
-				<TableRow>
-					<TableCell sx={{ fontFamily: 'Courier', }}>Winning score</TableCell>
-					<TableCell sx={{ fontFamily: 'Courier', }} colSpan={2}>{winning_score}</TableCell>
-				</TableRow>
 
-				<TableRow>
-					<TableCell sx={{ fontFamily: 'Courier', }}>Scores</TableCell>
-					<TableCell sx={{ fontFamily: 'Courier', }}>{firstPScore}</TableCell>
-					<TableCell sx={{ fontFamily: 'Courier', }}>{secondPScore}</TableCell>
-				</TableRow>
-				</tbody>
-			</Table>
+		<Typography variant="h6" color={theme.palette.primary.main} align="center">Winning score : {winning_score}</Typography>
+		<Typography variant="h6" color={theme.palette.primary.main} align="center">{firstPScore}  VS   {secondPScore}</Typography>
 			<canvas ref={canvasRef}></canvas>
 		</Stack>
 

@@ -271,7 +271,6 @@ export class GameGateway implements OnGatewayInit, OnGatewayConnection, OnGatewa
 	}
 
 	handleConnection() {
-		console.log("here");
 	}
 
 	@SubscribeMessage("monitor")
