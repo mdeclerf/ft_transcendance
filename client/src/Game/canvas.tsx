@@ -5,8 +5,11 @@ import Stack from '@mui/material/Stack';
 import { useLocation } from 'react-router-dom';
 import { Alert } from '@mui/material';
 import { TextField } from '@mui/material';
-import { Typography } from '@mui/material';
+import { Table } from '@mui/material';
+import TableRow from '@mui/material/TableRow';
+import TableCell from '@mui/material/TableCell';
 import { useTheme } from '@mui/material/styles';
+import './canvas.css';
 
 const up_key: string = "w";
 const down_key: string = "s";
@@ -153,21 +156,37 @@ function Canvas(props: any) {
 					setRoom(event.target.value);
 				}}
 				/>
-				<Button variant="contained" onClick={joinRoom}> Create Room</Button>
+				<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif'}} onClick={joinRoom}> Create Room</Button>
 			</div>
 		}
 
 		{( location.pathname === "/normal" && !isRunning && !disabled) && 
-			<Button variant="contained" onClick={handleMatchmakingClick}>I want to play, add me to queue !</Button> 
+			<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif'}} onClick={handleMatchmakingClick}>I want to play, add me to queue !</Button> 
 		}
 
 		{( location.pathname === "/normal" && !isRunning && disabled) && 
-			<Button variant="contained" disabled>I want to play, add me to queue !</Button>
+			<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif'}} disabled>I want to play, add me to queue !</Button>
 		}
 
-		<Typography variant="h6" color={theme.palette.primary.main} align="center">Player status : {player_status}</Typography>
-		<Typography variant="h6" color={theme.palette.primary.main} align="center">Winning score : {winning_score}</Typography>
-		<Typography variant="h6" color={theme.palette.primary.main} align="center">{firstPScore}   VS   {secondPScore}</Typography>
+		<Table>
+			<tbody>
+			<TableRow>
+				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>Player status</TableCell>
+				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }} colSpan={2}>{player_status}</TableCell>
+			</TableRow>
+
+			<TableRow>
+				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>Winning score</TableCell>
+				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }} colSpan={2}>{winning_score}</TableCell>
+			</TableRow>
+
+			<TableRow>
+				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>Scores</TableCell>
+				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>{firstPScore}</TableCell>
+				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>{secondPScore}</TableCell>
+			</TableRow>
+			</tbody>
+		</Table>
 
 		{((location.pathname === "/normal" || location.pathname === "/chatmode" ) && disconnection === true) &&
 			<div>
@@ -178,7 +197,7 @@ function Canvas(props: any) {
 		<canvas ref={canvasRef}></canvas>
 
 		{((location.pathname === "/chatmode" && replay && player_status !== "Watching"))&&
-			<Button variant="contained" onClick={handlePlayClick}>Play again !</Button>
+			<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif'}} onClick={handlePlayClick}>Play again !</Button>
 		}
 
 		</Stack>

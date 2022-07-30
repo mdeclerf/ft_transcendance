@@ -13,6 +13,8 @@ import { Grid } from '@mui/material';
 import { CssBaseline } from "@mui/material";
 import { ThemeProvider } from '@mui/material/styles';
 import { Header } from './Components/Header';
+import { Fab } from '@mui/material';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
 import { Avatar, Button, CircularProgress } from '@mui/material/';
 import { CenteredDiv } from './utils/styles';
 import { Profile } from './Pages/Profile';
@@ -25,6 +27,12 @@ import axios from 'axios/';
 import { io } from 'socket.io-client';
 
 const socket = io('http://localhost:3001');
+
+const fabStyle = {
+	position: 'absolute',
+	bottom: 16,
+	left: 16,
+};
 
 function App() {
 	const { user, error, loading } = useFetchCurrentUser();
@@ -74,7 +82,10 @@ function App() {
 			<Header user={user} error={error}/>
 
 			<CssBaseline/>
-			<Button variant="outlined"  onClick={() => setColors((prev: any) => !prev)}>Toggle Theme</Button>
+			{/* <Button variant="outlined"  onClick={() => setColors((prev: any) => !prev)}>Toggle Theme</Button> */}
+			<Fab sx={fabStyle} color="primary" onClick={() => setColors((prev: any) => !prev)}>
+				<Brightness4Icon />
+			</Fab>
 
 			{((user && !user.isTwoFactorAuthenticationEnabled) || (user && user.isTwoFactorAuthenticationEnabled && user.isSecondFactorAuthenticated)) && !error ?
 				<Routes>
