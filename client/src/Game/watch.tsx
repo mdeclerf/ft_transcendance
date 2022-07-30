@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 import Button from '@mui/material/Button';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Table } from '@mui/material';
@@ -7,7 +7,6 @@ import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import Stack from '@mui/material/Stack';
 
-const ws = io("http://localhost:3001");
 // const ws = io("http://10.2.6.5:3001");
 
 let winning_score: number;
@@ -29,7 +28,8 @@ const draw_players = (context:any, ball_color: string, paddle_color: string, pla
 	};
 }
 
-function Watch() {
+function Watch(props: any) {
+	const ws: Socket = props.socket;;
 	
 	const [array, setArray] = useState<string[]>([]);
 	const [idAdd, setIdAdd] = useState<string>("");

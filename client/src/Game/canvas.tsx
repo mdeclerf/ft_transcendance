@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState} from 'react';
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 import Button from '@mui/material/Button';
 import { Table } from '@mui/material';
 import TableRow from '@mui/material/TableRow';
@@ -9,7 +9,6 @@ import { useLocation } from 'react-router-dom';
 import { Alert } from '@mui/material';
 import { TextField } from '@mui/material';
 
-const ws: any = io("http://localhost:3001");
 // const ws = io("http://10.2.6.5:3001");
 
 const up_key: string = "w";
@@ -36,7 +35,8 @@ const draw_players = (context:any, ball_color: string, paddle_color: string, pla
 	};
 }
 
-function Canvas() {
+function Canvas(props: any) {
+	const ws: Socket = props.socket;;
 	console.log("TEST");
 	const location = useLocation();
 	let ball_color: string = '#000';

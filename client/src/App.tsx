@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Routes, Route} from 'react-router-dom/';
 import { LoginPage } from './Pages/LoginPage';
 import { useFetchCurrentUser } from './utils/hooks/useFetchCurrentUser';
-import { Chat } from './Chat/Chat';
+import Chat from "./Chat/Chat";
 import { Logout } from './Pages/Logout';
 import Mode from './Game/mode';
 import  theme_2  from './themes/2';
@@ -22,6 +22,9 @@ import { UserPage } from './Pages/UserPage';
 import { TwoFactor } from './Pages/TwoFactor';
 import AuthCode, { AuthCodeRef } from 'react-auth-code-input';
 import axios from 'axios/';
+import { io } from 'socket.io-client';
+
+const socket = io('http://localhost:3001');
 
 function App() {
 	const { user, error, loading } = useFetchCurrentUser();
@@ -76,7 +79,7 @@ function App() {
 			{((user && !user.isTwoFactorAuthenticationEnabled) || (user && user.isTwoFactorAuthenticationEnabled && user.isSecondFactorAuthenticated)) && !error ?
 				<Routes>
 					<Route path="/" element={<WelcomePage />} />
-					<Route path="/chat" element={<Chat/>}/>
+					<Route path="/chat" element={<Chat socket={socket}/>}/>
 					<Route path="/game" element={<Mode/> }/>
 					<Route path="/profile" element={<Profile user={user}/>} />
 					<Route path="/user/:username" element={<UserPage/>}/>
@@ -92,13 +95,13 @@ function App() {
 
 					<Route path='/normal' element={
 						<Grid container justifyContent='center'>
-							<Canvas/>
+							<Canvas socket={socket}/>
 						</Grid> }>
 					</Route>
 
 					<Route path='/watch' element={
 						<Grid container justifyContent='center'>
-							<Watch/>
+							<Watch socket={socket}/>
 						</Grid> }>
 					</Route>
 

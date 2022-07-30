@@ -1,5 +1,4 @@
 import './Chat.css';
-import io from 'socket.io-client'
 import { useEffect, useState } from "react";
 import { ChatFeed, Message } from "react-chat-ui";
 import { Paper } from '@mui/material';
@@ -8,119 +7,120 @@ import SendIcon from '@mui/icons-material/Send';
 import { createStyles, makeStyles } from '@mui/styles';
 import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
 import Button from '@mui/material/Button';
+import { Socket } from 'socket.io-client';
 
-const socket = io('http://localhost:3001', { transports : ['websocket'], secure: true });
 
 const useStyles = makeStyles((theme: any) =>
-  createStyles({
-    // PAPIER DE GAUCHE
-    paper: {
-      width: "100%",
-      height: "100vh",
-      position: "relative",
-      backgroundColor: "rgb(220,220,220)",
-      overflowY: "scroll",
-      padding: "0",
-    },
-    settings: {
-      alignSelf: "flex-end",
-      display: "inline-block",
-      position: 'absolute',
-      top: "0px",
-      right: "20px",
-    },
-    buttonSettings: {
-      alignSelf: "flex-end",
-      display: "inline-block",
-      position: 'absolute',
-      top: "0px",
-      right: "20px",
-      padding: "16px",
-      backgroundColor: "transparent",
-      border: "0"
-    },
-    // PAPIER DE DROITE
-    paper2: {
-      width: "100%",
-      height: "100vh",
-      position: "relative",
-      backgroundColor: "rgb(220,220,220)",
-      padding: "0",
-    },
-    // BOUTON CREATE ROOM
-    createRoom: {
-      width: "100%",
-      height: "5vh",
-      backgroundColor: "rgb(220,220,220)"
-    },
-    container: {
-      width: "100vw",
-      height: "100vh",
-      alignItems: "center",
-      justifyContent: "center",
-      margin: "0",
-      padding: "0"
-    },
-    // HISTORIQUE DE MESSAGES
-    messagesBody: {
-      width: "100%",
-      margin: 0,
-      height: "calc( 100% - 80px )",
-      backgroundColor: "rgb(220,220,220)",
-      display: "flex",
-      flexDirection: "column-reverse",
-    },
-    // FORM D ENVOI DE MESSAGES
-    wrapForm : {
-        display: "flex",
-        minWidth: "0",
-        justifyContent: "center",
-        width: "100%",
-        paddingTop: "3vh",
-        margin: `0`,
-    },
-    wrapText  : {
-        width: "100%"
-    },
-    // BOUTON D ENVOI DE TEXTE
-    button: {
-      backgroundColor: "#fff",
-      borderColor: "#1D2129",
-      borderStyle: "solid",
-      borderRadius: 20,
-      borderWidth: 2,
-      color: "#1D2129",
-      fontSize: 18,
-      paddingTop: 8,
-      paddingBottom: 8,
-      paddingLeft: 16,
-      paddingRight: 16,
-      outline: "none"
-    },
-    selected: {
-      color: "#fff",
-      backgroundColor: "#0084FF",
-      borderColor: "#0084FF"
-    }
-  })
+createStyles({
+  // PAPIER DE GAUCHE
+  paper: {
+    width: "100%",
+    height: "calc(100vh - 64px)",
+    position: "relative",
+    backgroundColor: "rgba(0, 0, 0, 0)",
+    overflowY: "scroll",
+    padding: "0",
+  },
+  settings: {
+    alignSelf: "flex-end",
+    display: "inline-block",
+    position: 'absolute',
+    top: "0px",
+    right: "20px",
+  },
+  buttonSettings: {
+    alignSelf: "flex-end",
+    display: "inline-block",
+    position: 'absolute',
+    top: "0px",
+    right: "20px",
+    padding: "16px",
+    backgroundColor: "transparent",
+    border: "0"
+  },
+  // PAPIER DE DROITE
+  paper2: {
+    width: "100%",
+    height: "calc(100vh - 64px)",
+    position: "relative",
+    backgroundColor: "rgba(0, 0, 0, 0)",
+    padding: "0",
+  },
+  // BOUTON CREATE ROOM
+  createRoom: {
+    width: "100%",
+    height: "5vh",
+    backgroundColor: "rgba(0, 0, 0, 0)"
+  },
+  container: {
+    width: "100vw",
+    height: "100vh",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "0",
+    padding: "0"
+  },
+  // HISTORIQUE DE MESSAGES
+  messagesBody: {
+    width: "100%",
+    margin: 0,
+    height: "calc( 100% - 80px )",
+    backgroundColor: "rgba(0, 0, 0, 0)",
+    display: "flex",
+    flexDirection: "column-reverse",
+  },
+  // FORM D ENVOI DE MESSAGES
+  wrapForm : {
+    display: "flex",
+    minWidth: "0",
+    justifyContent: "center",
+    width: "100%",
+    paddingTop: "3vh",
+    margin: `0`,
+  },
+  wrapText  : {
+    width: "100%"
+  },
+  // BOUTON D ENVOI DE TEXTE
+  button: {
+    backgroundColor: "#fff",
+    borderColor: "#1D2129",
+    borderStyle: "solid",
+    borderRadius: 20,
+    borderWidth: 2,
+    color: "#1D2129",
+    fontSize: 18,
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingLeft: 16,
+    paddingRight: 16,
+    outline: "none"
+  },
+  selected: {
+    color: "#fff",
+    backgroundColor: "#0084FF",
+    borderColor: "#0084FF"
+  }
+})
 );
 
 function chatSettings() {
-
+  
   console.log("hy");
   return (
     <h1> coucou </h1>
-  );
-}
-
-// BULLES DE MESSAGES
-const customBubble = (props: any) => (
+    );
+  }
+  
+  // BULLES DE MESSAGES
+  const customBubble = (props: any) => (
     <div className="imessage">
     <p className={`${props.message.id ? "from-them" : "from-me"}`}>{props.message.message}</p>
     </div>
 );
 
-export function Chat() {
+function Chat(props: any) {
+  const socket: Socket = props.socket;
   const classes = useStyles();
   const [room, setRoom] = useState<string>("");
   const [message, setMessage] = useState<string>("");
@@ -129,7 +129,7 @@ export function Chat() {
 
   // SEND MESSAGE
   const sendMessage = () => {
-    socket.emit('send_message', { message, room });
+    socket.emit('chat_send_message', { message, room });
     setMessages([...messages,
       new Message({
         id: 0,
@@ -137,20 +137,20 @@ export function Chat() {
         senderName: "adidion"
       }),
     ])
-    socket.emit("connection");
+    socket.emit("chat_connection");
   };
   
   // JOIN A ROOM
   const joinRoom = () => {
     if (room !== "") {
-      socket.emit("join_room", room);
+      socket.emit("chat_join_room", room);
     }
   };
 
   // JOIN A CHANNEL VIA LE BOUTON
   const joinChannel = (room_number: number) => {
     setRoom(room_number.toString());
-    socket.emit("join_room", room_number.toString());
+    socket.emit("chat_join_room", room_number.toString());
   };
   
 
@@ -165,12 +165,12 @@ export function Chat() {
   
   // DEAL WITH EVENTS
   useEffect(() => {
-    socket.on("disconnected", () => {
+    socket.on("chat_disconnected", () => {
       socket.close();
     })
 
     // RECEPTION DE MESSAGES
-    socket.on("receive_message", (data) => {
+    socket.on("chat_receive_message", (data: any) => {
       setMessages([...messages,
         new Message({
           id: 1,
@@ -178,9 +178,10 @@ export function Chat() {
           senderName: "talker"
         }),
       ])
+      socket.emit("chat_get_room");
     });
     // JOIN ROOM
-    socket.on("joined_room", (data) => {
+    socket.on("chat_joined_room", (data: any) => {
       messages.splice(0, messages.length);
       setMessages([]);
       data.forEach(function(value: any, key: any) {
@@ -192,20 +193,22 @@ export function Chat() {
         );
         setMessages([...messages]);
       });
+      socket.emit("chat_get_room");
     });
     // CONNECTION DU CLIENT
-    socket.on("connected", (data) => {
+    socket.on("chat_connected", (data: any) => {
       if (room === "")
-        socket.emit("join_room", "0");
+        socket.emit("chat_join_room", "0");
       rooms.splice(0, rooms.length);
       setRooms([]);
       data.forEach(function(value: any, key: any) {
         rooms.push(data[key].room_number);
         setRooms([...rooms]);
       });
+      socket.emit("chat_get_room");
     });
 
-    socket.on("set_rooms", (data) => {
+    socket.on("chat_set_rooms", (data: any) => {
       rooms.splice(0, rooms.length);
       setRooms([]);
       data.forEach(function(value: any, key: any) {
@@ -216,10 +219,10 @@ export function Chat() {
     })
 
     // setInterval(() => {
-			socket.emit("get_room");
+			// socket.emit("chat_get_room");
     //   //console.log("test");
 		// }, 100000);
-  }, [messages, rooms, room])
+  }, [messages, rooms, room, socket])
   
   // RESET THE FORM
   function reset() {
@@ -249,7 +252,7 @@ export function Chat() {
           {/* form de creation de room */}
           <input
             placeholder="Room Number..."
-            onChange={(event: any) => {
+            onChange={(event) => {
               setRoom(event.target.value);
             }}
           />
@@ -279,11 +282,11 @@ export function Chat() {
             <form className={classes.wrapForm}  noValidate autoComplete="off" id="textareaInput">
               <TextField
                 placeholder='type your message'
-                onChange={(event: any) => {
+                onChange={(event) => {
                   setMessage(event.target.value);
                 }}
                 // si on presse enter, le message s'envoit et le formulaire se vide
-                onKeyDown={(event: any) => {
+                onKeyDown={(event) => {
                   if (event.key === 'Enter')
                   {
                     if (message !== "")
@@ -307,4 +310,5 @@ export function Chat() {
   </>
   );
 }
-// export Chat;
+
+export default Chat;
