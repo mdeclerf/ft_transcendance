@@ -164,9 +164,6 @@ function Chat(props: any) {
 
   // DEAL WITH EVENTS
   useEffect(() => {
-    socket.on("chat_disconnected", () => {
-      socket.close();
-    })
 
     // RECEPTION DE MESSAGES
     socket.on("chat_receive_message", (data: any) => {
@@ -204,7 +201,7 @@ function Chat(props: any) {
         rooms.push(data[key].room_number);
         setRooms([...rooms]);
       });
-      socket.emit("chat_get_room");
+      // socket.emit("chat_get_room");
     });
 
     socket.on("chat_set_rooms", (data: any) => {
@@ -217,10 +214,9 @@ function Chat(props: any) {
       //console.log("here");
     })
 
-    // setInterval(() => {
-			// socket.emit("chat_get_room");
-    //   //console.log("test");
-		// }, 100000);
+    window.addEventListener('load', () => {  
+      socket.emit("chat_get_room");  
+    })
   }, [messages, rooms, room, socket])
   
   // RESET THE FORM
