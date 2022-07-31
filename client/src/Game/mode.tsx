@@ -1,4 +1,3 @@
-import React from 'react';
 import Button from '@mui/material/Button';
 import { ButtonGroup } from '@mui/material';
 import Box from '@mui/material/Box';
@@ -10,15 +9,15 @@ function Mode() {
 		<>
 			<Box textAlign='center'>
 			<ButtonGroup  disableElevation color="primary" variant="contained" size="large">
-				<Button component={Link} to="/chatmode" size="large">
+				<Button component={Link} sx={{fontFamily: 'Work Sans, sans-serif'}} to="/chatmode" size="large">
 					Chat mode
 				</Button>
 
-				<Button component={Link} to="/normal" >
+				<Button component={Link} sx={{fontFamily: 'Work Sans, sans-serif'}} to="/normal" >
 					Normal mode
 				</Button>
 
-				<Button component={Link} to="/watch" >
+				<Button component={Link} sx={{fontFamily: 'Work Sans, sans-serif'}} to="/watch" >
 					Watch mode
 				</Button>
 			</ButtonGroup>

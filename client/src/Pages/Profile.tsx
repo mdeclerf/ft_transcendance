@@ -2,6 +2,7 @@ import { Avatar, Box, Grid, List, ListItem, ListItemText, Typography } from "@mu
 import React from "react";
 import { ProfileDiv, StyledBadge } from "../utils/styles"
 import { User } from "../utils/types"
+import { useTheme } from '@mui/material/styles';
 
 export interface IProfileProps {
 	user: User | undefined;
@@ -9,6 +10,7 @@ export interface IProfileProps {
 
 export const Profile = (props: IProfileProps) => {
 	const { user } = props;
+	const theme = useTheme();
 
 	const generate = (element: React.ReactElement) => {
 		return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((value, i) =>
@@ -70,7 +72,7 @@ export const Profile = (props: IProfileProps) => {
 						width: 800,
 						height: 1000,
 						padding: '5%',
-						backgroundColor: 'primary.dark',
+						backgroundColor: 'primary.main',
 						borderRadius: '20px',
 					}}
 				>

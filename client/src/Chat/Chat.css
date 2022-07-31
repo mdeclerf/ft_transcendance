@@ -35,7 +35,7 @@
 	  transform: rotate(360deg);
 	}
   }
-  
+
   html,
   body {
 	font-family: -apple-system;
@@ -47,7 +47,7 @@
   h1 {
 	font-size: 48px;
   }
-  
+
   h2 {
 	font-size: 36px;
   }
@@ -56,13 +56,13 @@
 	margin-left: 30px;
 	display: block;
   }
-  
+
   .container {
 	max-width: 100%;
 	margin: 0 auto;
 	margin-top: 1%;
   }
-  
+
   .install {
 	text-align: center;
 	margin: 20px auto;
@@ -84,11 +84,11 @@
 	width: 100%;
 	text-align: center;
   }
-  
+
   input:focus {
 	outline: none;
   }
-  
+
   .chatfeed-wrapper {
 	box-shadow: 0 20px 20px rgba(0, 0, 0, 0.08);
 	border-radius: 4px;

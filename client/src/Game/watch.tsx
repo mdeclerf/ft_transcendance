@@ -1,17 +1,18 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { io, Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
 import Button from '@mui/material/Button';
 import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Table } from '@mui/material';
+import { Typography } from '@mui/material';
+import Stack from '@mui/material/Stack';
+import { useTheme } from '@mui/material/styles';
+import { Table, Box } from '@mui/material';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
-import Stack from '@mui/material/Stack';
+import './canvas.css';
 
-// const ws = io("http://10.2.6.5:3001");
-
-let winning_score: number;
 const CANVAS_WIDTH = 700;
 const CANVAS_HEIGHT = 500;
+let winning_score: number;
 
 const draw_players = (context:any, ball_color: string, paddle_color: string, player1_y: number, player2_y: number, ball_x: number, ball_y: number) => {
 	context.clearRect(-100, -100, context.canvas.width + 100, context.canvas.height + 100);
@@ -30,7 +31,7 @@ const draw_players = (context:any, ball_color: string, paddle_color: string, pla
 
 function Watch(props: any) {
 	const ws: Socket = props.socket;;
-	
+	const theme = useTheme();
 	const [array, setArray] = useState<string[]>([]);
 	const [idAdd, setIdAdd] = useState<string>("");
 	const [lastRemoved, setLastRemoved] = useState<string>("");
@@ -53,14 +54,14 @@ function Watch(props: any) {
 
 		ws.on("remove_ongoing_game", (message:string) => {
 			setLastRemoved(message);
-			setArray((prev: any[]) => prev.filter(item => item !== message))
+			setArray((prev: any[]) => prev.filter(item => item !== message));
 		});
 
 		setInterval(() => {
 			ws.emit("monitor");
 		}, 500);
 
-	}, [array, idAdd, lastRemoved]);
+	}, [array, idAdd, lastRemoved, ws]);
 
 	/////////
 
@@ -102,34 +103,36 @@ function Watch(props: any) {
 
 	return (
 	<>
-
 		<Stack spacing={2}>
 			<br></br>
 			<Table>
-				<tbody>
+			<tbody>
 				<TableRow>
-					<TableCell sx={{ fontFamily: 'Courier', }}>Winning score</TableCell>
-					<TableCell sx={{ fontFamily: 'Courier', }} colSpan={2}>{winning_score}</TableCell>
+					<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>Winning score</TableCell>
+					<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }} colSpan={2}>{winning_score}</TableCell>
 				</TableRow>
 
 				<TableRow>
-					<TableCell sx={{ fontFamily: 'Courier', }}>Scores</TableCell>
-					<TableCell sx={{ fontFamily: 'Courier', }}>{firstPScore}</TableCell>
-					<TableCell sx={{ fontFamily: 'Courier', }}>{secondPScore}</TableCell>
+					<TableCell sx={{fontFamily: 'Work Sans, sans-serif'}}>Scores</TableCell>
+					<TableCell sx={{fontFamily: 'Work Sans, sans-serif'}}>{firstPScore}</TableCell>
+					<TableCell sx={{fontFamily: 'Work Sans, sans-serif'}}>{secondPScore}</TableCell>
 				</TableRow>
-				</tbody>
-			</Table>
+			</tbody>
+		</Table>
 			<canvas ref={canvasRef}></canvas>
-		</Stack>
+			<Typography variant="h6" color="#000000" align="center" sx={{fontFamily: 'Work Sans, sans-serif'}}>List of available games to watch</Typography>
 
-		{array.map((element: string,index: any) => {
+			{array.map((element: string,index: any) => {
 			return (
-			<Button variant="contained" sx={{m: 1}} endIcon={<VisibilityIcon />} key={index} onClick={(event: any) => handleClick(event, element)}>
+				<Button variant="contained" sx={{m: 1, fontFamily: 'Work Sans, sans-serif', backgroundColor: 'background.default'}} endIcon={<VisibilityIcon />} key={index} onClick={(event: any) => handleClick(event, element)}>
 				{element}
 			</Button>)
-		})}
+			})}
+
+		</Stack>
 	</>
 	);
 }
 
 export default Watch;
+

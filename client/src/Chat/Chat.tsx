@@ -75,7 +75,7 @@ createStyles({
     minWidth: "0",
     justifyContent: "center",
     width: "100%",
-    paddingTop: "3vh",
+    paddingTop: "1vh",
     margin: `0`,
   },
   wrapText  : {
@@ -248,7 +248,7 @@ function Chat(props: any) {
           {/* form de creation de room */}
           <input
             placeholder="Room Number..."
-            onChange={(event) => {
+            onChange={(event: any) => {
               setRoom(event.target.value);
             }}
           />
@@ -278,11 +278,11 @@ function Chat(props: any) {
             <form className={classes.wrapForm}  noValidate autoComplete="off" id="textareaInput">
               <TextField
                 placeholder='type your message'
-                onChange={(event) => {
+                onChange={(event: any) => {
                   setMessage(event.target.value);
                 }}
                 // si on presse enter, le message s'envoit et le formulaire se vide
-                onKeyDown={(event) => {
+                onKeyDown={(event: any) => {
                   if (event.key === 'Enter')
                   {
                     if (message !== "")
