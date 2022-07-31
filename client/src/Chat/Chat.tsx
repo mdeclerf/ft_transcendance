@@ -107,9 +107,6 @@ createStyles({
 function chatSettings() {
   
   console.log("hy");
-  return (
-    <h1> coucou </h1>
-    );
   }
   
   // BULLES DE MESSAGES
@@ -122,11 +119,16 @@ function chatSettings() {
 function Chat(props: any) {
   const socket: Socket = props.socket;
   const classes = useStyles();
-  const [room, setRoom] = useState<string>("");
+  const [room, setRoom] = useState<string>("0");
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<Array<Message>>([]);
   const [rooms, setRooms] = useState<Array<number>>([]);
 
+  if (rooms.length === 0)
+  {
+    socket.emit("chat_get_room");
+    socket.emit("chat_join_room", "0");
+  }
   // SEND MESSAGE
   const sendMessage = () => {
     socket.emit('chat_send_message', { message, room });
@@ -137,7 +139,7 @@ function Chat(props: any) {
         senderName: "adidion"
       }),
     ])
-    socket.emit("chat_connection");
+    socket.emit("chat_get_room");
   };
   
   // JOIN A ROOM
@@ -161,11 +163,9 @@ function Chat(props: any) {
       sendMessage();
     reset();
   }
-
   
   // DEAL WITH EVENTS
   useEffect(() => {
-
     // RECEPTION DE MESSAGES
     socket.on("chat_receive_message", (data: any) => {
       setMessages([...messages,
@@ -182,13 +182,13 @@ function Chat(props: any) {
       messages.splice(0, messages.length);
       setMessages([]);
       data.forEach(function(value: any, key: any) {
+        setMessages([...messages]);
         messages.push(new Message({
             id: 1,
             message: data[key].body,
             senderName: "talker"
           }),
         );
-        setMessages([...messages]);
       });
       socket.emit("chat_get_room");
     });
@@ -202,27 +202,27 @@ function Chat(props: any) {
         rooms.push(data[key].room_number);
         setRooms([...rooms]);
       });
-      // socket.emit("chat_get_room");
     });
 
     socket.on("chat_set_rooms", (data: any) => {
       rooms.splice(0, rooms.length);
       setRooms([]);
-      data.forEach(function(value: any, key: any) {
-        rooms.push(data[key].room_number);
+      data.forEach((element: any, index: any, array: any) => {
+        rooms.push(data[index].room_number);
         setRooms([...rooms]);
       });
-      //console.log("here");
     })
 
-    window.addEventListener('load', () => {  
-      socket.emit("chat_get_room");  
-    })
-  }, [messages, rooms, room, socket])
+    return () => {
+			socket.close();
+		}
+    // eslint-disable-next-line
+  }, [])
   
   // RESET THE FORM
   function reset() {
     (document.getElementById("textareaInput") as HTMLFormElement).reset();
+    setMessage('');
   }
   
   const loadChannels = rooms.map(room_number => {
@@ -243,7 +243,7 @@ function Chat(props: any) {
         <Paper className={classes.paper}>
           {/* affichage des channels dispo et creation d un bouton / room */}
           <>
-          { loadChannels }
+            { loadChannels }
           </>
           {/* form de creation de room */}
           <input
