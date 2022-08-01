@@ -1,6 +1,3 @@
-.Chat {
-	/* background-color: #696969; */
-  }
   .Chat-logo {
 	height: 40vmin;
 	pointer-events: none;
@@ -67,9 +64,9 @@
 	text-align: center;
 	margin: 20px auto;
   }
-  .Button {
-	margin-top: 1vh;
-	}
+   .Button {
+	  margin-top: 1vh;
+  }
   
   code {
 	margin: 20px auto;

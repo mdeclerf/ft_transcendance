@@ -26,13 +26,9 @@ implements OnGatewayConnection
 	constructor(@Inject(ChatService) private readonly chatService: ChatService) {}
 		
 	@WebSocketServer() server: Server;
-	// users: number = 0;
 
 	handleConnection(client: Socket, ...args: any[]) {
 		this.server.once("chat_connection", (socket) => {
-			// if (this.users <= 0)
-			// 	this.users = 0;
-			// this.users++;
 			this.chatService.getActiveRooms()
 			.then(function(result){
 				socket.emit("chat_connected", result);
@@ -61,7 +57,6 @@ implements OnGatewayConnection
 
 	@SubscribeMessage("chat_get_room")
 	handleChannels(client: Socket) : void {
-		//console.log("heyy");
 		this.chatService.getActiveRooms()
 		.then(function(result){
 			client.emit("chat_set_rooms", result);
