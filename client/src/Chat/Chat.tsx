@@ -83,7 +83,7 @@ createStyles({
   },
   // BOUTON D ENVOI DE TEXTE
   button: {
-    backgroundColor: "#fff",
+    // backgroundColor: "#fff",
     borderColor: "#1D2129",
     borderStyle: "solid",
     borderRadius: 20,
@@ -98,8 +98,8 @@ createStyles({
   },
   selected: {
     color: "#fff",
-    backgroundColor: "#0084FF",
-    borderColor: "#0084FF"
+    // backgroundColor: "#0084FF",
+    // borderColor: "#0084FF"
   }
 })
 );
@@ -119,27 +119,28 @@ function chatSettings() {
 function Chat(props: any) {
   const socket: Socket = props.socket;
   const classes = useStyles();
-  const [room, setRoom] = useState<string>("0");
+  const [room, setRoom] = useState<string>("");
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<Array<Message>>([]);
   const [rooms, setRooms] = useState<Array<number>>([]);
 
   if (rooms.length === 0)
   {
+    console.log("test");
     socket.emit("chat_get_room");
     socket.emit("chat_join_room", "0");
   }
   // SEND MESSAGE
   const sendMessage = () => {
-    socket.emit('chat_send_message', { message, room });
-    setMessages([...messages,
-      new Message({
-        id: 0,
-        message: message,
-        senderName: "adidion"
-      }),
-    ])
     socket.emit("chat_get_room");
+    socket.emit('chat_send_message', { message, room });
+    messages.push(new Message({
+      id: 0,
+      message: message,
+      senderName: "me"
+    }),
+    );
+    setMessages([...messages]);
   };
   
   // JOIN A ROOM
@@ -163,19 +164,24 @@ function Chat(props: any) {
       sendMessage();
     reset();
   }
+
+  function handleReceived(data:any) {
+    socket.emit("chat_get_room");
+    messages.push(new Message({
+      id: 1,
+      message: data.body,
+      senderName: "talker"
+    }),
+    );
+    setMessages([...messages]);
+      console.log("test");
+  }
   
   // DEAL WITH EVENTS
   useEffect(() => {
     // RECEPTION DE MESSAGES
     socket.on("chat_receive_message", (data: any) => {
-      setMessages([...messages,
-        new Message({
-          id: 1,
-          message: data.body,
-          senderName: "talker"
-        }),
-      ])
-      socket.emit("chat_get_room");
+      handleReceived(data);
     });
     // JOIN ROOM
     socket.on("chat_joined_room", (data: any) => {
@@ -192,17 +198,17 @@ function Chat(props: any) {
       });
       socket.emit("chat_get_room");
     });
-    // CONNECTION DU CLIENT
-    socket.on("chat_connected", (data: any) => {
-      if (room === "")
-        socket.emit("chat_join_room", "0");
-      rooms.splice(0, rooms.length);
-      setRooms([]);
-      data.forEach(function(value: any, key: any) {
-        rooms.push(data[key].room_number);
-        setRooms([...rooms]);
-      });
-    });
+     //CONNECTION DU CLIENT
+    //  socket.on("chat_connected", (data: any) => {
+    //    if (room === "")
+    //      socket.emit("chat_join_room", "0");
+    //    rooms.splice(0, rooms.length);
+    //    setRooms([]);
+    //    data.forEach(function(value: any, key: any) {
+    //      rooms.push(data[key].room_number);
+    //      setRooms([...rooms]);
+    //    });
+    //  });
 
     socket.on("chat_set_rooms", (data: any) => {
       rooms.splice(0, rooms.length);
@@ -225,11 +231,11 @@ function Chat(props: any) {
     setMessage('');
   }
   
-  const loadChannels = rooms.map(room_number => {
+  const loadChannels = rooms.map((room_number: number) => {
     return (
-      <button className="channels" key={room_number} onClick={() =>joinChannel(room_number)}>
+      <Button variant="contained" size="large" fullWidth={true} key={room_number} onClick={() =>joinChannel(room_number)}>
           {room_number}
-        </button>
+        </Button>
           )
   })
 
@@ -246,14 +252,33 @@ function Chat(props: any) {
             { loadChannels }
           </>
           {/* form de creation de room */}
-          <input
+          {/* <input
             placeholder="Room Number..."
             onChange={(event: any) => {
               setRoom(event.target.value);
             }}
-          />
+          /> */}
+
+            <TextField
+                fullWidth={true}
+                placeholder="Room Number..."
+                onChange={(event: any) => {
+                  setRoom(event.target.value);
+                }}
+                // si on presse enter, le message s'envoit et le formulaire se vide
+                onKeyDown={(event: any) => {
+                  if (event.key === 'Enter')
+                  {
+                    if (room !== "")
+                    joinRoom();
+                    event.preventDefault();//avoid refreshing at each enter
+                    reset();//clear the form
+                    setRoom('');
+                  }
+                }}
+              />
           {/* bouton pour creer la room */}
-          <button className={classes.createRoom} onClick={joinRoom}> Create Room</button>
+          <Button onClick={joinRoom} fullWidth={true} variant="contained" size="large"> Create Room</Button>
         </Paper>
       </div>
       {/* colonne de droite */}
