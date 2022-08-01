@@ -182,13 +182,13 @@ function Chat(props: any) {
       messages.splice(0, messages.length);
       setMessages([]);
       data.forEach(function(value: any, key: any) {
-        setMessages([...messages]);
         messages.push(new Message({
-            id: 1,
-            message: data[key].body,
-            senderName: "talker"
-          }),
+          id: 1,
+          message: data[key].body,
+          senderName: "talker"
+        }),
         );
+        setMessages([...messages]);
       });
       socket.emit("chat_get_room");
     });
