@@ -42,6 +42,7 @@ export class ChatService {
 
 		message.room_number = body.room_number;
 		message.body = body.body;
+		message.user = body.user;
 		return this.repository.save(message);
 	}
 
