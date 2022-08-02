@@ -8,6 +8,7 @@ import { createStyles, makeStyles } from '@mui/styles';
 import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
 import Button from '@mui/material/Button';
 import { Socket } from 'socket.io-client';
+import { useFetchCurrentUser } from "../utils/hooks/useFetchCurrentUser";
 
 
 const useStyles = makeStyles((theme: any) =>
@@ -120,6 +121,7 @@ const customBubble = (props: any) => (
 function Chat(props: any) {
   const socket: Socket = props.socket;
   const classes = useStyles();
+  const { user } = useFetchCurrentUser();
   const [room, setRoom] = useState<string>("0");
   const [message, setMessage] = useState<string>("");
   const [messages, setMessages] = useState<Array<Message>>([]);
@@ -135,7 +137,8 @@ function Chat(props: any) {
 
   // SEND MESSAGE
   const sendMessage = () => {
-    socket.emit('chat_send_message', { message, room });
+	  console.log(user);
+    socket.emit('chat_send_message', { message, room, user });
     let tmp = new Message({
       id: 0,
       message: message,

@@ -7,9 +7,10 @@ import {
 	SubscribeMessage,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { CreateChatDto } from './typeorm/chat/chat.dto';
-import { ChatService } from './typeorm/chat/chat.service';
-import { Chat } from './typeorm/typeorm.module';
+import { dataType } from 'src/utils/types';
+import { CreateChatDto } from '../typeorm/chat/chat.dto';
+import { ChatService } from '../typeorm/chat/chat.service';
+import { Chat, User } from '../typeorm/typeorm.module';
 
 @WebSocketGateway({
 	cors: {
@@ -20,7 +21,7 @@ import { Chat } from './typeorm/typeorm.module';
 
 // @UseGuards(JwtAuthGuard)
 @WebSocketGateway({ cors: true })
-export class AppGateway
+export class ChatGateway
 implements OnGatewayConnection
 {
 	constructor(@Inject(ChatService) private readonly chatService: ChatService) {}
@@ -48,13 +49,14 @@ implements OnGatewayConnection
 	}
 
 	@SubscribeMessage("chat_send_message")
-	chatSendMessage(client: Socket, data: any) {
-		let message : CreateChatDto = new CreateChatDto();
-		message.body = data.message;
-		message.room_number = data.room ? data.room : 0;
-		message.createdAt = new Date();
-		this.chatService.createMessage(message);
-		client.to(data.room).emit("chat_receive_message", message);
+	chatSendMessage(client: Socket, data: dataType) {
+		const { message, room, user } = data;
+		let msg : CreateChatDto = new CreateChatDto();
+		msg.body = message;
+		msg.room_number = room ? room : 0;
+		msg.user = user;
+		this.chatService.createMessage(msg);
+		client.to(room.toString()).emit("chat_receive_message", msg);
 	}
 
 	@SubscribeMessage("chat_get_room")

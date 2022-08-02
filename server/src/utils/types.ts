@@ -34,3 +34,9 @@ export class GameDetails{
 	public player_2_score : number;
 	public mode : string;
 }
+
+export type dataType = {
+	message: string;
+	room: number;
+	user: User;
+}
