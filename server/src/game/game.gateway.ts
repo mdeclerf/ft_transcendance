@@ -257,43 +257,37 @@ export class GameGateway implements OnGatewayDisconnect {
 		{
 			if (value.is_over || (value.first_player === null && value.removed) || (value.second_player === null && value.removed))
 			{
-				console.log(`deleted ${value.key} chez client ${client.id}`);
-				client.emit("remove_ongoing_game", `${value.key}`);
-				// let tmp = value.key;
-				// this.Game.delete(tmp);
+				this.wss.sockets.emit("remove_ongoing_game", `${value.key}`);
+				let tmp: string = value.key;
+				this.Game.delete(tmp);
 				continue;
 			}
-			else if (value.first_player && value.second_player)
+			if (value.first_player && value.second_player)
 				client.emit("add_ongoing_game", `${value.key}`);
 		}
 	}
 
 	@SubscribeMessage("add_spectator")
 	AddSpectator(client: Socket, message: any) : void {
-		console.log(`Add spectator ${client.id}`);
-		if (this.Game.get(message))
+		if (this.Game.has(message))
 			this.Game.get(message).add_player(new Player(client.id, client));
+	}
+
+	@SubscribeMessage("remove_spectator")
+	RemoveSpectator(client: Socket, message: any) : void {
+		if (this.Game.has(message))
+			this.Game.get(message).remove_spectator(client.id);
 	}
 
 	handleDisconnect(client: Socket) {
 		for (let value of this.Game.values())
 		{
 			if ((value.first_player && client.id === value.first_player.id) || (value.second_player && client.id === value.second_player.id)) {
+			
 				value.remove_player(client.id);
+				for(let i = 0; i < value.spectator.length; i++)
+					value.spectator[i].socket.emit("disconnection_of_player", value.key);
 				break;
-			}
-
-			if (value.spectator.length > 0)
-			{
-				for(let j = 0; j <= value.spectator.length; j++) 
-				{
-					if (client.id && client.id === value.spectator[j].id)
-					{
-						value.remove_spectator(client.id);
-						console.log(`Remove Spectator ${client.id}`);
-						break;
-					}
-				}
 			}
 		}
 	}

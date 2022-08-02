@@ -108,12 +108,10 @@ function Canvas(props: any) {
 		window.addEventListener('keydown', (e) => {
 
 			if (e.key === up_key && last_send !== 'u') {
-				// e.preventDefault();
 				ws.emit('setPosition', room_number, 'u');
 				last_send = 'u';
 			}
 			if (e.key === down_key && last_send !== 'd') {
-				// e.preventDefault();
 				ws.emit('setPosition', room_number, 'd');
 				last_send = 'd';
 			}
@@ -121,7 +119,6 @@ function Canvas(props: any) {
 
 		window.addEventListener('keyup', (e) => {
 			if (last_send !== 'o' && room_number !== "") {
-				// e.preventDefault();
 				ws.emit('setPosition', room_number, 'o');
 				last_send = 'o';
 			}
@@ -182,11 +179,17 @@ function Canvas(props: any) {
 				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }} colSpan={2}>{winning_score}</TableCell>
 			</TableRow>
 
-			<TableRow>
+			{(player_status === "First player") && <TableRow>
 				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>Scores</TableCell>
 				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>{firstPScore}</TableCell>
 				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>{secondPScore}</TableCell>
-			</TableRow>
+			</TableRow> }
+
+			{(player_status === "Second player") && <TableRow>
+				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>Scores</TableCell>
+				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>{secondPScore}</TableCell>
+				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>{firstPScore}</TableCell>
+			</TableRow> }
 			</tbody>
 		</Table>
 

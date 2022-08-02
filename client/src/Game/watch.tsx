@@ -7,6 +7,7 @@ import Stack from '@mui/material/Stack';
 import { Table } from '@mui/material';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
+import { Alert } from '@mui/material';
 import './canvas.css';
 
 const CANVAS_WIDTH = 700;
@@ -33,9 +34,16 @@ function Watch(props: any) {
 	const [array, setArray] = useState<string[]>([]);
 	const [idAdd, setIdAdd] = useState<string>("");
 	const [lastRemoved, setLastRemoved] = useState<string>("");
+	const [currentlyWatched, setCurrentlyWatched] = useState<string>("");
+	const [disconnection, setDisconnection] = useState<boolean>(false);
 
 	const handleClick = (e : any, key: string) => {
+		setDisconnection(false);
+		if(currentlyWatched !== "")
+			ws.emit("remove_spectator", currentlyWatched);
 		ws.emit("add_spectator", key);
+		setCurrentlyWatched(key);
+		console.log(`CURRENT MATCH ${key}`);
 	};
 
 	useEffect(() => {
@@ -51,17 +59,24 @@ function Watch(props: any) {
 		}
 
 		ws.on("remove_ongoing_game", (message:string) => {
-			console.log("remoooooove");
 			setLastRemoved(message);
 			setArray((prev: any[]) => prev.filter(item => item !== message));
 		});
 
+		ws.on("disconnection_of_player", (message:string) => {
+			if (message === currentlyWatched)
+			{
+				console.log(`message ${message} // currently watched ${currentlyWatched}`)
+				setDisconnection(true);
+				setCurrentlyWatched("");
+			}
+		});
+
 		setInterval(() => {
 			ws.emit("monitor");
-			console.log("test");
 		}, 500);
 
-	}, [array, idAdd, lastRemoved, ws]);
+	}, [array, idAdd, lastRemoved, currentlyWatched, ws]);
 
 	/////////
 
@@ -117,6 +132,13 @@ function Watch(props: any) {
 				</TableRow>
 			</tbody>
 		</Table>
+
+			{(disconnection === true) &&
+				<div>
+				<Alert severity="info">The match is over or an one of the players left the game...</Alert>
+				</div>
+			}
+
 			<canvas ref={canvasRef}></canvas>
 			<Typography variant="h6" color="#000000" align="center" sx={{fontFamily: 'Work Sans, sans-serif'}}>List of available games to watch</Typography>
 
