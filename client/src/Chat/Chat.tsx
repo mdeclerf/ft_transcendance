@@ -178,7 +178,7 @@ function Chat(props: any) {
         new Message({
           id: 1,
           message: data.body,
-          senderName: "talker" //todo
+          senderName: data.user.username //todo
         }),
       ])
       socket.emit("chat_get_room");
