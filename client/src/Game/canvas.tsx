@@ -8,6 +8,11 @@ import { TextField } from '@mui/material';
 import { Table } from '@mui/material';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
 import './canvas.css';
 
 const up_key: string = "w";
@@ -47,6 +52,7 @@ function Canvas(props: any) {
 	const [disabled, setDisabled] = useState<boolean>(false);
 	const [firstPScore, setFirstPScore] = useState<string>("0");
 	const [secondPScore, setSecondPScore] = useState<string>("0");
+	const [back, setBack] = useState<string>("plain");
 
 	//////////////
 	const handleMatchmakingClick = () => {
@@ -204,6 +210,17 @@ function Canvas(props: any) {
 		{((location.pathname === "/chatmode" && replay && player_status !== "Watching"))&&
 			<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif'}} onClick={handlePlayClick}>Play again !</Button>
 		}
+
+		<FormControl>
+			<FormLabel>Map background</FormLabel>
+			<RadioGroup row value={back} onChange={(e: any) => setBack(e.target.value)}>
+				<FormControlLabel value="plain" control={<Radio />} label="Plain" />
+				<FormControlLabel value="grass" control={<Radio />} label="Grass" />
+				<FormControlLabel value="sand" control={<Radio />} label="Sand" />
+				<FormControlLabel value="metal" control={<Radio />} label="Metal" />
+				<FormControlLabel value="paint" control={<Radio />} label="Paint" />
+			</RadioGroup>
+		</FormControl>
 
 		</Stack>
 	);

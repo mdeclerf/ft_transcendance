@@ -125,8 +125,6 @@ function Chat(props: any) {
   const { user } = useFetchCurrentUser();
   const [room, setRoom] = useState<string>("0");
   const [message, setMessage] = useState<string>("");
-  const [userMessages, setUserMessages] = useState<Array<Message>>([]);
-  const [recMessages, setRecMessages] = useState<Array<Message>>([]);
   const [allMessages, setAllMessages] = useState<Array<Message>>([]);
   const [rooms, setRooms] = useState<Array<number>>([]);
 
@@ -141,7 +139,7 @@ function Chat(props: any) {
   // SEND MESSAGE
   const sendMessage = () => {
     socket.emit('chat_send_message', { message, room, user });
-	setUserMessages([...userMessages,
+	setAllMessages([...allMessages,
         new Message({
 			id: 0,
 			message: message,
@@ -176,11 +174,11 @@ function Chat(props: any) {
   useEffect(() => {
 
     function handleReceived(data:any) {
-      setRecMessages([...recMessages,
+      setAllMessages([...allMessages,
         new Message({
           id: 1,
           message: data.body,
-          senderName: "talker" //todo
+          senderName: data.user.username //todo
         }),
       ])
       socket.emit("chat_get_room");
@@ -188,29 +186,25 @@ function Chat(props: any) {
 
     function handleJoined(data: ChatResponse[]) {
 		if (room === "")
-		setRoom("0");
-		userMessages.splice(0, userMessages.length);
-		setUserMessages([]);
-		recMessages.splice(0, recMessages.length);
-		setRecMessages([]);
+			setRoom("0");
+		allMessages.splice(0, allMessages.length);
+		setAllMessages([]);
 		for (const chatEntry of data) {
 			if (chatEntry.user.id === user?.id) {
-				setUserMessages([...userMessages,
-					new Message({
-						id: 0,
-						message: chatEntry.body,
-						senderName: chatEntry.user.username
-					}),
-				])
+				allMessages.push(new Message ({
+					id: 0,
+					message: chatEntry.body,
+					senderName: chatEntry.user.username
+				}));
+				setAllMessages([...allMessages]);
 			}
 			else {
-			    setRecMessages([...recMessages,
-					new Message({
-						id: 1,
-						message: chatEntry.body,
-						senderName: chatEntry.user.username
-					}),
-				])
+				allMessages.push(new Message ({
+					id: 1,
+					message: chatEntry.body,
+					senderName: chatEntry.user.username
+				}));
+				setAllMessages([...allMessages]);
 			}
 		}
     }
@@ -259,7 +253,7 @@ function Chat(props: any) {
 			socket.off();
 		}
   // eslint-disable-next-line
-  }, [message, userMessages, recMessages, room, rooms])
+  }, [message, allMessages, room, rooms])
   
   // RESET THE FORM
   function reset() {
@@ -306,7 +300,7 @@ function Chat(props: any) {
           <Paper id="style-1" className={classes.messagesBody}>
             {/* gestion de l'historique des messages */}
             <ChatFeed
-              messages={userMessages, recMessages} // Boolean: list of message objects
+              messages={allMessages} // Boolean: list of message objects
               isTyping={false} // Boolean: is the recipient typing
               hasInputField={false} // Boolean: use our input, or use your own
               showSenderName={true} // show the name of the user who sent the message
