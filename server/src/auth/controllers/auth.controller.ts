@@ -14,7 +14,7 @@ export class AuthController {
 	@Get('redirect')
 	@UseGuards(IntraAuthGuard)
 	redirect(@Res() res: Response) {
-		res.redirect('http://localhost:3000/game');
+		res.redirect('http://localhost:3000/');
 	}
 
 	@Get('status')

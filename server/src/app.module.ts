@@ -7,6 +7,7 @@ import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { entities, OrmModule } from './typeorm/typeorm.module';
 import { UserModule } from './user/user.module';
+import { AppGateway } from './app.gateway'
 
 @Module({
   imports: [
@@ -27,6 +28,6 @@ import { UserModule } from './user/user.module';
 	OrmModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, AppGateway],
 })
 export class AppModule {}

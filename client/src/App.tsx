@@ -2,9 +2,19 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Routes, Route} from 'react-router-dom/';
 import { LoginPage } from './Pages/LoginPage';
 import { useFetchCurrentUser } from './utils/hooks/useFetchCurrentUser';
-import { Game } from './Pages/Game';
+import Chat from "./Chat/Chat";
 import { Logout } from './Pages/Logout';
+import Mode from './Game/mode';
+import  theme_2  from './themes/2';
+import  theme_1  from './themes/1';
+import Canvas from './Game/canvas';
+import Watch from './Game/watch';
+import { Grid } from '@mui/material';
+import { CssBaseline } from "@mui/material";
+import { ThemeProvider } from '@mui/material/styles';
 import { Header } from './Components/Header';
+import { Fab } from '@mui/material';
+import Brightness4Icon from '@mui/icons-material/Brightness4';
 import { Avatar, Button, CircularProgress } from '@mui/material/';
 import { CenteredDiv } from './utils/styles';
 import { Profile } from './Pages/Profile';
@@ -14,6 +24,15 @@ import { UserPage } from './Pages/UserPage';
 import { TwoFactor } from './Pages/TwoFactor';
 import AuthCode, { AuthCodeRef } from 'react-auth-code-input';
 import axios from 'axios/';
+import { io } from 'socket.io-client';
+
+const socket = io('http://localhost:3001');
+
+const fabStyle = {
+	position: 'absolute',
+	bottom: 16,
+	left: 16,
+};
 
 function App() {
 	const { user, error, loading } = useFetchCurrentUser();
@@ -21,6 +40,8 @@ function App() {
 	const AuthInputRef = useRef<AuthCodeRef>(null);
 	const AuthInputDivRef = useRef<HTMLDivElement>(null);
 	const ButtonRef = useRef<HTMLButtonElement>(null);
+
+	const [colors, setColors] = React.useState(true);
 
 	useEffect(() => {
 		const keyDownHandler = (event: KeyboardEvent) => {
@@ -39,7 +60,7 @@ function App() {
 		setTwoFactorCode(res);
 		AuthInputDivRef.current?.classList.remove('error');
 	}
-	
+
 	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 		axios
 			.post('http://localhost:3001/api/2fa/authenticate', { twoFactorAuthCode: twoFactorCode }, { withCredentials: true})
@@ -56,18 +77,45 @@ function App() {
 
 	return (
 		<>
+			<ThemeProvider theme={colors ? theme_1 : theme_2}>
+
 			<Header user={user} error={error}/>
+
+			<CssBaseline/>
+			{/* <Button variant="outlined"  onClick={() => setColors((prev: any) => !prev)}>Toggle Theme</Button> */}
+			<Fab sx={fabStyle} color="primary" onClick={() => setColors((prev: any) => !prev)}>
+				<Brightness4Icon />
+			</Fab>
+
 			{((user && !user.isTwoFactorAuthenticationEnabled) || (user && user.isTwoFactorAuthenticationEnabled && user.isSecondFactorAuthenticated)) && !error ?
 				<Routes>
 					<Route path="/" element={<WelcomePage />} />
-					<Route path="/game" element={<Game />}/>
-					<Route path="/spectate" />
-					<Route path="/chat" />
+					<Route path="/chat" element={<Chat socket={socket}/>}/>
+					<Route path="/game" element={<Mode/> }/>
 					<Route path="/profile" element={<Profile user={user}/>} />
-					<Route path="/user/:username" element={<UserPage />}/>
+					<Route path="/user/:username" element={<UserPage/>}/>
 					<Route path="/account" element={<MyAccount user={user} />} />
-					<Route path="/logout" element={<Logout />}/>
+					<Route path="/logout" element={<Logout/>}/>
 					<Route path="/2fa" element={<TwoFactor user={user} />}/>
+
+					<Route path='/chatmode' element={
+						<Grid container justifyContent='center'>
+							<Canvas/>
+						</Grid> }>
+					</Route>
+
+					<Route path='/normal' element={
+						<Grid container justifyContent='center'>
+							<Canvas socket={socket}/>
+						</Grid> }>
+					</Route>
+
+					<Route path='/watch' element={
+						<Grid container justifyContent='center'>
+							<Watch socket={socket}/>
+						</Grid> }>
+					</Route>
+
 				</Routes>
 				:
 				<Routes>
@@ -76,7 +124,7 @@ function App() {
 							path="*" 
 							element={
 								<CenteredDiv>
-									<h1>Welcome {user.username}</h1>
+									<h1>Welcome{user.username}</h1>
 									<Avatar
 										alt={user?.username}
 										src={user?.photoURL}
@@ -105,6 +153,7 @@ function App() {
 					}
 				</Routes>
 			}
+			</ThemeProvider>
 		</>
 	);
 }
