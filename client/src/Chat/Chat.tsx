@@ -9,6 +9,7 @@ import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
 import Button from '@mui/material/Button';
 import { Socket } from 'socket.io-client';
 import { useFetchCurrentUser } from "../utils/hooks/useFetchCurrentUser";
+import { ChatResponse } from '../utils/types';
 
 
 const useStyles = makeStyles((theme: any) =>
@@ -124,7 +125,9 @@ function Chat(props: any) {
   const { user } = useFetchCurrentUser();
   const [room, setRoom] = useState<string>("0");
   const [message, setMessage] = useState<string>("");
-  const [messages, setMessages] = useState<Array<Message>>([]);
+  const [userMessages, setUserMessages] = useState<Array<Message>>([]);
+  const [recMessages, setRecMessages] = useState<Array<Message>>([]);
+  const [allMessages, setAllMessages] = useState<Array<Message>>([]);
   const [rooms, setRooms] = useState<Array<number>>([]);
 
   // INITIALISATION DES CHANNELS ET REJOINDRE LE CHANNEL 0
@@ -137,17 +140,17 @@ function Chat(props: any) {
 
   // SEND MESSAGE
   const sendMessage = () => {
-	  console.log(user);
     socket.emit('chat_send_message', { message, room, user });
-    let tmp = new Message({
-      id: 0,
-      message: message,
-      senderName: "adidion"
-    });
-    setMessages([...messages,tmp])
+	setUserMessages([...userMessages,
+        new Message({
+			id: 0,
+			message: message,
+			senderName: user?.username
+        }),
+	])
     socket.emit("chat_get_room");
   };
-  
+
   // JOIN A ROOM
   const joinRoom = () => {
     if (room !== "") {
@@ -173,29 +176,43 @@ function Chat(props: any) {
   useEffect(() => {
 
     function handleReceived(data:any) {
-      setMessages([...messages,
+      setRecMessages([...recMessages,
         new Message({
           id: 1,
           message: data.body,
-          senderName: "talker"
+          senderName: "talker" //todo
         }),
       ])
       socket.emit("chat_get_room");
     }
 
-    function handleJoined(data:any) {
-      if (room === "")
-        setRoom("0");
-      messages.splice(0, messages.length);
-      setMessages([]);
-      data.forEach(function(value: any, key: any) {
-        messages.push(new Message({
-          id: 1,
-          message: data[key].body,
-          senderName: "talker"
-        }));
-        setMessages([...messages]);
-      });
+    function handleJoined(data: ChatResponse[]) {
+		if (room === "")
+		setRoom("0");
+		userMessages.splice(0, userMessages.length);
+		setUserMessages([]);
+		recMessages.splice(0, recMessages.length);
+		setRecMessages([]);
+		for (const chatEntry of data) {
+			if (chatEntry.user.id === user?.id) {
+				setUserMessages([...userMessages,
+					new Message({
+						id: 0,
+						message: chatEntry.body,
+						senderName: chatEntry.user.username
+					}),
+				])
+			}
+			else {
+			    setRecMessages([...recMessages,
+					new Message({
+						id: 1,
+						message: chatEntry.body,
+						senderName: chatEntry.user.username
+					}),
+				])
+			}
+		}
     }
 
     function handleConnected(data:any) {
@@ -224,7 +241,7 @@ function Chat(props: any) {
     });
 
     // JOIN ROOM
-    socket.on("chat_joined_room", (data: any) => {
+    socket.on("chat_joined_room", (data: ChatResponse[]) => {
       handleJoined(data);
     });
 
@@ -242,13 +259,12 @@ function Chat(props: any) {
 			socket.off();
 		}
   // eslint-disable-next-line
-  }, [message, messages, room, rooms])
+  }, [message, userMessages, recMessages, room, rooms])
   
   // RESET THE FORM
   function reset() {
     (document.getElementById("textareaInput") as HTMLFormElement).reset();
     setMessage('');
-    
   }
   
   const loadChannels = rooms.map((room_number: number) => {
@@ -290,7 +306,7 @@ function Chat(props: any) {
           <Paper id="style-1" className={classes.messagesBody}>
             {/* gestion de l'historique des messages */}
             <ChatFeed
-              messages={messages} // Boolean: list of message objects
+              messages={userMessages, recMessages} // Boolean: list of message objects
               isTyping={false} // Boolean: is the recipient typing
               hasInputField={false} // Boolean: use our input, or use your own
               showSenderName={true} // show the name of the user who sent the message

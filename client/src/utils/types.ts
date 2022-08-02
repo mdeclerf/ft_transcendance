@@ -17,3 +17,8 @@ export type UserResponse = {
 	found: boolean;
 	user: User;
 }
+
+export type ChatResponse = {
+	body: string;
+	user: User;
+}

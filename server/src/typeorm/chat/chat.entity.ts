@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, JoinTable, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { User } from "../typeorm.module";
 
 @Entity()
@@ -14,6 +14,7 @@ export class Chat {
 	public body: string;
 
 	@ManyToOne(() => User, (user) => user.chat)
+	@JoinColumn({ name: 'user_id' })
 	user: User
 
 	@CreateDateColumn({name: 'createdat', type: 'timestamp'})

@@ -17,10 +17,12 @@ export class ChatService {
 
 	//Return every message of a room
 	public getRoom(room_id: number) : Promise<Chat[]> {
-		return this.repository.find({
-			where: [{room_number : room_id}],
-			order: {createdAt: "ASC"}
-		});
+		const result = this.repository.createQueryBuilder('chat')
+			.leftJoinAndSelect('chat.user', 'user')
+			.where('chat.room_number = :id', { id: room_id })
+			.orderBy('chat.createdat', 'ASC')
+			.getMany();
+		return result;
 	}
 
 	//Return every room with at least 1 message(s)
