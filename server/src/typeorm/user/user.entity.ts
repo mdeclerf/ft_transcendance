@@ -1,4 +1,5 @@
-import { Column, Entity, JoinTable, ManyToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Chat } from "../typeorm.module";
 
 @Entity({ name: 'users' })
 export class User {
@@ -23,6 +24,9 @@ export class User {
 
 	@Column ({default: false})
 	public isTwoFactorAuthenticationEnabled: boolean;
+
+	@OneToMany(() => Chat, (chat) => chat.user)
+	chat: Chat[]
 
 	// @ManyToMany(() => User, user => user.id)
 	// @JoinTable()
