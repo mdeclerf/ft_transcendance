@@ -4,8 +4,7 @@ import Button from '@mui/material/Button';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Typography } from '@mui/material';
 import Stack from '@mui/material/Stack';
-import { useTheme } from '@mui/material/styles';
-import { Table, Box } from '@mui/material';
+import { Table } from '@mui/material';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import './canvas.css';
@@ -31,7 +30,6 @@ const draw_players = (context:any, ball_color: string, paddle_color: string, pla
 
 function Watch(props: any) {
 	const ws: Socket = props.socket;;
-	const theme = useTheme();
 	const [array, setArray] = useState<string[]>([]);
 	const [idAdd, setIdAdd] = useState<string>("");
 	const [lastRemoved, setLastRemoved] = useState<string>("");
@@ -53,12 +51,14 @@ function Watch(props: any) {
 		}
 
 		ws.on("remove_ongoing_game", (message:string) => {
+			console.log("remoooooove");
 			setLastRemoved(message);
 			setArray((prev: any[]) => prev.filter(item => item !== message));
 		});
 
 		setInterval(() => {
 			ws.emit("monitor");
+			console.log("test");
 		}, 500);
 
 	}, [array, idAdd, lastRemoved, ws]);
@@ -72,7 +72,6 @@ function Watch(props: any) {
 	const [secondPScore, setSecondPScore] = useState<string>("0");
 
 	ws.on('winning_score', (message:string) => {
-		console.log(`winning score ${message}`);
 		winning_score = parseInt(message);
 	});
 
@@ -86,7 +85,6 @@ function Watch(props: any) {
 		draw_players(context, ball_color, paddle_color, 10, 10, 350, 250);
 
 		ws.on('getPosition', (message: string) => {
-			console.log(`received ${message}`)
 			let data = message.split(" ");
 			draw_players(context, ball_color, paddle_color, parseInt(data[0]), parseInt(data[1]), parseInt(data[2]), parseInt(data[3]));
 			setFirstPScore(data[4]);
@@ -124,7 +122,7 @@ function Watch(props: any) {
 
 			{array.map((element: string,index: any) => {
 			return (
-				<Button variant="contained" sx={{m: 1, fontFamily: 'Work Sans, sans-serif', backgroundColor: 'background.default'}} endIcon={<VisibilityIcon />} key={index} onClick={(event: any) => handleClick(event, element)}>
+				<Button variant="contained" sx={{m: 1, fontFamily: 'Work Sans, sans-serif'}} endIcon={<VisibilityIcon />} key={index} onClick={(event: any) => handleClick(event, element)}>
 				{element}
 			</Button>)
 			})}

@@ -128,9 +128,11 @@ function Chat(props: any) {
   // INITIALISATION DES CHANNELS ET REJOINDRE LE CHANNEL 0
   if (rooms.length === 0)
   {
+    socket.emit("handle_connect_test");
     socket.emit("chat_get_room");
     socket.emit("chat_join_room", "0");
   }
+
   // SEND MESSAGE
   const sendMessage = () => {
     socket.emit('chat_send_message', { message, room });
@@ -248,7 +250,7 @@ function Chat(props: any) {
   
   const loadChannels = rooms.map((room_number: number) => {
     return (
-      <Button variant="contained" size="large" fullWidth={true} key={room_number} onClick={() =>joinChannel(room_number)}>
+      <Button  sx={{mt:0.5}} variant="contained" size="large" fullWidth={true} key={room_number} onClick={() =>joinChannel(room_number)}>
         {room_number}
       </Button>
     )
@@ -270,7 +272,7 @@ function Chat(props: any) {
           <TextField
             fullWidth={true}
             placeholder="Room Number..."
-            onChange={(event) => {
+            onChange={(event: any) => {
               setRoom(event.target.value);
             }}
           />
@@ -300,11 +302,11 @@ function Chat(props: any) {
             <form className={classes.wrapForm}  noValidate autoComplete="off" id="textareaInput">
               <TextField
                 placeholder='type your message'
-                onChange={(event) => {
+                onChange={(event: any) => {
                   setMessage(event.target.value);
                 }}
                 // si on presse enter, le message s'envoit et le formulaire se vide
-                onKeyDown={(event) => {
+                onKeyDown={(event: any) => {
                   if (event.key === 'Enter')
                   {
                     if (message !== "")

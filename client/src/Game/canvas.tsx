@@ -8,7 +8,6 @@ import { TextField } from '@mui/material';
 import { Table } from '@mui/material';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
-import { useTheme } from '@mui/material/styles';
 import './canvas.css';
 
 const up_key: string = "w";
@@ -37,7 +36,6 @@ const draw_players = (context:any, ball_color: string, paddle_color: string, pla
 
 function Canvas(props: any) {
 	const ws: Socket = props.socket;
-	const theme = useTheme();
 	const location = useLocation();
 	let ball_color: string = '#000';
 	let paddle_color: string = '#000';
@@ -110,12 +108,12 @@ function Canvas(props: any) {
 		window.addEventListener('keydown', (e) => {
 
 			if (e.key === up_key && last_send !== 'u') {
-				e.preventDefault();
+				// e.preventDefault();
 				ws.emit('setPosition', room_number, 'u');
 				last_send = 'u';
 			}
 			if (e.key === down_key && last_send !== 'd') {
-				e.preventDefault();
+				// e.preventDefault();
 				ws.emit('setPosition', room_number, 'd');
 				last_send = 'd';
 			}
@@ -123,7 +121,7 @@ function Canvas(props: any) {
 
 		window.addEventListener('keyup', (e) => {
 			if (last_send !== 'o' && room_number !== "") {
-				e.preventDefault();
+				// e.preventDefault();
 				ws.emit('setPosition', room_number, 'o');
 				last_send = 'o';
 			}
@@ -142,6 +140,10 @@ function Canvas(props: any) {
 		return () => {
 			ws.close();
 		}
+
+		// return () => {
+		// 	ws.off();
+		// }
 	// eslint-disable-next-line
 	}, []);
 
