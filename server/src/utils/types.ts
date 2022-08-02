@@ -17,22 +17,26 @@ export type Done = (err: Error, user: User) => void;
 export class GameDetails{
 
 	constructor() {
-		this.socket_id = "";
-		this.socket_id_opponent = "";
-		this.login = "";
-		this.login_opponent = "";
+		this.player_1_id = "";
+		this.player_2_id = "";
+		this.player_1_login = "";
+		this.player_2_login = "";
+		this.player_1_score = 0;
+		this.player_2_score = 0;
 		this.mode = "";
-		this.score = 0;
-		this.score_opponent = 0;
-		this.has_won = false;
 	}
 
-	public socket_id : string;
-	public socket_id_opponent : string;
-	public login : string;
-	public login_opponent : string;
+	public player_1_id : string;
+	public player_2_id : string;
+	public player_1_login : string;
+	public player_2_login : string;
+	public player_1_score : number;
+	public player_2_score : number;
 	public mode : string;
-	public score : number;
-	public score_opponent : number;
-	public has_won : boolean;
+}
+
+export type dataType = {
+	message: string;
+	room: number;
+	user: User;
 }

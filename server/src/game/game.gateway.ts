@@ -136,8 +136,7 @@ class Pong{
 				this.second_player.socket.emit("running", "false");
 				this.first_player.socket.emit("getPosition", `${this.first_player.y_pos} ${this.second_player.y_pos} ${this.ball_x} ${this.ball_y} ${this.first_player.score} ${this.second_player.score}`);
 				this.second_player.socket.emit("getPosition", `${this.second_player.y_pos} ${this.first_player.y_pos} ${700 - this.ball_x} ${this.ball_y} ${this.first_player.score} ${this.second_player.score} `);
-				this.database_create(this.first_player.id);
-				this.database_create(this.second_player.id);
+				this.database_create(this.first_player.id, this.second_player.id);
 
 				if (this.mode === "chat")
 				{
@@ -211,37 +210,22 @@ class Pong{
 		}
 	}
 
-	set_details(id: string)
+	set_details(p1_id: string, p2_id: string)
 	{
-		if (this.first_player && this.first_player.id == id)
+		if ((this.first_player && this.first_player.id == p1_id) && (this.second_player && this.second_player.id == p2_id))
 		{
-			details.mode = this.mode
-			details.socket_id = this.first_player.id;
-			details.socket_id_opponent = this.second_player.id;
-			details.score = this.first_player.score;
-			details.score_opponent = this.second_player.score;
-			if (this.first_player.score >= this.winning_score)
-			details.has_won = true;
-			else if (this.second_player.score >= this.winning_score)
-			details.has_won = false;
-		}
-
-		else if (this.second_player && this.second_player.id == id)
-		{
-			details.mode = this.mode
-			details.socket_id = this.second_player.id;
-			details.socket_id_opponent = this.first_player.id;
-			details.score = this.second_player.score;
-			details.score_opponent = this.first_player.score;
-			if (this.second_player.score >= this.winning_score)
-			details.has_won = true;
-			else if (this.first_player.score >= this.winning_score)
-			details.has_won = false;
+			details.player_1_id = this.first_player.id;
+			details.player_2_id = this.second_player.id;
+			details.player_1_login = "";
+			details.player_2_login = " ";
+			details.player_1_score = this.first_player.score;
+			details.player_2_score = this.second_player.score;
+			details.mode = this.mode;
 		}
 	}
 
-	async database_create(id: string): Promise<void> {
-		this.set_details(id);
+	async database_create(p1_id: string, p2_id): Promise<void> {
+		this.set_details(p1_id, p2_id);
 		await this.gameService.createUser(details);
 	}
 }
@@ -273,9 +257,10 @@ export class GameGateway implements OnGatewayDisconnect {
 		{
 			if (value.is_over || (value.first_player === null && value.removed) || (value.second_player === null && value.removed))
 			{
+				console.log(`deleted ${value.key} chez client ${client.id}`);
 				client.emit("remove_ongoing_game", `${value.key}`);
-				let tmp = value.key;
-				this.Game.delete(tmp);
+				// let tmp = value.key;
+				// this.Game.delete(tmp);
 				continue;
 			}
 			else if (value.first_player && value.second_player)
@@ -286,7 +271,8 @@ export class GameGateway implements OnGatewayDisconnect {
 	@SubscribeMessage("add_spectator")
 	AddSpectator(client: Socket, message: any) : void {
 		console.log(`Add spectator ${client.id}`);
-		this.Game.get(message).add_player(new Player(client.id, client));
+		if (this.Game.get(message))
+			this.Game.get(message).add_player(new Player(client.id, client));
 	}
 
 	handleDisconnect(client: Socket) {
@@ -301,13 +287,11 @@ export class GameGateway implements OnGatewayDisconnect {
 			{
 				for(let j = 0; j <= value.spectator.length; j++) 
 				{
-					if (value.spectator[j])
+					if (client.id && client.id === value.spectator[j].id)
 					{
-						if (client.id === value.spectator[j].id)
-						{
-							value.remove_spectator(client.id);
-							break;
-						}
+						value.remove_spectator(client.id);
+						console.log(`Remove Spectator ${client.id}`);
+						break;
 					}
 				}
 			}
