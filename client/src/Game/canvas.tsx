@@ -8,6 +8,7 @@ import { TextField } from '@mui/material';
 import { Table } from '@mui/material';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
+import { useFetchCurrentUser } from "../utils/hooks/useFetchCurrentUser";
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -20,30 +21,17 @@ const down_key: string = "s";
 let last_send: string = "s";
 let player_status: string;
 let winning_score: number;
-const CANVAS_WIDTH = 700;
-const CANVAS_HEIGHT = 500;
 let room_number: string = "";
+const CANVAS_HEIGHT = 500;
+const CANVAS_WIDTH = 700;
 
-const draw_players = (context:any, ball_color: string, paddle_color: string, player1_y: number, player2_y: number, ball_x: number, ball_y: number) => {
-	context.clearRect(-100, -100, context.canvas.width + 100, context.canvas.height + 100);
-	context.fillStyle = ball_color;
-	context.fillRect(ball_x -5, ball_y - 5, 10, 10);
-	context.fill();
-	context.fillStyle = paddle_color;
-	context.fillRect(10, player1_y, 10, 60);
-	context.fillRect(context.canvas.width - 20, player2_y, 10, 60);
-	let net = 8;
-	for (let i = net; i < CANVAS_HEIGHT; i += net * 2) {
-		context.fillStyle = ball_color;
-		context.fillRect(CANVAS_WIDTH / 2 - (net / 2), i, net, net);
-	};
-}
 
 function Canvas(props: any) {
+
+	const { user } = useFetchCurrentUser();
+
 	const ws: Socket = props.socket;
 	const location = useLocation();
-	let ball_color: string = '#000';
-	let paddle_color: string = '#000';
 	const canvasRef = useRef(null);
 	const [room, setRoom] = useState<string>("");
 	const [disconnection, setDisconnection] = useState<boolean>(false);
@@ -52,11 +40,12 @@ function Canvas(props: any) {
 	const [disabled, setDisabled] = useState<boolean>(false);
 	const [firstPScore, setFirstPScore] = useState<string>("0");
 	const [secondPScore, setSecondPScore] = useState<string>("0");
-	const [back, setBack] = useState<string>("plain");
+	const [back, setBack] = useState<string>("https://img.freepik.com/free-photo/white-paper-texture_1194-5998.jpg?w=1380&t=st=1659519955~exp=1659520555~hmac=a499219d876edb294bdebf8e768cddf59069e34d1c6f9ae680be92b4f17d7e92");
 
 	//////////////
 	const handleMatchmakingClick = () => {
 		ws.emit('add_to_queue');
+		console.log(user?.username);
 		setDisabled(true);
 	};
 
@@ -74,42 +63,61 @@ function Canvas(props: any) {
 
 	ws.on("running", (message:string) => {
 		if (message === 'true')
+		{
+			console.log("is running");
 			setIsRunning(true);
+		}
 		if (message === 'false')
+		{
+			console.log("is not running");
 			setIsRunning(false);
+		}
 	});
-
+	
 	ws.on('assigned_room', (message:string) => {
 		room_number = message;
 	});
-
+	
 	ws.on('winning_score', (message:string) => {
-		console.log(message);
 		winning_score = parseInt(message);
 	});
-
+	
 	ws.on('players', (message:string) => {
-		console.log(message);
 		player_status = message;
 	});
-
+	
 	ws.on('disconnection', (message:string) => {
 		setDisconnection(true);
 		setIsRunning(false);
 	});
-
+	
 	ws.on('replay', (message:string) => {
 		setReplay(true);
 	});
 
+	const draw_players = (context:any, player1_y: number, player2_y: number, ball_x: number, ball_y: number) => {
+		context.clearRect(-100, -100, context.canvas.width + 100, context.canvas.height + 100);
+		context.fillStyle = '#000';
+		context.fillRect(ball_x -5, ball_y - 5, 10, 10);
+		// context.fill();
+		context.fillStyle = '#000';
+		context.fillRect(10, player1_y, 10, 60);
+		context.fillRect(context.canvas.width - 20, player2_y, 10, 60);
+		let net = 8;
+		for (let i = net; i < CANVAS_HEIGHT; i += net * 2) {
+			context.fillStyle = '#000';
+			context.fillRect(CANVAS_WIDTH / 2 - (net / 2), i, net, net);
+		};
+	}
+
 	useEffect(() => {
 		const canvas : any= canvasRef.current;
-		canvas.style.backgroundColor = 'white';
+		canvas.style.backgroundColor = '#ffffff00';
 		canvas.style.borderRadius = '10px';
 		canvas.width = CANVAS_WIDTH;
 		canvas.height = CANVAS_HEIGHT;
 		const context = canvas.getContext('2d');
-		draw_players(context, ball_color, paddle_color, 10, 10, 350, 250);
+		draw_players(context, 10, 10, 350, 250);
 
 		window.addEventListener('keydown', (e) => {
 
@@ -135,18 +143,15 @@ function Canvas(props: any) {
 			setDisconnection(false);
 			setReplay(false);
 			let data = message.split(" ");
-			draw_players(context, ball_color, paddle_color, parseInt(data[0]), parseInt(data[1]), parseInt(data[2]), parseInt(data[3]));
+			draw_players(context, parseInt(data[0]), parseInt(data[1]), parseInt(data[2]), parseInt(data[3]));
 			setFirstPScore(data[4]);
 			setSecondPScore(data[5]);
 		});
 
 		return () => {
+			ws.off();
 			ws.close();
 		}
-
-		// return () => {
-		// 	ws.off();
-		// }
 	// eslint-disable-next-line
 	}, []);
 
@@ -171,6 +176,10 @@ function Canvas(props: any) {
 
 		{( location.pathname === "/normal" && !isRunning && disabled) && 
 			<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif'}} disabled>I want to play, add me to queue !</Button>
+		}
+
+		{((location.pathname === "/chatmode" && replay && player_status !== "Watching"))&&
+			<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif'}} onClick={handlePlayClick}>Play again !</Button>
 		}
 
 		<Table>
@@ -199,26 +208,39 @@ function Canvas(props: any) {
 			</tbody>
 		</Table>
 
+
 		{((location.pathname === "/normal" || location.pathname === "/chatmode" ) && disconnection === true) &&
 			<div>
 			<Alert severity="info">Your opponent left the game...</Alert>
 			</div>
 		}
 
-		<canvas ref={canvasRef}></canvas>
-
-		{((location.pathname === "/chatmode" && replay && player_status !== "Watching"))&&
-			<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif'}} onClick={handlePlayClick}>Play again !</Button>
-		}
+		<div className="outsideWrapper">
+			<div className="insideWrapper">
+				<img alt="" src={back} className="coveredImage"></img>
+				<canvas ref={canvasRef}></canvas>
+			</div>
+		</div>
 
 		<FormControl>
 			<FormLabel>Map background</FormLabel>
-			<RadioGroup row value={back} onChange={(e: any) => setBack(e.target.value)}>
-				<FormControlLabel value="plain" control={<Radio />} label="Plain" />
-				<FormControlLabel value="grass" control={<Radio />} label="Grass" />
-				<FormControlLabel value="sand" control={<Radio />} label="Sand" />
-				<FormControlLabel value="metal" control={<Radio />} label="Metal" />
-				<FormControlLabel value="paint" control={<Radio />} label="Paint" />
+			<RadioGroup row value={back} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBack(e.target.value)}>
+				<FormControlLabel value="https://img.freepik.com/free-photo/white-paper-texture_1194-5998.jpg?w=1380&t=st=1659519955~exp=1659520555~hmac=a499219d876edb294bdebf8e768cddf59069e34d1c6f9ae680be92b4f17d7e92" 
+				control={<Radio />} label="Plain" />
+		
+				<FormControlLabel 
+				value="https://img.freepik.com/free-photo/silver-glitter-background_53876-71378.jpg?w=1480&t=st=1659515147~exp=1659515747~hmac=3e9017d1f887c4f77c87a50f2450907bdce21e6409678824db8b9c6b5bc72aa8" 
+				control={<Radio />} label="Glitter" />
+		
+				<FormControlLabel value="https://img.freepik.com/free-photo/natural-sand-beach-background_53876-139816.jpg?w=1380&t=st=1659519778~exp=1659520378~hmac=33b874ee18163ebf580426cc1d7527b5fca6668a6644d851abe061f2c999f396" 
+				control={<Radio />} label="Sand" />
+		
+				<FormControlLabel value="https://img.freepik.com/free-photo/metallic-textured-background_53876-89540.jpg?w=1380&t=st=1659519816~exp=1659520416~hmac=5b8b4a3f2ca08ba48217bb53a6dac5b6010ba3b701d72dc08f0f3fd113e9c268" 
+				control={<Radio />} label="Metal" />
+		
+				<FormControlLabel value="https://img.freepik.com/free-photo/plastic-texture-holographic-effect_53876-94659.jpg?w=1380&t=st=1659519889~exp=1659520489~hmac=28f106c7f3a587ea6318d552a001f6128ec5f795709f9a38c60dc4b6650bdaad" 
+				control={<Radio />} label="Plastic" />
+		
 			</RadioGroup>
 		</FormControl>
 
