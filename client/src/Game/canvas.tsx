@@ -229,7 +229,7 @@ function Canvas(props: any) {
 				control={<Radio />} label="Plain" />
 		
 				<FormControlLabel 
-				value="https://img.freepik.com/free-photo/silver-glitter-background_53876-71378.jpg?w=1480&t=st=1659515147~exp=1659515747~hmac=3e9017d1f887c4f77c87a50f2450907bdce21e6409678824db8b9c6b5bc72aa8" 
+				value="https://previews.123rf.com/images/stephaniezieber/stephaniezieber1510/stephaniezieber151000010/47595727-white-silver-glitter-sparkle-texture.jpg" 
 				control={<Radio />} label="Glitter" />
 		
 				<FormControlLabel value="https://img.freepik.com/free-photo/natural-sand-beach-background_53876-139816.jpg?w=1380&t=st=1659519778~exp=1659520378~hmac=33b874ee18163ebf580426cc1d7527b5fca6668a6644d851abe061f2c999f396" 

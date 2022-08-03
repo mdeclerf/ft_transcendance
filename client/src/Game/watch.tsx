@@ -8,6 +8,11 @@ import { Table } from '@mui/material';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
 import { Alert } from '@mui/material';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
 import './canvas.css';
 
 const CANVAS_WIDTH = 700;
@@ -36,6 +41,7 @@ function Watch(props: any) {
 	const [lastRemoved, setLastRemoved] = useState<string>("");
 	const [currentlyWatched, setCurrentlyWatched] = useState<string>("");
 	const [disconnection, setDisconnection] = useState<boolean>(false);
+	const [back, setBack] = useState<string>("https://img.freepik.com/free-photo/white-paper-texture_1194-5998.jpg?w=1380&t=st=1659519955~exp=1659520555~hmac=a499219d876edb294bdebf8e768cddf59069e34d1c6f9ae680be92b4f17d7e92");
 
 	const handleClick = (e : any, key: string) => {
 		setDisconnection(false);
@@ -92,7 +98,6 @@ function Watch(props: any) {
 
 	useEffect(() => {
 		const canvas : any= canvasRef.current;
-		canvas.style.backgroundColor = 'white';
 		canvas.style.borderRadius = '10px';
 		canvas.width = CANVAS_WIDTH;
 		canvas.height = CANVAS_HEIGHT;
@@ -133,13 +138,40 @@ function Watch(props: any) {
 			</tbody>
 		</Table>
 
-			{(disconnection === true) &&
-				<div>
-				<Alert severity="info">The match is over or an one of the players left the game...</Alert>
-				</div>
-			}
+		{(disconnection === true) &&
+			<div>
+			<Alert severity="info">The match is over or an one of the players left the game...</Alert>
+			</div>
+		}
 
-			<canvas ref={canvasRef}></canvas>
+		<div className="outsideWrapper">
+			<div className="insideWrapper">
+				<img alt="" src={back} className="coveredImage"></img>
+				<canvas ref={canvasRef}></canvas>
+			</div>
+		</div>
+
+		<FormControl>
+			<FormLabel>Map background</FormLabel>
+			<RadioGroup row value={back} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBack(e.target.value)}>
+				<FormControlLabel value="https://img.freepik.com/free-photo/white-paper-texture_1194-5998.jpg?w=1380&t=st=1659519955~exp=1659520555~hmac=a499219d876edb294bdebf8e768cddf59069e34d1c6f9ae680be92b4f17d7e92" 
+				control={<Radio />} label="Plain" />
+		
+				<FormControlLabel 
+				value="https://previews.123rf.com/images/stephaniezieber/stephaniezieber1510/stephaniezieber151000010/47595727-white-silver-glitter-sparkle-texture.jpg" 
+				control={<Radio />} label="Glitter" />
+		
+				<FormControlLabel value="https://img.freepik.com/free-photo/natural-sand-beach-background_53876-139816.jpg?w=1380&t=st=1659519778~exp=1659520378~hmac=33b874ee18163ebf580426cc1d7527b5fca6668a6644d851abe061f2c999f396" 
+				control={<Radio />} label="Sand" />
+		
+				<FormControlLabel value="https://img.freepik.com/free-photo/metallic-textured-background_53876-89540.jpg?w=1380&t=st=1659519816~exp=1659520416~hmac=5b8b4a3f2ca08ba48217bb53a6dac5b6010ba3b701d72dc08f0f3fd113e9c268" 
+				control={<Radio />} label="Metal" />
+		
+				<FormControlLabel value="https://img.freepik.com/free-photo/plastic-texture-holographic-effect_53876-94659.jpg?w=1380&t=st=1659519889~exp=1659520489~hmac=28f106c7f3a587ea6318d552a001f6128ec5f795709f9a38c60dc4b6650bdaad" 
+				control={<Radio />} label="Plastic" />
+		
+			</RadioGroup>
+		</FormControl>
 			<Typography variant="h6" color="#000000" align="center" sx={{fontFamily: 'Work Sans, sans-serif'}}>List of available games to watch</Typography>
 
 			{array.map((element: string,index: any) => {
