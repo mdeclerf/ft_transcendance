@@ -65,9 +65,12 @@ function Canvas(props: any) {
 		if (message === 'true')
 			setIsRunning(true);
 		if (message === 'false')
+		{
 			setIsRunning(false);
+			ws.emit("kill_game", room_number);
+		}
 	});
-	
+
 	ws.on('assigned_room', (message:string) => {
 		room_number = message;
 	});
@@ -87,6 +90,7 @@ function Canvas(props: any) {
 	ws.on('disconnection', (message:string) => {
 		setDisconnection(true);
 		setIsRunning(false);
+		ws.emit("kill_game", room_number);
 	});
 
 	ws.on('replay', (message:string) => {

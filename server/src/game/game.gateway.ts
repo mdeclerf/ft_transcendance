@@ -116,9 +116,6 @@ class Pong{
 		}
 	}
 
-	end_of_game() {
-	}
-	
 	async run_game() {
 		this.ball_angle = random_ball();
 		while (this.is_running) {
@@ -244,7 +241,6 @@ export class GameGateway implements OnGatewayDisconnect {
 
 	Game: Map<string, Pong> = new Map();
 	queue: Player[] = [];
-	private logger: Logger = new Logger('GameGateway');
 
 	@SubscribeMessage("join_room") // NOT TESTED
 	handleRoom(client: Socket, message: any) : void {
@@ -255,20 +251,10 @@ export class GameGateway implements OnGatewayDisconnect {
 		this.Game.get(message[0]).add_player(new Player(client.id, client, message[1]));
 	}
 
-	@SubscribeMessage("monitor")
-	Monitor(client: Socket) : void {
-		for(let value of this.Game.values())
-		{
-			if (value.is_over || (value.first_player === null && value.removed) || (value.second_player === null && value.removed))
-			{
-				this.wss.sockets.emit("remove_ongoing_game", value.key);
-				let tmp: string = value.key;
-				this.Game.delete(tmp);
-				continue;
-			}
-			if (value.first_player && value.second_player)
-				client.emit("add_ongoing_game", [value.key, value.first_player.username, value.second_player.username]);
-		}
+	@SubscribeMessage("kill_game")
+	Kill_room(client: Socket, message:string) : void {
+		this.Game.delete(message);
+		this.wss.sockets.emit("remove_ongoing_game", message);
 	}
 
 	@SubscribeMessage("add_spectator")
@@ -321,7 +307,10 @@ export class GameGateway implements OnGatewayDisconnect {
 	@SubscribeMessage('add_to_queue')
 	add_queue(client: Socket, message: string) : void {
 
-		this.queue.push(new Player(client.id, client, message));
+		console.log(`in add_queue ${message} ${client.id}`);
+
+		if (this.queue.some(e => e.username === message) === false)
+			this.queue.push(new Player(client.id, client, message));
 
 		if (this.queue.length >= 2)
 		{
@@ -335,6 +324,7 @@ export class GameGateway implements OnGatewayDisconnect {
 			this.Game.get(unique_id).second_player.socket.emit("assigned_room", unique_id);
 			this.Game.get(unique_id).first_player.socket.emit("running", "true");
 			this.Game.get(unique_id).second_player.socket.emit("running", "true");
+			this.wss.sockets.emit("add_ongoing_game", [this.Game.get(unique_id).key, this.Game.get(unique_id).first_player.username, this.Game.get(unique_id).second_player.username]);
 		}
 	}
 }

@@ -21,17 +21,17 @@ const CANVAS_WIDTH = 700;
 const CANVAS_HEIGHT = 500;
 let winning_score: number;
 
-const draw_players = (context:any, ball_color: string, paddle_color: string, player1_y: number, player2_y: number, ball_x: number, ball_y: number) => {
+const draw_players = (context:any, player1_y: number, player2_y: number, ball_x: number, ball_y: number) => {
 	context.clearRect(-100, -100, context.canvas.width + 100, context.canvas.height + 100);
-	context.fillStyle = ball_color;
+	context.fillStyle = '#000';
 	context.fillRect(ball_x -5, ball_y - 5, 10, 10);
 	context.fill();
-	context.fillStyle = paddle_color;
+	context.fillStyle = '#000';
 	context.fillRect(10, player1_y, 10, 60);
 	context.fillRect(context.canvas.width - 20, player2_y, 10, 60);
 	let net = 8;
 	for (let i = net; i < CANVAS_HEIGHT; i += net * 2) {
-		context.fillStyle = ball_color;
+		context.fillStyle = '#000';
 		context.fillRect(CANVAS_WIDTH / 2 - (net / 2), i, net, net);
 	};
 }
@@ -49,10 +49,7 @@ function Watch(props: any) {
 	const handleClick = (e : any, match: CurrentMatch) => {
 		setDisconnection(false);
 		if(currentlyWatched !== "")
-		{
 			ws.emit("remove_spectator", currentlyWatched);
-			console.log(user?.username);
-		}
 		ws.emit("add_spectator", match.key, user?.username);
 		setCurrentlyWatched(match.key);
 	};
@@ -84,14 +81,8 @@ function Watch(props: any) {
 			}
 		});
 
-		setInterval(() => {
-			ws.emit("monitor");
-		}, 500);
-	// eslint-disable-next-line
 	}, [array, idAdd, lastRemoved, currentlyWatched, ws]);
 
-	let ball_color: string = '#000';
-	let paddle_color: string = '#000';
 	const canvasRef = useRef(null);
 	const [firstPScore, setFirstPScore] = useState<string>("0");
 	const [secondPScore, setSecondPScore] = useState<string>("0");
@@ -106,16 +97,17 @@ function Watch(props: any) {
 		canvas.width = CANVAS_WIDTH;
 		canvas.height = CANVAS_HEIGHT;
 		const context = canvas.getContext('2d');
-		draw_players(context, ball_color, paddle_color, 10, 10, 350, 250);
+		draw_players(context, 10, 10, 350, 250);
 
 		ws.on('getPosition', (message: string) => {
 			let data = message.split(" ");
-			draw_players(context, ball_color, paddle_color, parseInt(data[0]), parseInt(data[1]), parseInt(data[2]), parseInt(data[3]));
+			draw_players(context, parseInt(data[0]), parseInt(data[1]), parseInt(data[2]), parseInt(data[3]));
 			setFirstPScore(data[4]);
 			setSecondPScore(data[5]);
 		});
 
 		return () => {
+			ws.off();
 			ws.close();
 		}
 	// eslint-disable-next-line
@@ -144,7 +136,7 @@ function Watch(props: any) {
 
 		{(disconnection === true) &&
 			<div>
-			<Alert severity="info">The match is over or an one of the players left the game...</Alert>
+			<Alert severity="info">One of the players left the game you were watching...</Alert>
 			</div>
 		}
 

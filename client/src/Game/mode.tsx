@@ -17,7 +17,7 @@ function Mode() {
 					Normal mode
 				</Button>
 
-				<Button component={Link} sx={{fontFamily: 'Work Sans, sans-serif'}} to="/watch" >
+				<Button component={Link} sx={{fontFamily: 'Work Sans, sans-serif'}} to="/watch">
 					Watch mode
 				</Button>
 			</ButtonGroup>
