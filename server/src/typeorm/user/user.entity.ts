@@ -1,5 +1,5 @@
 import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Chat, ChatUser, Friendlist } from "../typeorm.module";
+import { Chat, ChatUser, Friendlist, Game } from "../typeorm.module";
 
 @Entity({ name: 'users' })
 export class User {
@@ -36,6 +36,12 @@ export class User {
 
 	@OneToMany(() => Friendlist, (friendlist) => friendlist.friend)
 	friendof: Friendlist[]
+
+	@OneToMany(() => Game, (game) => game.player_1)
+	p1_game: Game[]
+
+	@OneToMany(() => Game, (game) => game.player_2)
+	p2_game: Game[]
 
 	// @ManyToMany(() => User, user => user.id)
 	// @JoinTable()

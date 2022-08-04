@@ -14,7 +14,7 @@ export class Chat {
 	public body: string;
 
 	@ManyToOne(() => User, (user) => user.chat)
-	user: User
+	public user: User
 
 	@CreateDateColumn({name: 'createdat', type: 'timestamp'})
 	public createdAt!: Date;

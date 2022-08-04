@@ -1,16 +1,19 @@
+import { userInfo } from 'os';
 import {
     Entity,
     Column,
     PrimaryGeneratedColumn,
     CreateDateColumn,
+	ManyToOne,
 } from 'typeorm';
+import { User } from '../typeorm.module';
 
 @Entity()
 export class Game {
     @PrimaryGeneratedColumn('uuid')
     id: number;
 
-    @Column({type: 'text'})
+    /*@Column({type: 'text'})
     player_1_id: string;
 
     @Column({type: 'text'})
@@ -21,6 +24,12 @@ export class Game {
 
     @Column({type: 'text'})
     player_2_login: string;
+*/
+	@ManyToOne(() => User, (user) => user.p1_game)
+	public player_1 : User
+
+	@ManyToOne(() => User, (user) => user.p2_game)
+	public player_2 : User
 
 	@Column({type: 'integer'})
     player_1_score: number;
