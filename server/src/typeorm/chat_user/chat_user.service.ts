@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { User } from '../typeorm.module';
 import { ChatUser } from './chat_user.entity';
 
 @Injectable()
@@ -66,54 +67,54 @@ export class ChatUserService {
 	// GIVEN USER GETTER
 
 	// Return every room of a given user
-	public	getUser(id: number): Promise<ChatUser[]> {
+	public	getUser(id: User): Promise<ChatUser[]> {
 		return this.repository.find({
 			where: [
-				{user_id : id}]
+				{user : id}]
 		});
 	}
 
 	// Return every room where a given user is in
-	public	getUserRoom(id: number): Promise<ChatUser[]> {
+	public	getUserRoom(id: User): Promise<ChatUser[]> {
 		return this.repository.find({
 			where: [
-				{user_id : id},
+				{user : id},
 				{status: 0}]
 		});
 	}
 
 	// Return every room where a given user is admin
-	public	getAdminRoom(id: number): Promise<ChatUser[]> {
+	public	getAdminRoom(id: User): Promise<ChatUser[]> {
 		return this.repository.find({
 			where: [
-				{user_id : id},
+				{user : id},
 				{status: 1}]
 		});
 	}
 
 	// Return every room where a given user is mute
-	public	getMuteRoom(id: number): Promise<ChatUser[]> {
+	public	getMuteRoom(id: User): Promise<ChatUser[]> {
 		return this.repository.find({
 			where: [
-				{user_id : id},
+				{user : id},
 				{status: 2}]
 		});
 	}
 
 	// Return every room where a given user is banned
-	public	getBanRoom(id: number): Promise<ChatUser[]> {
+	public	getBanRoom(id: User): Promise<ChatUser[]> {
 		return this.repository.find({
 			where: [
-				{user_id : id},
+				{user : id},
 				{status: 3}]
 		});
 	}
 
 	// Return every room with a given status of a given user
-	public	getStatusRoom(id: number, status : number): Promise<ChatUser[]> {
+	public	getStatusRoom(id: User, status : number): Promise<ChatUser[]> {
 		return this.repository.find({
 			where: [
-				{user_id : id},
+				{user : id},
 				{status: status}]
 		});
 	}

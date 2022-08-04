@@ -1,11 +1,12 @@
 import { IsInt, IsPositive, Min } from "class-validator";
+import { User } from "../typeorm.module";
 
 export class CreateFriendlistDto {
 	@IsInt()
 	@IsPositive()
-	public user_id: number;
+	public user: User;
 
 	@IsInt()
 	@IsPositive()
-	public friend_id: number;
+	public friend: User;
 }

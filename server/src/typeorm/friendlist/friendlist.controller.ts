@@ -9,7 +9,7 @@ export class FriendlistController {
 	@Inject(FriendlistService)
 	private readonly service: FriendlistService ;
 
-	@Get('user/:id')
+	/*@Get('user/:id')
 	public getFriendlist(@Param('id', ParseIntPipe) id: number): Promise<Friendlist[]> {
 		return this.service.getFriendlist(id);
 	}
@@ -22,7 +22,7 @@ export class FriendlistController {
 	@Get('isFriend/:user_id/:friend_id')
 	public isFriendWith(@Param('user_id', ParseIntPipe) user_id: number, @Param('friend_id', ParseIntPipe) friend_id: number): Promise<boolean> {
 		return this.service.isFriendWith(user_id, friend_id);
-	}
+	}*/
 
 	@Post()
 	public createFriendlink(@Body() body: CreateFriendlistDto): Promise<Friendlist> {

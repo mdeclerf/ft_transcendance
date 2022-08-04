@@ -1,4 +1,5 @@
-import { Column, DeleteDateColumn, Entity, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { Column, DeleteDateColumn, Entity, ManyToOne, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
+import { User } from "../typeorm.module";
 
 @Entity()
 export class ChatUser {
@@ -9,8 +10,11 @@ export class ChatUser {
 	@Column ({type: 'integer'})
 	public room_number: number;
 
-	@Column({type: 'integer'})
-	public user_id: number;
+	/*@Column({type: 'integer'})
+	public user: number;*/
+
+	@ManyToOne(() => User, (user) => user.chat)
+	user: User
 
 	// 0: is in the chat
 	// 1: admin
