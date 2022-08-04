@@ -82,7 +82,6 @@ function App() {
 			<Header user={user} error={error}/>
 
 			<CssBaseline/>
-			{/* <Button variant="outlined"  onClick={() => setColors((prev: any) => !prev)}>Toggle Theme</Button> */}
 			<Fab sx={fabStyle} color="primary" onClick={() => setColors((prev: any) => !prev)}>
 				<Brightness4Icon />
 			</Fab>

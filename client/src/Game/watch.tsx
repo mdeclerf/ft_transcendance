@@ -14,10 +14,13 @@ import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import './canvas.css';
+import { useFetchCurrentUser } from "../utils/hooks/useFetchCurrentUser";
 
 const CANVAS_WIDTH = 700;
 const CANVAS_HEIGHT = 500;
 let winning_score: number;
+
+
 
 const draw_players = (context:any, ball_color: string, paddle_color: string, player1_y: number, player2_y: number, ball_x: number, ball_y: number) => {
 	context.clearRect(-100, -100, context.canvas.width + 100, context.canvas.height + 100);
@@ -35,7 +38,8 @@ const draw_players = (context:any, ball_color: string, paddle_color: string, pla
 }
 
 function Watch(props: any) {
-	const ws: Socket = props.socket;;
+	const { user } = useFetchCurrentUser();
+	const ws: Socket = props.socket;
 	const [array, setArray] = useState<string[]>([]);
 	const [idAdd, setIdAdd] = useState<string>("");
 	const [lastRemoved, setLastRemoved] = useState<string>("");
@@ -46,10 +50,12 @@ function Watch(props: any) {
 	const handleClick = (e : any, key: string) => {
 		setDisconnection(false);
 		if(currentlyWatched !== "")
+		{
 			ws.emit("remove_spectator", currentlyWatched);
-		ws.emit("add_spectator", key);
+			console.log(user?.username);
+		}
+		ws.emit("add_spectator", key, user?.username);
 		setCurrentlyWatched(key);
-		console.log(`CURRENT MATCH ${key}`);
 	};
 
 	useEffect(() => {
@@ -61,7 +67,6 @@ function Watch(props: any) {
 		{
 			setArray((oldArray: any) => [...oldArray, idAdd]);
 			setIdAdd("")
-			console.log(`Added ${idAdd}`);
 		}
 
 		ws.on("remove_ongoing_game", (message:string) => {
@@ -72,7 +77,6 @@ function Watch(props: any) {
 		ws.on("disconnection_of_player", (message:string) => {
 			if (message === currentlyWatched)
 			{
-				console.log(`message ${message} // currently watched ${currentlyWatched}`)
 				setDisconnection(true);
 				setCurrentlyWatched("");
 			}
@@ -164,7 +168,7 @@ function Watch(props: any) {
 				<FormControlLabel value="https://img.freepik.com/free-photo/natural-sand-beach-background_53876-139816.jpg?w=1380&t=st=1659519778~exp=1659520378~hmac=33b874ee18163ebf580426cc1d7527b5fca6668a6644d851abe061f2c999f396" 
 				control={<Radio />} label="Sand" />
 		
-				<FormControlLabel value="https://img.freepik.com/free-photo/metallic-textured-background_53876-89540.jpg?w=1380&t=st=1659519816~exp=1659520416~hmac=5b8b4a3f2ca08ba48217bb53a6dac5b6010ba3b701d72dc08f0f3fd113e9c268" 
+				<FormControlLabel value="https://img.freepik.com/free-vector/metallic-textured-background_53876-89255.jpg?w=1480&t=st=1659599134~exp=1659599734~hmac=ebfa25883041c466026d4e4059703f035bd26e03ae3a3754d4fbefea357e1791" 
 				control={<Radio />} label="Metal" />
 		
 				<FormControlLabel value="https://img.freepik.com/free-photo/plastic-texture-holographic-effect_53876-94659.jpg?w=1380&t=st=1659519889~exp=1659520489~hmac=28f106c7f3a587ea6318d552a001f6128ec5f795709f9a38c60dc4b6650bdaad" 

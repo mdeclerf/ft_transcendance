@@ -19,7 +19,7 @@ import './canvas.css';
 const up_key: string = "w";
 const down_key: string = "s";
 let last_send: string = "s";
-let player_status: string;
+let player_status: string = "";
 let winning_score: number;
 let room_number: string = "";
 const CANVAS_HEIGHT = 500;
@@ -39,12 +39,13 @@ function Canvas(props: any) {
 	const [replay, setReplay] = useState<boolean>(false);
 	const [disabled, setDisabled] = useState<boolean>(false);
 	const [firstPScore, setFirstPScore] = useState<string>("0");
+	const [opponent, setOpponent] = useState<string>("");
 	const [secondPScore, setSecondPScore] = useState<string>("0");
 	const [back, setBack] = useState<string>("https://img.freepik.com/free-photo/white-paper-texture_1194-5998.jpg?w=1380&t=st=1659519955~exp=1659520555~hmac=a499219d876edb294bdebf8e768cddf59069e34d1c6f9ae680be92b4f17d7e92");
 
 	//////////////
 	const handleMatchmakingClick = () => {
-		ws.emit('add_to_queue');
+		ws.emit('add_to_queue', user?.username);
 		console.log(user?.username);
 		setDisabled(true);
 	};
@@ -56,7 +57,7 @@ function Canvas(props: any) {
 
 	const joinRoom = () => {
 		if (room !== "") {
-			ws.emit("join_room", room);
+			ws.emit("join_room", room, user?.username);
 			room_number = room;
 		}
 	};
@@ -77,20 +78,24 @@ function Canvas(props: any) {
 	ws.on('assigned_room', (message:string) => {
 		room_number = message;
 	});
-	
+
 	ws.on('winning_score', (message:string) => {
 		winning_score = parseInt(message);
 	});
-	
+
 	ws.on('players', (message:string) => {
 		player_status = message;
 	});
-	
+
+	ws.on('opponent_login', (message:string) => {
+		setOpponent(message);
+	});
+
 	ws.on('disconnection', (message:string) => {
 		setDisconnection(true);
 		setIsRunning(false);
 	});
-	
+
 	ws.on('replay', (message:string) => {
 		setReplay(true);
 	});
@@ -99,7 +104,6 @@ function Canvas(props: any) {
 		context.clearRect(-100, -100, context.canvas.width + 100, context.canvas.height + 100);
 		context.fillStyle = '#000';
 		context.fillRect(ball_x -5, ball_y - 5, 10, 10);
-		// context.fill();
 		context.fillStyle = '#000';
 		context.fillRect(10, player1_y, 10, 60);
 		context.fillRect(context.canvas.width - 20, player2_y, 10, 60);
@@ -185,8 +189,8 @@ function Canvas(props: any) {
 		<Table>
 			<tbody>
 			<TableRow>
-				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>Player status</TableCell>
-				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }} colSpan={2}>{player_status}</TableCell>
+				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>Opponent</TableCell>
+				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }} colSpan={2}>{opponent}</TableCell>
 			</TableRow>
 
 			<TableRow>
@@ -194,16 +198,20 @@ function Canvas(props: any) {
 				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }} colSpan={2}>{winning_score}</TableCell>
 			</TableRow>
 
+			{(player_status === "") && <TableRow>
+				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>Scores</TableCell>
+			</TableRow> }
+
 			{(player_status === "First player") && <TableRow>
 				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>Scores</TableCell>
-				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>{firstPScore}</TableCell>
-				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>{secondPScore}</TableCell>
+				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>{user?.username} {firstPScore}</TableCell>
+				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>{opponent} {secondPScore}</TableCell>
 			</TableRow> }
 
 			{(player_status === "Second player") && <TableRow>
 				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>Scores</TableCell>
-				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>{secondPScore}</TableCell>
-				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>{firstPScore}</TableCell>
+				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>{user?.username} {secondPScore}</TableCell>
+				<TableCell sx={{ fontFamily: 'Work Sans, sans-serif' }}>{opponent} {firstPScore}</TableCell>
 			</TableRow> }
 			</tbody>
 		</Table>
@@ -235,7 +243,7 @@ function Canvas(props: any) {
 				<FormControlLabel value="https://img.freepik.com/free-photo/natural-sand-beach-background_53876-139816.jpg?w=1380&t=st=1659519778~exp=1659520378~hmac=33b874ee18163ebf580426cc1d7527b5fca6668a6644d851abe061f2c999f396" 
 				control={<Radio />} label="Sand" />
 		
-				<FormControlLabel value="https://img.freepik.com/free-photo/metallic-textured-background_53876-89540.jpg?w=1380&t=st=1659519816~exp=1659520416~hmac=5b8b4a3f2ca08ba48217bb53a6dac5b6010ba3b701d72dc08f0f3fd113e9c268" 
+				<FormControlLabel value="https://img.freepik.com/free-vector/metallic-textured-background_53876-89255.jpg?w=1480&t=st=1659599134~exp=1659599734~hmac=ebfa25883041c466026d4e4059703f035bd26e03ae3a3754d4fbefea357e1791" 
 				control={<Radio />} label="Metal" />
 		
 				<FormControlLabel value="https://img.freepik.com/free-photo/plastic-texture-holographic-effect_53876-94659.jpg?w=1380&t=st=1659519889~exp=1659520489~hmac=28f106c7f3a587ea6318d552a001f6128ec5f795709f9a38c60dc4b6650bdaad" 
