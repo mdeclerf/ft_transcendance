@@ -1,4 +1,4 @@
-import { IsInt, IsPositive, Min } from "class-validator";
+import { IsInt, IsPositive } from "class-validator";
 import { User } from "../typeorm.module";
 
 export class CreateFriendlistDto {
