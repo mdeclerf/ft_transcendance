@@ -46,7 +46,6 @@ function Canvas(props: any) {
 	//////////////
 	const handleMatchmakingClick = () => {
 		ws.emit('add_to_queue', user?.username);
-		console.log(user?.username);
 		setDisabled(true);
 	};
 
@@ -64,15 +63,9 @@ function Canvas(props: any) {
 
 	ws.on("running", (message:string) => {
 		if (message === 'true')
-		{
-			console.log("is running");
 			setIsRunning(true);
-		}
 		if (message === 'false')
-		{
-			console.log("is not running");
 			setIsRunning(false);
-		}
 	});
 	
 	ws.on('assigned_room', (message:string) => {

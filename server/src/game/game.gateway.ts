@@ -155,14 +155,12 @@ class Pong{
 	add_player(p: Player) {
 			if (this.first_player == null) {
 				this.first_player = p;
-				console.log(`in pong class first_player ${p.username}`);
 				this.first_player.socket.emit("players", "First player");
 				this.first_player.socket.emit("winning_score", this.winning_score.toString());
 			}
 
 			else if (this.second_player == null) {
 				this.second_player = p;
-				console.log(`in pong class second_player ${p.username}`);
 				this.second_player.socket.emit("players", "Second player");
 				this.second_player.socket.emit("winning_score", this.winning_score.toString());
 				this.first_player.socket.emit("opponent_login", this.second_player.username);
@@ -174,7 +172,6 @@ class Pong{
 			}
 
 			else {
-				console.log(`in pong class watcher_player ${p.username}`);
 				this.spectator.push(p);
 				p.socket.emit("players", "Watching");
 				p.socket.emit("winning_score", this.winning_score.toString());
@@ -264,19 +261,18 @@ export class GameGateway implements OnGatewayDisconnect {
 		{
 			if (value.is_over || (value.first_player === null && value.removed) || (value.second_player === null && value.removed))
 			{
-				this.wss.sockets.emit("remove_ongoing_game", `${value.key}`);
+				this.wss.sockets.emit("remove_ongoing_game", value.key);
 				let tmp: string = value.key;
 				this.Game.delete(tmp);
 				continue;
 			}
 			if (value.first_player && value.second_player)
-				client.emit("add_ongoing_game", value.key, value.first_player.username, value.second_player.username);
+				client.emit("add_ongoing_game", [value.key, value.first_player.username, value.second_player.username]);
 		}
 	}
 
 	@SubscribeMessage("add_spectator")
 	AddSpectator(client: Socket, message: any) : void {
-		console.log(`in add_spectator ${message[0]} ${message[1]}`);
 		if (this.Game.has(message[0]))
 			this.Game.get(message[0]).add_player(new Player(client.id, client, message[1]));
 	}

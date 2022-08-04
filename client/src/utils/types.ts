@@ -22,3 +22,9 @@ export type ChatResponse = {
 	body: string;
 	user: User;
 }
+
+export type CurrentMatch = {
+	key: string;
+	player_1: string;
+	player_2: string;
+}

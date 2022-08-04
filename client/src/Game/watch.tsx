@@ -15,12 +15,11 @@ import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
 import './canvas.css';
 import { useFetchCurrentUser } from "../utils/hooks/useFetchCurrentUser";
+import { CurrentMatch } from '../utils/types';
 
 const CANVAS_WIDTH = 700;
 const CANVAS_HEIGHT = 500;
 let winning_score: number;
-
-
 
 const draw_players = (context:any, ball_color: string, paddle_color: string, player1_y: number, player2_y: number, ball_x: number, ball_y: number) => {
 	context.clearRect(-100, -100, context.canvas.width + 100, context.canvas.height + 100);
@@ -40,38 +39,41 @@ const draw_players = (context:any, ball_color: string, paddle_color: string, pla
 function Watch(props: any) {
 	const { user } = useFetchCurrentUser();
 	const ws: Socket = props.socket;
-	const [array, setArray] = useState<string[]>([]);
-	const [idAdd, setIdAdd] = useState<string>("");
+	const [array, setArray] = useState<CurrentMatch[]>([]);
+	const [idAdd, setIdAdd] = useState<CurrentMatch>({key:"", player_1:"", player_2:""});
 	const [lastRemoved, setLastRemoved] = useState<string>("");
 	const [currentlyWatched, setCurrentlyWatched] = useState<string>("");
 	const [disconnection, setDisconnection] = useState<boolean>(false);
 	const [back, setBack] = useState<string>("https://img.freepik.com/free-photo/white-paper-texture_1194-5998.jpg?w=1380&t=st=1659519955~exp=1659520555~hmac=a499219d876edb294bdebf8e768cddf59069e34d1c6f9ae680be92b4f17d7e92");
 
-	const handleClick = (e : any, key: string) => {
+	const handleClick = (e : any, match: CurrentMatch) => {
 		setDisconnection(false);
 		if(currentlyWatched !== "")
 		{
 			ws.emit("remove_spectator", currentlyWatched);
 			console.log(user?.username);
 		}
-		ws.emit("add_spectator", key, user?.username);
-		setCurrentlyWatched(key);
+		ws.emit("add_spectator", match.key, user?.username);
+		setCurrentlyWatched(match.key);
 	};
 
 	useEffect(() => {
-		ws.on("add_ongoing_game", (message:string) => {
-			setIdAdd(message);
+		ws.on("add_ongoing_game", (message:string[]) => {
+			setIdAdd({key:message[0], player_1:message[1], player_2:message[2]});
 		});
 
-		if (!array.includes(idAdd) && idAdd !== "" && idAdd !== lastRemoved)
+		if (idAdd.key !== "" && idAdd.key !== lastRemoved )
 		{
-			setArray((oldArray: any) => [...oldArray, idAdd]);
-			setIdAdd("")
+			if (array.some(e => e.key === idAdd.key) === false)
+			{
+				array.push(idAdd);
+				setIdAdd({key:"", player_1:"", player_2:""});
+			}
 		}
 
 		ws.on("remove_ongoing_game", (message:string) => {
 			setLastRemoved(message);
-			setArray((prev: any[]) => prev.filter(item => item !== message));
+			setArray((prev: CurrentMatch[]) => prev.filter(item => item.key !== message));
 		});
 
 		ws.on("disconnection_of_player", (message:string) => {
@@ -85,10 +87,8 @@ function Watch(props: any) {
 		setInterval(() => {
 			ws.emit("monitor");
 		}, 500);
-
+	// eslint-disable-next-line
 	}, [array, idAdd, lastRemoved, currentlyWatched, ws]);
-
-	/////////
 
 	let ball_color: string = '#000';
 	let paddle_color: string = '#000';
@@ -178,10 +178,10 @@ function Watch(props: any) {
 		</FormControl>
 			<Typography variant="h6" color="#000000" align="center" sx={{fontFamily: 'Work Sans, sans-serif'}}>List of available games to watch</Typography>
 
-			{array.map((element: string,index: any) => {
+			{array.map((element: CurrentMatch,index: any) => {
 			return (
 				<Button variant="contained" sx={{m: 1, fontFamily: 'Work Sans, sans-serif'}} endIcon={<VisibilityIcon />} key={index} onClick={(event: any) => handleClick(event, element)}>
-				{element}
+				{element.player_1} VS {element.player_2}
 			</Button>)
 			})}
 
@@ -191,4 +191,3 @@ function Watch(props: any) {
 }
 
 export default Watch;
-
