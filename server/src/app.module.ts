@@ -25,7 +25,7 @@ import { ChatGateway } from './chat/chat.gateway'
       synchronize: true,
     }),
     UserModule,
-	OrmModule
+	  OrmModule
   ],
   controllers: [AppController],
   providers: [AppService, ChatGateway],
