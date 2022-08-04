@@ -56,7 +56,7 @@ class Pong{
 	ball_y: number = 250;
 	ball_angle: number = random_ball();
 	spectator: Player[] = [];
-	winning_score: number = 6;
+	winning_score: number = 3;
 	ball_speed: number = 12;
 	mode: string = "";
 	removed: boolean = false;
