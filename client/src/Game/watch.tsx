@@ -7,11 +7,20 @@ import Stack from '@mui/material/Stack';
 import { Table } from '@mui/material';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
+import { Alert } from '@mui/material';
+import Radio from '@mui/material/Radio';
+import RadioGroup from '@mui/material/RadioGroup';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormControl from '@mui/material/FormControl';
+import FormLabel from '@mui/material/FormLabel';
 import './canvas.css';
+import { useFetchCurrentUser } from "../utils/hooks/useFetchCurrentUser";
 
 const CANVAS_WIDTH = 700;
 const CANVAS_HEIGHT = 500;
 let winning_score: number;
+
+
 
 const draw_players = (context:any, ball_color: string, paddle_color: string, player1_y: number, player2_y: number, ball_x: number, ball_y: number) => {
 	context.clearRect(-100, -100, context.canvas.width + 100, context.canvas.height + 100);
@@ -29,13 +38,24 @@ const draw_players = (context:any, ball_color: string, paddle_color: string, pla
 }
 
 function Watch(props: any) {
-	const ws: Socket = props.socket;;
+	const { user } = useFetchCurrentUser();
+	const ws: Socket = props.socket;
 	const [array, setArray] = useState<string[]>([]);
 	const [idAdd, setIdAdd] = useState<string>("");
 	const [lastRemoved, setLastRemoved] = useState<string>("");
+	const [currentlyWatched, setCurrentlyWatched] = useState<string>("");
+	const [disconnection, setDisconnection] = useState<boolean>(false);
+	const [back, setBack] = useState<string>("https://img.freepik.com/free-photo/white-paper-texture_1194-5998.jpg?w=1380&t=st=1659519955~exp=1659520555~hmac=a499219d876edb294bdebf8e768cddf59069e34d1c6f9ae680be92b4f17d7e92");
 
 	const handleClick = (e : any, key: string) => {
-		ws.emit("add_spectator", key);
+		setDisconnection(false);
+		if(currentlyWatched !== "")
+		{
+			ws.emit("remove_spectator", currentlyWatched);
+			console.log(user?.username);
+		}
+		ws.emit("add_spectator", key, user?.username);
+		setCurrentlyWatched(key);
 	};
 
 	useEffect(() => {
@@ -47,21 +67,26 @@ function Watch(props: any) {
 		{
 			setArray((oldArray: any) => [...oldArray, idAdd]);
 			setIdAdd("")
-			console.log(`Added ${idAdd}`);
 		}
 
 		ws.on("remove_ongoing_game", (message:string) => {
-			console.log("remoooooove");
 			setLastRemoved(message);
 			setArray((prev: any[]) => prev.filter(item => item !== message));
 		});
 
+		ws.on("disconnection_of_player", (message:string) => {
+			if (message === currentlyWatched)
+			{
+				setDisconnection(true);
+				setCurrentlyWatched("");
+			}
+		});
+
 		setInterval(() => {
 			ws.emit("monitor");
-			console.log("test");
 		}, 500);
 
-	}, [array, idAdd, lastRemoved, ws]);
+	}, [array, idAdd, lastRemoved, currentlyWatched, ws]);
 
 	/////////
 
@@ -77,7 +102,6 @@ function Watch(props: any) {
 
 	useEffect(() => {
 		const canvas : any= canvasRef.current;
-		canvas.style.backgroundColor = 'white';
 		canvas.style.borderRadius = '10px';
 		canvas.width = CANVAS_WIDTH;
 		canvas.height = CANVAS_HEIGHT;
@@ -117,7 +141,41 @@ function Watch(props: any) {
 				</TableRow>
 			</tbody>
 		</Table>
-			<canvas ref={canvasRef}></canvas>
+
+		{(disconnection === true) &&
+			<div>
+			<Alert severity="info">The match is over or an one of the players left the game...</Alert>
+			</div>
+		}
+
+		<div className="outsideWrapper">
+			<div className="insideWrapper">
+				<img alt="" src={back} className="coveredImage"></img>
+				<canvas ref={canvasRef}></canvas>
+			</div>
+		</div>
+
+		<FormControl>
+			<FormLabel>Map background</FormLabel>
+			<RadioGroup row value={back} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBack(e.target.value)}>
+				<FormControlLabel value="https://img.freepik.com/free-photo/white-paper-texture_1194-5998.jpg?w=1380&t=st=1659519955~exp=1659520555~hmac=a499219d876edb294bdebf8e768cddf59069e34d1c6f9ae680be92b4f17d7e92" 
+				control={<Radio />} label="Plain" />
+		
+				<FormControlLabel 
+				value="https://previews.123rf.com/images/stephaniezieber/stephaniezieber1510/stephaniezieber151000010/47595727-white-silver-glitter-sparkle-texture.jpg" 
+				control={<Radio />} label="Glitter" />
+		
+				<FormControlLabel value="https://img.freepik.com/free-photo/natural-sand-beach-background_53876-139816.jpg?w=1380&t=st=1659519778~exp=1659520378~hmac=33b874ee18163ebf580426cc1d7527b5fca6668a6644d851abe061f2c999f396" 
+				control={<Radio />} label="Sand" />
+		
+				<FormControlLabel value="https://img.freepik.com/free-vector/metallic-textured-background_53876-89255.jpg?w=1480&t=st=1659599134~exp=1659599734~hmac=ebfa25883041c466026d4e4059703f035bd26e03ae3a3754d4fbefea357e1791" 
+				control={<Radio />} label="Metal" />
+		
+				<FormControlLabel value="https://img.freepik.com/free-photo/plastic-texture-holographic-effect_53876-94659.jpg?w=1380&t=st=1659519889~exp=1659520489~hmac=28f106c7f3a587ea6318d552a001f6128ec5f795709f9a38c60dc4b6650bdaad" 
+				control={<Radio />} label="Plastic" />
+		
+			</RadioGroup>
+		</FormControl>
 			<Typography variant="h6" color="#000000" align="center" sx={{fontFamily: 'Work Sans, sans-serif'}}>List of available games to watch</Typography>
 
 			{array.map((element: string,index: any) => {

@@ -33,13 +33,15 @@ class Player {
 	id: string;
 	score: number;
 	socket: Socket;
+	username: string;
 
-	constructor(id: string, socket: Socket) {
+	constructor(id: string, socket: Socket, username: string) {
 		this.y_pos = 0;
 		this.delta = 0;
 		this.id = id;
 		this.score = 0;
 		this.socket = socket;
+		this.username = username;
 	}
 }
 
@@ -129,7 +131,7 @@ class Pong{
 				this.spectator[index].socket.emit("getPosition", `${this.second_player.y_pos} ${this.first_player.y_pos} ${700 - this.ball_x} ${this.ball_y} ${this.first_player.score} ${this.second_player.score} `);
 			}
 
-			if ((this.first_player && this.second_player && (this.first_player.score >= this.winning_score) || this.second_player.score >= this.winning_score))
+			if ((this.is_running && this.first_player && this.second_player && (this.first_player.score >= this.winning_score) || this.second_player.score >= this.winning_score))
 			{
 				this.is_running = false;
 				this.first_player.socket.emit("running", "false");
@@ -153,14 +155,18 @@ class Pong{
 	add_player(p: Player) {
 			if (this.first_player == null) {
 				this.first_player = p;
+				console.log(`in pong class first_player ${p.username}`);
 				this.first_player.socket.emit("players", "First player");
 				this.first_player.socket.emit("winning_score", this.winning_score.toString());
 			}
 
 			else if (this.second_player == null) {
 				this.second_player = p;
+				console.log(`in pong class second_player ${p.username}`);
 				this.second_player.socket.emit("players", "Second player");
 				this.second_player.socket.emit("winning_score", this.winning_score.toString());
+				this.first_player.socket.emit("opponent_login", this.second_player.username);
+				this.second_player.socket.emit("opponent_login", this.first_player.username);
 				this.is_running = true;
 				this.ball_x = 350;
 				this.ball_y = 250;
@@ -168,6 +174,7 @@ class Pong{
 			}
 
 			else {
+				console.log(`in pong class watcher_player ${p.username}`);
 				this.spectator.push(p);
 				p.socket.emit("players", "Watching");
 				p.socket.emit("winning_score", this.winning_score.toString());
@@ -216,8 +223,8 @@ class Pong{
 		{
 			details.player_1_id = this.first_player.id;
 			details.player_2_id = this.second_player.id;
-			details.player_1_login = "";
-			details.player_2_login = " ";
+			details.player_1_login = this.first_player.username;
+			details.player_2_login = this.second_player.username;
 			details.player_1_score = this.first_player.score;
 			details.player_2_score = this.second_player.score;
 			details.mode = this.mode;
@@ -242,13 +249,13 @@ export class GameGateway implements OnGatewayDisconnect {
 	queue: Player[] = [];
 	private logger: Logger = new Logger('GameGateway');
 
-	@SubscribeMessage("join_room")
+	@SubscribeMessage("join_room") // NOT TESTED
 	handleRoom(client: Socket, message: any) : void {
-		client.join(message);
+		client.join(message[0]);
 
-		if (!this.Game.has(message))
-			this.Game.set(message, new Pong(this.gameService, message, "chat"));
-		this.Game.get(message).add_player(new Player(client.id, client));
+		if (!this.Game.has(message[0]))
+			this.Game.set(message[0], new Pong(this.gameService, message[0], "chat"));
+		this.Game.get(message[0]).add_player(new Player(client.id, client, message[1]));
 	}
 
 	@SubscribeMessage("monitor")
@@ -257,43 +264,38 @@ export class GameGateway implements OnGatewayDisconnect {
 		{
 			if (value.is_over || (value.first_player === null && value.removed) || (value.second_player === null && value.removed))
 			{
-				console.log(`deleted ${value.key} chez client ${client.id}`);
-				client.emit("remove_ongoing_game", `${value.key}`);
-				// let tmp = value.key;
-				// this.Game.delete(tmp);
+				this.wss.sockets.emit("remove_ongoing_game", `${value.key}`);
+				let tmp: string = value.key;
+				this.Game.delete(tmp);
 				continue;
 			}
-			else if (value.first_player && value.second_player)
-				client.emit("add_ongoing_game", `${value.key}`);
+			if (value.first_player && value.second_player)
+				client.emit("add_ongoing_game", value.key, value.first_player.username, value.second_player.username);
 		}
 	}
 
 	@SubscribeMessage("add_spectator")
 	AddSpectator(client: Socket, message: any) : void {
-		console.log(`Add spectator ${client.id}`);
-		if (this.Game.get(message))
-			this.Game.get(message).add_player(new Player(client.id, client));
+		console.log(`in add_spectator ${message[0]} ${message[1]}`);
+		if (this.Game.has(message[0]))
+			this.Game.get(message[0]).add_player(new Player(client.id, client, message[1]));
+	}
+
+	@SubscribeMessage("remove_spectator")
+	RemoveSpectator(client: Socket, message: any) : void {
+		if (this.Game.has(message))
+			this.Game.get(message).remove_spectator(client.id);
 	}
 
 	handleDisconnect(client: Socket) {
 		for (let value of this.Game.values())
 		{
 			if ((value.first_player && client.id === value.first_player.id) || (value.second_player && client.id === value.second_player.id)) {
+			
 				value.remove_player(client.id);
+				for(let i = 0; i < value.spectator.length; i++)
+					value.spectator[i].socket.emit("disconnection_of_player", value.key);
 				break;
-			}
-
-			if (value.spectator.length > 0)
-			{
-				for(let j = 0; j <= value.spectator.length; j++) 
-				{
-					if (client.id && client.id === value.spectator[j].id)
-					{
-						value.remove_spectator(client.id);
-						console.log(`Remove Spectator ${client.id}`);
-						break;
-					}
-				}
 			}
 		}
 	}
@@ -321,17 +323,17 @@ export class GameGateway implements OnGatewayDisconnect {
 	}
 
 	@SubscribeMessage('add_to_queue')
-	add_queue(client: Socket) : void {
+	add_queue(client: Socket, message: string) : void {
 
-		this.queue.push(new Player(client.id, client));
+		this.queue.push(new Player(client.id, client, message));
 
 		if (this.queue.length >= 2)
 		{
 			const unique_id = uuidv4();
 			this.Game.set(unique_id, new Pong(this.gameService, unique_id, "normal"));
-			this.Game.get(unique_id).add_player(new Player(this.queue[0].id, this.queue[0].socket));
+			this.Game.get(unique_id).add_player(new Player(this.queue[0].id, this.queue[0].socket, this.queue[0].username));
 			this.queue.splice(0,1);
-			this.Game.get(unique_id).add_player(new Player(this.queue[0].id, this.queue[0].socket));
+			this.Game.get(unique_id).add_player(new Player(this.queue[0].id, this.queue[0].socket, this.queue[0].username));
 			this.queue.splice(0,1);
 			this.Game.get(unique_id).first_player.socket.emit("assigned_room", unique_id);
 			this.Game.get(unique_id).second_player.socket.emit("assigned_room", unique_id);
