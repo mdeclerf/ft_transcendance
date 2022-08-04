@@ -4,114 +4,17 @@ import { ChatFeed, Message } from "react-chat-ui";
 import { Paper } from '@mui/material';
 import { TextField } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
-import { createStyles, makeStyles } from '@mui/styles';
-import SettingsApplicationsIcon from '@mui/icons-material/SettingsApplications';
 import Button from '@mui/material/Button';
 import { Socket } from 'socket.io-client';
 import { useFetchCurrentUser } from "../utils/hooks/useFetchCurrentUser";
 import { ChatResponse } from '../utils/types';
+import { useStyles } from './styles'
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
 
-
-const useStyles = makeStyles((theme: any) =>
-  createStyles({
-    // PAPIER DE GAUCHE
-    paper: {
-      width: "100%",
-      height: "calc(100vh - 64px)",
-      position: "relative",
-      backgroundColor: "rgba(0, 0, 0, 0)",
-      overflowY: "scroll",
-      padding: "0",
-    },
-    // ICONE SETTINGS
-    settings: {
-      alignSelf: "flex-end",
-      display: "inline-block",
-      position: 'absolute',
-      top: "0px",
-      right: "20px",
-    },
-    // BOUTON TRANSPARENT SETTINGS
-    buttonSettings: {
-      alignSelf: "flex-end",
-      display: "inline-block",
-      position: 'absolute',
-      top: "0px",
-      right: "20px",
-      padding: "16px",
-      backgroundColor: "transparent",
-      border: "0"
-    },
-    // PAPIER DE DROITE
-    paper2: {
-      width: "100%",
-      height: "calc(100vh - 64px)",
-      position: "relative",
-      backgroundColor: "rgba(0, 0, 0, 0)",
-      padding: "0",
-    },
-    // BOUTON CREATE ROOM
-    createRoom: {
-      width: "100%",
-      height: "5vh",
-      backgroundColor: "rgba(0, 0, 0, 0)"
-    },
-    container: {
-      width: "100vw",
-      height: "100vh",
-      alignItems: "center",
-      justifyContent: "center",
-      margin: "0",
-      padding: "0"
-    },
-    // HISTORIQUE DE MESSAGES
-    messagesBody: {
-      width: "100%",
-      margin: 0,
-      height: "calc( 100% - 80px )",
-      backgroundColor: "rgba(0, 0, 0, 0)",
-      display: "flex",
-      flexDirection: "column-reverse",
-    },
-    // FORM D ENVOI DE MESSAGES
-    wrapForm : {
-      display: "flex",
-      minWidth: "0",
-      justifyContent: "center",
-      width: "100%",
-      paddingTop: "1vh",
-      margin: `0`,
-    },
-    wrapText  : {
-      width: "100%"
-    },
-    // BOUTON D ENVOI DE TEXTE
-    button: {
-      // backgroundColor: "#fff",
-      borderColor: "#1D2129",
-      borderStyle: "solid",
-      borderRadius: 20,
-      borderWidth: 2,
-      color: "#1D2129",
-      fontSize: 18,
-      paddingTop: 8,
-      paddingBottom: 8,
-      paddingLeft: 16,
-      paddingRight: 16,
-      outline: "none"
-    },
-    selected: {
-      color: "#fff",
-    }
-})
-);
-
-function chatSettings() {
-  // peut etre creer une route vers les settings
-  // (admins, mute, ban, changer le status de la room,... )
-  console.log("clicked on settings icon");
-}
-  
   // BULLES DE MESSAGES
 const customBubble = (props: any) => (
   <div className="imessage">
@@ -127,6 +30,7 @@ function Chat(props: any) {
   const [message, setMessage] = useState<string>("");
   const [allMessages, setAllMessages] = useState<Array<Message>>([]);
   const [rooms, setRooms] = useState<Array<number>>([]);
+  //const [clicked, setClicked] = useState<boolean>(false);
 
   // INITIALISATION DES CHANNELS ET REJOINDRE LE CHANNEL 0
   if (rooms.length === 0)
@@ -141,9 +45,9 @@ function Chat(props: any) {
     socket.emit('chat_send_message', { message, room, user });
 	setAllMessages([...allMessages,
         new Message({
-			id: 0,
-			message: message,
-			senderName: user?.username
+          id: 0,
+          message: message,
+          senderName: user?.username
         }),
 	])
     socket.emit("chat_get_room");
@@ -151,10 +55,15 @@ function Chat(props: any) {
 
   // JOIN A ROOM
   const joinRoom = () => {
+    setOpenDialog(false);
     if (room !== "") {
       socket.emit("chat_join_room", room);
     }
   };
+
+  //const joinPublicRoom = () => {
+  //  setClicked(true);
+  //};
 
   // JOIN A CHANNEL VIA LE BOUTON
   const joinChannel = (room_number: number) => {
@@ -246,7 +155,6 @@ function Chat(props: any) {
 
     socket.on("chat_set_rooms", (data: any) => {
       handleSetRoom(data);
-      
     })
 
     return () => {
@@ -269,6 +177,16 @@ function Chat(props: any) {
     )
   })
 
+  const [openDialog, setOpenDialog] = useState(false);
+
+  const handleClickOpen = () => {
+    setOpenDialog(true);
+  };
+
+  const handleClose = () => {
+    setOpenDialog(false);
+  };
+
   // RETURN TO RENDER
   return (
   <>
@@ -277,20 +195,34 @@ function Chat(props: any) {
       {/* colonne de gauche */}
       <div className="col1">
         <Paper className={classes.paper}>
+          {/* bouton pour ouvrir dialogue (fenetre pour entre room name) public */}
+          <Button fullWidth={true} variant="contained" size="large" onClick={handleClickOpen}>Create Public Room</Button>
+          <Dialog open={openDialog} onClose={handleClose}>
+            <DialogTitle>Create a public room</DialogTitle>
+            <DialogContent>
+              <DialogContentText>Please enter a room name : </DialogContentText>
+              <TextField
+                autoFocus
+                margin="dense"
+                type="text"
+                fullWidth
+                variant="standard"
+                onChange={(event: any) => {
+                  setRoom(event.target.value);
+                }}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={handleClose}>Cancel</Button>
+              <Button onClick={joinRoom}>Create Room</Button>
+            </DialogActions>
+          </Dialog>
+          {/* bouton pour ouvrir dialogue (fenetre pour entre room name et password) private */}
+          {/*<Button onClick={joinRoom} fullWidth={true} variant="contained" size="large"> Create Private Room</Button>*/}
           {/* affichage des channels dispo et creation d un bouton / room */}
           <>
             { loadChannels }
           </>
-          {/* form de creation de room */}
-          <TextField
-            fullWidth={true}
-            placeholder="Room Number..."
-            onChange={(event: any) => {
-              setRoom(event.target.value);
-            }}
-          />
-          {/* bouton pour creer la room */}
-          <Button onClick={joinRoom} fullWidth={true} variant="contained" size="large"> Create Room</Button>
         </Paper>
       </div>
       {/* colonne de droite */}
@@ -307,18 +239,16 @@ function Chat(props: any) {
               bubblesCentered={true} //Boolean should the bubbles be centered in the feed?
               chatBubble={true && customBubble} // JSON: Custom bubble styles
             />
-            <SettingsApplicationsIcon fontSize="large" className={classes.settings}/>
-            <button className={classes.buttonSettings} onClick={chatSettings}/>
           </Paper>
           <>
             {/* formulaire pour envoyer un message */}
             <form className={classes.wrapForm}  noValidate autoComplete="off" id="textareaInput">
               <TextField
-                placeholder='type your message'
+                placeholder='Type your message'
                 onChange={(event: any) => {
                   setMessage(event.target.value);
                 }}
-                // si on presse enter, le message s'envoit et le formulaire se vide
+                // si on presse enter, le message s'envoie et le formulaire se vide
                 onKeyDown={(event: any) => {
                   if (event.key === 'Enter')
                   {

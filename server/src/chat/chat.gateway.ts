@@ -7,9 +7,11 @@ import {
 	SubscribeMessage,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
+import { CreateRoomDto } from 'src/typeorm/room/room.dto';
 import { dataType } from 'src/utils/types';
 import { CreateChatDto } from '../typeorm/chat/chat.dto';
 import { ChatService } from '../typeorm/chat/chat.service';
+import { RoomService } from '../typeorm/room/room.service'
 import { Chat, User } from '../typeorm/typeorm.module';
 
 @WebSocketGateway({
@@ -24,7 +26,10 @@ import { Chat, User } from '../typeorm/typeorm.module';
 export class ChatGateway
 implements OnGatewayConnection
 {
-	constructor(@Inject(ChatService) private readonly chatService: ChatService) {}
+	constructor(
+		@Inject(ChatService) private readonly chatService: ChatService,
+		@Inject(RoomService) private readonly roomService: RoomService
+	) {}
 		
 	@WebSocketServer() server: Server;
 
@@ -40,12 +45,23 @@ implements OnGatewayConnection
 	}
 
 	@SubscribeMessage("chat_join_room")
-	chatJoinRoom(client: Socket, room: any) {
-		client.join(room);
-		this.chatService.getRoom(room)
+	chatJoinRoom(client: Socket, room: string) {
+		this.roomService.getRoomByName(room)
 		.then(function(result){
-			client.emit("chat_joined_room", result);
-		});
+			if (result)
+			{
+				client.join(result.name);
+				client.emit("chat_joined_room", result);
+			}
+			else
+			{
+				let newRoom : CreateRoomDto = new CreateRoomDto();
+				newRoom.name = room;
+				newRoom.type = 0; //change later for protected
+				this.roomService.createRoom()
+				client.emit("chat_joined_room", result);
+			}
+		})
 	}
 
 	@SubscribeMessage("chat_send_message")
