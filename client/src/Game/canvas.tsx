@@ -43,6 +43,7 @@ function Canvas(props: any) {
 	const [opponent, setOpponent] = useState<string>("");
 	const [secondPScore, setSecondPScore] = useState<string>("0");
 	const [dialogOpen, setDialogOpen] = useState<boolean>(false);
+	// const [back, setBack] = useState<string>("../Images/paper.webp");
 	const [back, setBack] = useState<string>("https://img.freepik.com/free-photo/white-paper-texture_1194-5998.jpg?w=1380&t=st=1659519955~exp=1659520555~hmac=a499219d876edb294bdebf8e768cddf59069e34d1c6f9ae680be92b4f17d7e92");
 
 	//////////////
@@ -258,26 +259,49 @@ function Canvas(props: any) {
 			</div>
 		</div>
 
-		<FormControl>
+		{/* src={require({back})} Would have loved to do something like this but it's not working error : Argument of type '{ back: string; }' is not assignable to parameter of type 'string'. */}
+		{/* <FormControl>
 			<FormLabel>Map background</FormLabel>
 			<RadioGroup row value={back} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBack(e.target.value)}>
-				<FormControlLabel value="https://img.freepik.com/free-photo/white-paper-texture_1194-5998.jpg?w=1380&t=st=1659519955~exp=1659520555~hmac=a499219d876edb294bdebf8e768cddf59069e34d1c6f9ae680be92b4f17d7e92" 
+				<FormControlLabel value="../Images/paper.webp" 
 				control={<Radio />} label="Plain" />
-		
+
 				<FormControlLabel 
-				value="https://previews.123rf.com/images/stephaniezieber/stephaniezieber1510/stephaniezieber151000010/47595727-white-silver-glitter-sparkle-texture.jpg" 
+				value="../Images/glitter.webp" 
 				control={<Radio />} label="Glitter" />
-		
-				<FormControlLabel value="https://img.freepik.com/free-photo/natural-sand-beach-background_53876-139816.jpg?w=1380&t=st=1659519778~exp=1659520378~hmac=33b874ee18163ebf580426cc1d7527b5fca6668a6644d851abe061f2c999f396" 
+
+				<FormControlLabel value="../Images/sand.jpeg"
 				control={<Radio />} label="Sand" />
 		
-				<FormControlLabel value="https://img.freepik.com/free-vector/metallic-textured-background_53876-89255.jpg?w=1480&t=st=1659599134~exp=1659599734~hmac=ebfa25883041c466026d4e4059703f035bd26e03ae3a3754d4fbefea357e1791" 
+				<FormControlLabel value="../Images/metal.webp"
 				control={<Radio />} label="Metal" />
 		
-				<FormControlLabel value="https://img.freepik.com/free-photo/plastic-texture-holographic-effect_53876-94659.jpg?w=1380&t=st=1659519889~exp=1659520489~hmac=28f106c7f3a587ea6318d552a001f6128ec5f795709f9a38c60dc4b6650bdaad" 
+				<FormControlLabel value="../Images/plastic.webp"
 				control={<Radio />} label="Plastic" />
 			</RadioGroup>
-		</FormControl>
+		</FormControl> */}
+
+		<FormControl>
+				<FormLabel>Map background</FormLabel>
+				<RadioGroup row value={back} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBack(e.target.value)}>
+					<FormControlLabel value="https://img.freepik.com/free-photo/white-paper-texture_1194-5998.jpg?w=1380&t=st=1659519955~exp=1659520555~hmac=a499219d876edb294bdebf8e768cddf59069e34d1c6f9ae680be92b4f17d7e92" 
+					control={<Radio />} label="Plain" />
+			
+					<FormControlLabel 
+					value="https://previews.123rf.com/images/stephaniezieber/stephaniezieber1510/stephaniezieber151000010/47595727-white-silver-glitter-sparkle-texture.jpg" 
+					control={<Radio />} label="Glitter" />
+			
+					<FormControlLabel value="https://img.freepik.com/free-photo/natural-sand-beach-background_53876-139816.jpg?w=1380&t=st=1659519778~exp=1659520378~hmac=33b874ee18163ebf580426cc1d7527b5fca6668a6644d851abe061f2c999f396" 
+					control={<Radio />} label="Sand" />
+			
+					<FormControlLabel value="https://img.freepik.com/free-vector/metallic-textured-background_53876-89255.jpg?w=1480&t=st=1659599134~exp=1659599734~hmac=ebfa25883041c466026d4e4059703f035bd26e03ae3a3754d4fbefea357e1791" 
+					control={<Radio />} label="Metal" />
+			
+					<FormControlLabel value="https://img.freepik.com/free-photo/plastic-texture-holographic-effect_53876-94659.jpg?w=1380&t=st=1659519889~exp=1659520489~hmac=28f106c7f3a587ea6318d552a001f6128ec5f795709f9a38c60dc4b6650bdaad" 
+					control={<Radio />} label="Plastic" />
+			
+				</RadioGroup>
+			</FormControl>
 
 		<Help/>
 		</Stack>

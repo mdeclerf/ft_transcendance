@@ -18,16 +18,16 @@ const fabStyle = {
 
 export function WIcon() {
     return (
-        <Paper sx={{ml:1.5, boxShadow: "none"}}>
-            <img alt="" src="https://img.icons8.com/ios-filled/344/w-key.png" width="50" height="50"></img>
+        <Paper sx={{ml:1.7, boxShadow: "none"}}>
+            <img alt="" src={require('../Images/keyboard_key_w.png')} width="50" height="50"></img>
         </Paper>
     );
 }
 
 export function SIcon() {
     return (
-        <Paper sx={{ml:1.5, boxShadow: "none"}}>
-            <img alt="" src="https://img.icons8.com/ios-filled/344/s-key.png" width="50" height="50"></img>
+        <Paper sx={{ml:1.7, boxShadow: "none"}}>
+            <img alt="" src={require('../Images/keyboard_key_s.png')} width="50" height="50"></img>
         </Paper>
     );
 }
