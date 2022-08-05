@@ -6,7 +6,7 @@ export class Room {
 	@PrimaryGeneratedColumn()
 	public id!: number;
 
-	@Column({type: 'text'})
+	@Column({type: 'text', unique: true})
 	public name: string;
 
 	/*
@@ -17,7 +17,7 @@ export class Room {
 	@Column({type: 'integer'})
 	public type: number;
 
-	@Column({type: 'text'})
+	@Column({nullable: true, type: 'text'})
 	public hash: string;
 
 	@CreateDateColumn({ type: 'timestamp' })

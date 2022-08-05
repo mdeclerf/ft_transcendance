@@ -20,6 +20,9 @@ import { Game } from './game/game.entity';
 import { RoomModule } from './room/room.module';
 import { RoomController } from './room/room.controller';
 import { Room } from './room/room.entity';
+import { BlockModule } from './block/block.module';
+import { BlockController } from './block/block.controller';
+import { Block } from './block/block.entity';
 
 @Module({
 	imports: [
@@ -29,7 +32,8 @@ import { Room } from './room/room.entity';
 		ChatUserModule,
 		FriendlistModule,
 		GameModule,
-		RoomModule
+		RoomModule,
+		BlockModule
 	],
 	controllers: [
 		UserController,
@@ -38,7 +42,8 @@ import { Room } from './room/room.entity';
 		ChatUserController,
 		FriendlistController,
 		GameController,
-		RoomController
+		RoomController,
+		BlockController
 	],
 	exports: [
 		UserModule,
@@ -47,11 +52,12 @@ import { Room } from './room/room.entity';
 		ChatUserModule,
 		FriendlistModule,
 		GameModule,
-		RoomModule
+		RoomModule,
+		BlockModule
 	]
 })
 export class OrmModule {}
 
-export const entities = [User, Session, Chat, ChatUser, Friendlist, Game, Room];
+export const entities = [User, Session, Chat, ChatUser, Friendlist, Game, Room, Block];
 
-export { User, Session, Chat, ChatUser, Friendlist, Game, Room };
+export { User, Session, Chat, ChatUser, Friendlist, Game, Room, Block };
