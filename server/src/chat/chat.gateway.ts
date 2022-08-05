@@ -7,12 +7,11 @@ import {
 	SubscribeMessage,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
-import { CreateRoomDto } from 'src/typeorm/room/room.dto';
 import { dataType } from 'src/utils/types';
 import { CreateChatDto } from '../typeorm/chat/chat.dto';
 import { ChatService } from '../typeorm/chat/chat.service';
+import { CreateRoomDto } from 'src/typeorm/room/room.dto';
 import { RoomService } from '../typeorm/room/room.service'
-import { Chat, User } from '../typeorm/typeorm.module';
 
 @WebSocketGateway({
 	cors: {
@@ -45,19 +44,11 @@ implements OnGatewayConnection
 
 	@SubscribeMessage("chat_join_room")
 	chatJoinRoom(client: Socket, room: string) {
-		this.roomService.getRoomByName(room)
-		.then(function(result){
+		this.roomService.getRoomOrCreate(room)
+		.then(function(result) {
 			if (result)
 			{
-				client.join(result.name);
-				client.emit("chat_joined_room", result);
-			}
-			else
-			{
-				let newRoom : CreateRoomDto = new CreateRoomDto();
-				newRoom.name = room;
-				newRoom.type = 0; //change later for protected
-				this.roomService.createRoom()
+				console.log(result.name);
 				client.emit("chat_joined_room", result);
 			}
 		})

@@ -25,7 +25,7 @@ import { ChatGateway } from './chat/chat.gateway'
       entities,
       synchronize: true,
     }),
-    UserModule, // WTF
+    UserModule,
 	OrmModule
   ],
   controllers: [AppController],

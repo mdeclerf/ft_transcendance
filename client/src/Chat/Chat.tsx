@@ -15,263 +15,258 @@ import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 
-  // BULLES DE MESSAGES
+// BULLES DE MESSAGES
 const customBubble = (props: any) => (
-  <div className="imessage">
-  <p className={`${props.message.id ? "from-them" : "from-me"}`}>{props.message.message}</p>
-  </div>
+	<div className="imessage">
+	<p className={`${props.message.id ? "from-them" : "from-me"}`}>{props.message.message}</p>
+	</div>
 );
 
 function Chat(props: any) {
-  const socket: Socket = props.socket;
-  const classes = useStyles();
-  const { user } = useFetchCurrentUser();
-  const [room, setRoom] = useState<string>("0");
-  const [message, setMessage] = useState<string>("");
-  const [allMessages, setAllMessages] = useState<Array<Message>>([]);
-  const [rooms, setRooms] = useState<Array<number>>([]);
-  //const [clicked, setClicked] = useState<boolean>(false);
+	const socket: Socket = props.socket;
+	const classes = useStyles();
+	const { user } = useFetchCurrentUser();
+	const [room, setRoom] = useState<string>("0");
+	const [message, setMessage] = useState<string>("");
+	const [allMessages, setAllMessages] = useState<Array<Message>>([]);
+	const [rooms, setRooms] = useState<Array<number>>([]);
 
-  // INITIALISATION DES CHANNELS ET REJOINDRE LE CHANNEL 0
-  if (rooms.length === 0)
-  {
-    socket.emit("handle_connect_test");
-    socket.emit("chat_get_room");
-    socket.emit("chat_join_room", "0");
-  }
+	// INITIALISATION DES CHANNELS ET REJOINDRE LE CHANNEL 0
+	if (rooms.length === 0)
+	{
+		socket.emit("handle_connect_test");
+		socket.emit("chat_get_room");
+		socket.emit("chat_join_room", "0");
+	}
 
-  // SEND MESSAGE
-  const sendMessage = () => {
-    socket.emit('chat_send_message', { message, room, user });
-	setAllMessages([...allMessages,
-        new Message({
-          id: 0,
-          message: message,
-          senderName: user?.username
-        }),
-	])
-    socket.emit("chat_get_room");
-  };
-
-  // JOIN A ROOM
-  const joinRoom = () => {
-    setOpenDialog(false);
-    if (room !== "") {
-      socket.emit("chat_join_room", room);
-    }
-  };
-
-  //const joinPublicRoom = () => {
-  //  setClicked(true);
-  //};
-
-  // JOIN A CHANNEL VIA LE BOUTON
-  const joinChannel = (room_number: number) => {
-    setRoom(room_number.toString());
-    socket.emit("chat_join_room", room_number.toString());
-  };
-  
-  // SEND THE MESSAGE AND RESET (due to the onClick accepting only one function)
-  function send_and_reset()
-  {
-    if (message !== "")
-      sendMessage();
-    reset();
-  }
-
-  // DEAL WITH EVENTS
-  useEffect(() => {
-
-    function handleReceived(data:any) {
-      setAllMessages([...allMessages,
-        new Message({
-          id: 1,
-          message: data.body,
-          senderName: data.user.username //todo
-        }),
-      ])
-      socket.emit("chat_get_room");
-    }
-
-    function handleJoined(data: ChatResponse[]) {
-		if (room === "")
-			setRoom("0");
-		allMessages.splice(0, allMessages.length);
-		setAllMessages([]);
-		for (const chatEntry of data) {
-			if (chatEntry.user.id === user?.id) {
-				allMessages.push(new Message ({
+	// SEND MESSAGE
+	const sendMessage = () => {
+		socket.emit('chat_send_message', { message, room, user });
+			setAllMessages([...allMessages,
+				new Message({
 					id: 0,
-					message: chatEntry.body,
-					senderName: chatEntry.user.username
-				}));
-				setAllMessages([...allMessages]);
-			}
-			else {
-				allMessages.push(new Message ({
+					message: message,
+					senderName: user?.username
+				}),
+		])
+		socket.emit("chat_get_room");
+	};
+
+	// JOIN A ROOM
+	const joinRoom = () => {
+		setOpenDialog(false);
+		if (room !== "") {
+			socket.emit("chat_join_room", room);
+		}
+	};
+
+	// JOIN A CHANNEL VIA LE BOUTON
+	const joinChannel = (room_number: number) => {
+		setRoom(room_number.toString());
+		socket.emit("chat_join_room", room_number.toString());
+	};
+	
+	// SEND THE MESSAGE AND RESET (due to the onClick accepting only one function)
+	function send_and_reset()
+	{
+		if (message !== "")
+			sendMessage();
+		reset();
+	}
+
+	// DEAL WITH EVENTS
+	useEffect(() => {
+
+		function handleReceived(data:any) {
+			setAllMessages([...allMessages,
+				new Message({
 					id: 1,
-					message: chatEntry.body,
-					senderName: chatEntry.user.username
-				}));
-				setAllMessages([...allMessages]);
+					message: data.body,
+					senderName: data.user.username //todo
+				}),
+			])
+			socket.emit("chat_get_room");
+		}
+
+		function handleJoined(data: ChatResponse[]) {
+			if (room === "")
+				setRoom("0");
+			allMessages.splice(0, allMessages.length);
+			setAllMessages([]);
+			for (const chatEntry of data) {
+				if (chatEntry.user.id === user?.id) {
+					allMessages.push(new Message ({
+						id: 0,
+						message: chatEntry.body,
+						senderName: chatEntry.user.username
+					}));
+					setAllMessages([...allMessages]);
+				}
+				else {
+					allMessages.push(new Message ({
+						id: 1,
+						message: chatEntry.body,
+						senderName: chatEntry.user.username
+					}));
+					setAllMessages([...allMessages]);
+				}
 			}
 		}
-    }
 
-    function handleConnected(data:any) {
-      if (room === "")
-        socket.emit("chat_join_room", "0");
-      rooms.splice(0, rooms.length);
-      setRooms([]);
-      data.forEach(function(value: any, key: any) {
-        rooms.push(data[key].room_number);
-        setRooms([...rooms]);
-      });
-    }
+		function handleConnected(data:any) {
+			if (room === "")
+				socket.emit("chat_join_room", "0");
+			rooms.splice(0, rooms.length);
+			setRooms([]);
+			data.forEach(function(value: any, key: any) {
+				rooms.push(data[key].room_number);
+				setRooms([...rooms]);
+			});
+		}
 
-    function handleSetRoom(data:any) {
-      rooms.splice(0, rooms.length);
-        setRooms([]);
-        data.forEach(function(value: any, key: any) {
-          rooms.push(data[key].room_number);
-          setRooms([...rooms]);
-        });
-      }
+		function handleSetRoom(data:any) {
+			rooms.splice(0, rooms.length);
+			setRooms([]);
+			data.forEach(function(value: any, key: any) {
+				rooms.push(data[key].room_number);
+				setRooms([...rooms]);
+			});
+		}
 
-    // RECEPTION DE MESSAGES
-    socket.on("chat_receive_message", (data: any) => {
-      handleReceived(data);
-    });
+		// RECEPTION DE MESSAGES
+		socket.on("chat_receive_message", (data: any) => {
+			handleReceived(data);
+		});
 
-    // JOIN ROOM
-    socket.on("chat_joined_room", (data: ChatResponse[]) => {
-      handleJoined(data);
-    });
+		// JOIN ROOM
+		socket.on("chat_joined_room", (data: ChatResponse[]) => {
+			handleJoined(data);
+		});
 
-    //CONNECTION DU CLIENT
-    socket.on("chat_connected", (data: any) => {
-      handleConnected(data);
-    });
+		//CONNECTION DU CLIENT
+		socket.on("chat_connected", (data: any) => {
+			handleConnected(data);
+		});
 
-    socket.on("chat_set_rooms", (data: any) => {
-      handleSetRoom(data);
-    })
+		socket.on("chat_set_rooms", (data: any) => {
+			handleSetRoom(data);
+		})
 
-    return () => {
+		return () => {
 			socket.off();
 		}
-  // eslint-disable-next-line
-  }, [message, allMessages, room, rooms])
-  
-  // RESET THE FORM
-  function reset() {
-    (document.getElementById("textareaInput") as HTMLFormElement).reset();
-    setMessage('');
-  }
-  
-  const loadChannels = rooms.map((room_number: number) => {
-    return (
-      <Button  sx={{mt:0.5}} variant="contained" size="large" fullWidth={true} key={room_number} onClick={() =>joinChannel(room_number)}>
-        {room_number}
-      </Button>
-    )
-  })
+	// eslint-disable-next-line
+	}, [message, allMessages, room, rooms])
+	
+	// RESET THE FORM
+	function reset() {
+		(document.getElementById("textareaInput") as HTMLFormElement).reset();
+		setMessage('');
+	}
+	
+	const loadChannels = rooms.map((room_number: number) => {
+		return (
+			<Button  sx={{mt:0.5}} variant="contained" size="large" fullWidth={true} key={room_number} onClick={() =>joinChannel(room_number)}>
+				{room_number}
+			</Button>
+		)
+	})
 
-  const [openDialog, setOpenDialog] = useState(false);
+	const [openDialog, setOpenDialog] = useState(false);
 
-  const handleClickOpen = () => {
-    setOpenDialog(true);
-  };
+	const handleClickOpen = () => {
+		setOpenDialog(true);
+	};
 
-  const handleClose = () => {
-    setOpenDialog(false);
-  };
+	const handleClose = () => {
+		setOpenDialog(false);
+	};
 
-  // RETURN TO RENDER
-  return (
-  <>
-    {/* colonnes */}
-    <div className="columns">
-      {/* colonne de gauche */}
-      <div className="col1">
-        <Paper className={classes.paper}>
-          {/* bouton pour ouvrir dialogue (fenetre pour entre room name) public */}
-          <Button fullWidth={true} variant="contained" size="large" onClick={handleClickOpen}>Create Public Room</Button>
-          <Dialog open={openDialog} onClose={handleClose}>
-            <DialogTitle>Create a public room</DialogTitle>
-            <DialogContent>
-              <DialogContentText>Please enter a room name : </DialogContentText>
-              <TextField
-                autoFocus
-                margin="dense"
-                type="text"
-                fullWidth
-                variant="standard"
-                onChange={(event: any) => {
-                  setRoom(event.target.value);
-                }}
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={handleClose}>Cancel</Button>
-              <Button onClick={joinRoom}>Create Room</Button>
-            </DialogActions>
-          </Dialog>
-          {/* bouton pour ouvrir dialogue (fenetre pour entre room name et password) private */}
-          {/*<Button onClick={joinRoom} fullWidth={true} variant="contained" size="large"> Create Private Room</Button>*/}
-          {/* affichage des channels dispo et creation d un bouton / room */}
-          <>
-            { loadChannels }
-          </>
-        </Paper>
-      </div>
-      {/* colonne de droite */}
-      <div className="col2">
-        <Paper className={classes.paper2}>
-          {/* papier pour l historique des messages */}
-          <Paper id="style-1" className={classes.messagesBody}>
-            {/* gestion de l'historique des messages */}
-            <ChatFeed
-              messages={allMessages} // Boolean: list of message objects
-              isTyping={false} // Boolean: is the recipient typing
-              hasInputField={false} // Boolean: use our input, or use your own
-              showSenderName={true} // show the name of the user who sent the message
-              bubblesCentered={true} //Boolean should the bubbles be centered in the feed?
-              chatBubble={true && customBubble} // JSON: Custom bubble styles
-            />
-          </Paper>
-          <>
-            {/* formulaire pour envoyer un message */}
-            <form className={classes.wrapForm}  noValidate autoComplete="off" id="textareaInput">
-              <TextField
-                placeholder='Type your message'
-                onChange={(event: any) => {
-                  setMessage(event.target.value);
-                }}
-                // si on presse enter, le message s'envoie et le formulaire se vide
-                onKeyDown={(event: any) => {
-                  if (event.key === 'Enter')
-                  {
-                    if (message !== "")
-                    sendMessage();
-                    event.preventDefault();//avoid refreshing at each enter
-                    reset();//clear the form
-                    setMessage('');
-                  }
-                }}
-              />
-              {/* bouton d'envoi de messages */}
-              <Button
-                onClick={send_and_reset}>
-                <SendIcon />
-              </Button>
-            </form>
-          </>
-        </Paper>
-      </div>  
-    </div>
-  </>
-  );
+	// RETURN TO RENDER
+	return (
+	<>
+		{/* colonnes */}
+		<div className="columns">
+			{/* colonne de gauche */}
+			<div className="col1">
+				<Paper className={classes.paper}>
+					{/* bouton pour ouvrir dialogue (fenetre pour entre room name) public */}
+					<Button fullWidth={true} variant="contained" size="large" onClick={handleClickOpen}>Create Public Room</Button>
+					<Dialog open={openDialog} onClose={handleClose}>
+						<DialogTitle>Create a public room</DialogTitle>
+						<DialogContent>
+							<DialogContentText>Please enter a room name : </DialogContentText>
+							<TextField
+								autoFocus
+								margin="dense"
+								type="text"
+								fullWidth
+								variant="standard"
+								onChange={(event: any) => {
+									setRoom(event.target.value);
+								}}
+							/>
+						</DialogContent>
+						<DialogActions>
+							<Button onClick={handleClose}>Cancel</Button>
+							<Button onClick={joinRoom}>Create Room</Button>
+						</DialogActions>
+					</Dialog>
+					{/* bouton pour ouvrir dialogue (fenetre pour entre room name et password) private */}
+					{/*<Button onClick={joinRoom} fullWidth={true} variant="contained" size="large"> Create Private Room</Button>*/}
+					{/* affichage des channels dispo et creation d un bouton / room */}
+					<>
+						{ loadChannels }
+					</>
+				</Paper>
+			</div>
+			{/* colonne de droite */}
+			<div className="col2">
+				<Paper className={classes.paper2}>
+					{/* papier pour l historique des messages */}
+					<Paper id="style-1" className={classes.messagesBody}>
+						{/* gestion de l'historique des messages */}
+						<ChatFeed
+							messages={allMessages} // Boolean: list of message objects
+							isTyping={false} // Boolean: is the recipient typing
+							hasInputField={false} // Boolean: use our input, or use your own
+							showSenderName={true} // show the name of the user who sent the message
+							bubblesCentered={true} //Boolean should the bubbles be centered in the feed?
+							chatBubble={true && customBubble} // JSON: Custom bubble styles
+						/>
+					</Paper>
+					<>
+						{/* formulaire pour envoyer un message */}
+						<form className={classes.wrapForm}  noValidate autoComplete="off" id="textareaInput">
+							<TextField
+								placeholder='Type your message'
+								onChange={(event: any) => {
+									setMessage(event.target.value);
+								}}
+								// si on presse enter, le message s'envoie et le formulaire se vide
+								onKeyDown={(event: any) => {
+									if (event.key === 'Enter')
+									{
+										if (message !== "")
+										sendMessage();
+										event.preventDefault();//avoid refreshing at each enter
+										reset();//clear the form
+										setMessage('');
+									}
+								}}
+							/>
+							{/* bouton d'envoi de messages */}
+							<Button
+								onClick={send_and_reset}>
+								<SendIcon />
+							</Button>
+						</form>
+					</>
+				</Paper>
+			</div>  
+		</div>
+	</>
+	);
 }
 
 export default Chat;
