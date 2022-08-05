@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
+import { Room } from '../typeorm.module';
 import { CreateChatDto } from './chat.dto';
 import { Chat } from './chat.entity';
 
@@ -19,7 +20,7 @@ export class ChatService {
 	public getRoom(room_id: number) : Promise<Chat[]> {
 		const result = this.repository.createQueryBuilder('chat')
 			.leftJoinAndSelect('chat.user', 'user')
-			.where('chat.room_number = :id', { id: room_id })
+			.where('chat.room_id = :id', { id: room_id })
 			.orderBy('chat.createdat', 'ASC')
 			.getMany();
 		return result;
@@ -28,8 +29,8 @@ export class ChatService {
 	//Return every room with at least 1 message(s)
 	public getActiveRooms() : Promise<Chat[]> {
 		return this.repository.createQueryBuilder('')
-		.select(['room_number', "MAX(createdat) as createdAt"])
-		.groupBy('room_number')
+		.select(['room_id', "MAX(createdat) as createdAt"])
+		.groupBy('room_id')
 		.orderBy('createdat', 'DESC')
 		.getRawMany();
 	}
@@ -42,17 +43,17 @@ export class ChatService {
 	public createMessage(body: CreateChatDto) : Promise<Chat> {
 		const message: Chat = new Chat();
 
-		message.room_number = body.room_number;
+		message.room = body.room;
 		message.body = body.body;
 		message.user = body.user;
 		return this.repository.save(message);
 	}
 
 	//Return the last message of a given room
-	public getLastMessage(room_id: number)  : Promise<Chat> {
+	public getLastMessage(room: Room)  : Promise<Chat> {
 
 		return this.repository.findOne({
-			where: [{room_number : room_id}],
+			where: [{room : room}],
 			order : {createdAt: 'DESC'}
 			});
 	}

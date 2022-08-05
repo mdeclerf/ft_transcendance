@@ -1,5 +1,5 @@
 import { Request } from "express";
-import { User } from "../typeorm/typeorm.module";
+import { Room, User } from "../typeorm/typeorm.module";
 
 export interface RequestWithUser extends Request {
 	user: User;
@@ -33,6 +33,6 @@ export class GameDetails{
 
 export type dataType = {
 	message: string;
-	room: number;
+	room: string;
 	user: User;
 }

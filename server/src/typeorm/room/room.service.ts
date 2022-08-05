@@ -18,25 +18,22 @@ export class RoomService {
 		return this.repository.findOneBy({ id: id });
 	}
 
-	public getRoomOrCreate(name: string): Promise<Room> {
-		let res = this.repository.findOneBy({ name: name })
-		console.log(res);
-		if (res)
-		{
-			return res;
-		}
-		else
-		{
-			let newRoom : CreateRoomDto = new CreateRoomDto();
-			newRoom.name = name;
-			newRoom.type = 0; //change later for protected
-			this.createRoom(newRoom)
-			.then(function(result) {
-				return (result);
-			})
-		}
+	public getActiveRooms() : Promise<Room[]> {
+		return this.repository.createQueryBuilder('room')
+			.select('room.name')
+			.getMany();
 	}
-	
+
+	async getRoomOrCreate(name: string): Promise<Room> {
+		await this.repository.createQueryBuilder()
+		.insert()
+		.orIgnore()
+		.into(Room)
+		.values([{name, type: 0}])
+		.execute();
+		return this.repository.findOneBy({ name: name });
+	}
+
 	public createRoom(body: CreateRoomDto): Promise<Room> {
 		
 		const room: Room = new Room();
