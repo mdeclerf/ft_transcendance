@@ -23,6 +23,10 @@ export type ChatResponse = {
 	user: User;
 }
 
+export type ChatRooms = {
+	name: string;
+}
+
 export type CurrentMatch = {
 	key: string;
 	player_1: string;

@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Chat } from "../typeorm.module";
 
 @Entity()
 export class Room {
@@ -6,7 +7,7 @@ export class Room {
 	@PrimaryGeneratedColumn()
 	public id!: number;
 
-	@Column({type: 'text'})
+	@Column({type: 'text', unique: true})
 	public name: string;
 
 	/*
@@ -17,7 +18,7 @@ export class Room {
 	@Column({type: 'integer'})
 	public type: number;
 
-	@Column({type: 'text'})
+	@Column({nullable: true, type: 'text'})
 	public hash: string;
 
 	@CreateDateColumn({ type: 'timestamp' })
@@ -25,4 +26,7 @@ export class Room {
 
 	@UpdateDateColumn({ type: 'timestamp' })
 	public updated_at!: Date;
+
+	@OneToMany(() => Chat, (chat) => chat.room)
+	chat: Chat[];
 }

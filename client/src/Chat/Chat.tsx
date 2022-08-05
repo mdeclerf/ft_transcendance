@@ -7,7 +7,7 @@ import SendIcon from '@mui/icons-material/Send';
 import Button from '@mui/material/Button';
 import { Socket } from 'socket.io-client';
 import { useFetchCurrentUser } from "../utils/hooks/useFetchCurrentUser";
-import { ChatResponse } from '../utils/types';
+import { ChatResponse, ChatRooms } from '../utils/types';
 import { useStyles } from './styles'
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -26,17 +26,17 @@ function Chat(props: any) {
 	const socket: Socket = props.socket;
 	const classes = useStyles();
 	const { user } = useFetchCurrentUser();
-	const [room, setRoom] = useState<string>("0");
+	const [room, setRoom] = useState<string>("");
 	const [message, setMessage] = useState<string>("");
 	const [allMessages, setAllMessages] = useState<Array<Message>>([]);
-	const [rooms, setRooms] = useState<Array<number>>([]);
+	const [rooms, setRooms] = useState<Array<string>>([]);
 
 	// INITIALISATION DES CHANNELS ET REJOINDRE LE CHANNEL 0
 	if (rooms.length === 0)
 	{
 		socket.emit("handle_connect_test");
 		socket.emit("chat_get_room");
-		socket.emit("chat_join_room", "0");
+		socket.emit("chat_join_room", "General");
 	}
 
 	// SEND MESSAGE
@@ -61,9 +61,9 @@ function Chat(props: any) {
 	};
 
 	// JOIN A CHANNEL VIA LE BOUTON
-	const joinChannel = (room_number: number) => {
-		setRoom(room_number.toString());
-		socket.emit("chat_join_room", room_number.toString());
+	const joinChannel = (room_name: string) => {
+		setRoom(room_name);
+		socket.emit("chat_join_room", room_name);
 	};
 	
 	// SEND THE MESSAGE AND RESET (due to the onClick accepting only one function)
@@ -90,7 +90,7 @@ function Chat(props: any) {
 
 		function handleJoined(data: ChatResponse[]) {
 			if (room === "")
-				setRoom("0");
+				setRoom("General");
 			allMessages.splice(0, allMessages.length);
 			setAllMessages([]);
 			for (const chatEntry of data) {
@@ -113,28 +113,25 @@ function Chat(props: any) {
 			}
 		}
 
-		function handleConnected(data:any) {
+		function handleConnected(data: ChatRooms[]) {
 			if (room === "")
-				socket.emit("chat_join_room", "0");
-			rooms.splice(0, rooms.length);
-			setRooms([]);
-			data.forEach(function(value: any, key: any) {
-				rooms.push(data[key].room_number);
-				setRooms([...rooms]);
-			});
+				socket.emit("chat_join_room", "General");
+			for (const tmp of data) {
+				setRooms(oldRooms => [...oldRooms, tmp.name]);
+			}
+			console.log(rooms);
 		}
 
-		function handleSetRoom(data:any) {
+		function handleSetRoom(data:ChatRooms[]) {
 			rooms.splice(0, rooms.length);
 			setRooms([]);
-			data.forEach(function(value: any, key: any) {
-				rooms.push(data[key].room_number);
-				setRooms([...rooms]);
-			});
+			for (const tmp of data) {
+				setRooms(oldRooms => [...oldRooms, tmp.name]);
+			}
 		}
 
 		// RECEPTION DE MESSAGES
-		socket.on("chat_receive_message", (data: any) => {
+		socket.on("chat_receive_message", (data:any) => {
 			handleReceived(data);
 		});
 
@@ -144,11 +141,12 @@ function Chat(props: any) {
 		});
 
 		//CONNECTION DU CLIENT
-		socket.on("chat_connected", (data: any) => {
+		socket.on("chat_connected", (data: ChatRooms[]) => {
+			console.log(data);
 			handleConnected(data);
 		});
 
-		socket.on("chat_set_rooms", (data: any) => {
+		socket.on("chat_set_rooms", (data: ChatRooms[]) => {
 			handleSetRoom(data);
 		})
 
@@ -163,11 +161,11 @@ function Chat(props: any) {
 		(document.getElementById("textareaInput") as HTMLFormElement).reset();
 		setMessage('');
 	}
-	
-	const loadChannels = rooms.map((room_number: number) => {
+
+	const loadChannels = rooms.map((room_name: string) => {
 		return (
-			<Button  sx={{mt:0.5}} variant="contained" size="large" fullWidth={true} key={room_number} onClick={() =>joinChannel(room_number)}>
-				{room_number}
+			<Button  sx={{mt:0.5}} variant="contained" size="large" fullWidth={true} key={room_name} onClick={() =>joinChannel(room_name)}>
+				{room_name}
 			</Button>
 		)
 	})
