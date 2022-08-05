@@ -10,7 +10,8 @@ import { Socket, Server } from 'socket.io';
 import { dataType } from 'src/utils/types';
 import { CreateChatDto } from '../typeorm/chat/chat.dto';
 import { ChatService } from '../typeorm/chat/chat.service';
-import { Chat, User } from '../typeorm/typeorm.module';
+import { CreateRoomDto } from 'src/typeorm/room/room.dto';
+import { RoomService } from '../typeorm/room/room.service'
 
 @WebSocketGateway({
 	cors: {
@@ -24,7 +25,10 @@ import { Chat, User } from '../typeorm/typeorm.module';
 export class ChatGateway
 implements OnGatewayConnection
 {
-	constructor(@Inject(ChatService) private readonly chatService: ChatService) {}
+	constructor(
+		@Inject(ChatService) private readonly chatService: ChatService,
+		@Inject(RoomService) private readonly roomService: RoomService
+	) {}
 		
 	@WebSocketServer() server: Server;
 
@@ -40,12 +44,15 @@ implements OnGatewayConnection
 	}
 
 	@SubscribeMessage("chat_join_room")
-	chatJoinRoom(client: Socket, room: any) {
-		client.join(room);
-		this.chatService.getRoom(room)
-		.then(function(result){
-			client.emit("chat_joined_room", result);
-		});
+	chatJoinRoom(client: Socket, room: string) {
+		this.roomService.getRoomOrCreate(room)
+		.then(function(result) {
+			if (result)
+			{
+				console.log(result.name);
+				client.emit("chat_joined_room", result);
+			}
+		})
 	}
 
 	@SubscribeMessage("chat_send_message")

@@ -14,13 +14,15 @@ import RadioGroup from '@mui/material/RadioGroup';
 import FormControlLabel from '@mui/material/FormControlLabel';
 import FormControl from '@mui/material/FormControl';
 import FormLabel from '@mui/material/FormLabel';
+import { Dialog } from '@mui/material';
+import { DialogContentText } from '@mui/material';
 import './canvas.css';
 
 const up_key: string = "w";
 const down_key: string = "s";
 let last_send: string = "s";
 let player_status: string = "";
-let winning_score: number;
+let winning_score: string;
 let room_number: string = "";
 const CANVAS_HEIGHT = 500;
 const CANVAS_WIDTH = 700;
@@ -29,7 +31,6 @@ const CANVAS_WIDTH = 700;
 function Canvas(props: any) {
 
 	const { user } = useFetchCurrentUser();
-
 	const ws: Socket = props.socket;
 	const location = useLocation();
 	const canvasRef = useRef(null);
@@ -41,17 +42,21 @@ function Canvas(props: any) {
 	const [firstPScore, setFirstPScore] = useState<string>("0");
 	const [opponent, setOpponent] = useState<string>("");
 	const [secondPScore, setSecondPScore] = useState<string>("0");
+	const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 	const [back, setBack] = useState<string>("https://img.freepik.com/free-photo/white-paper-texture_1194-5998.jpg?w=1380&t=st=1659519955~exp=1659520555~hmac=a499219d876edb294bdebf8e768cddf59069e34d1c6f9ae680be92b4f17d7e92");
 
 	//////////////
 	const handleMatchmakingClick = () => {
 		ws.emit('add_to_queue', user?.username);
-		console.log(user?.username);
 		setDisabled(true);
 	};
 
 	const handlePlayClick = () => {
 		ws.emit('play_again', room_number, {player_status});
+	};
+
+	const handleDialogClose = () => {
+		setDialogOpen(false);
 	};
 	///////////////
 
@@ -64,23 +69,21 @@ function Canvas(props: any) {
 
 	ws.on("running", (message:string) => {
 		if (message === 'true')
-		{
-			console.log("is running");
 			setIsRunning(true);
-		}
 		if (message === 'false')
 		{
-			console.log("is not running");
 			setIsRunning(false);
+			setDialogOpen(true);
+			ws.emit("kill_game", room_number);
 		}
 	});
-	
+
 	ws.on('assigned_room', (message:string) => {
 		room_number = message;
 	});
 
 	ws.on('winning_score', (message:string) => {
-		winning_score = parseInt(message);
+		winning_score = message;
 	});
 
 	ws.on('players', (message:string) => {
@@ -94,6 +97,7 @@ function Canvas(props: any) {
 	ws.on('disconnection', (message:string) => {
 		setDisconnection(true);
 		setIsRunning(false);
+		ws.emit("kill_game", room_number);
 	});
 
 	ws.on('replay', (message:string) => {
@@ -174,18 +178,41 @@ function Canvas(props: any) {
 			</div>
 		}
 
+		{/* **************************** Dialog box who has won *****************************/}
+		{ (!isRunning && firstPScore === winning_score && player_status === 'First player') && 
+		<Dialog open={dialogOpen} onClose={handleDialogClose} maxWidth="md">
+			<DialogContentText sx={{ fontFamily: 'Work Sans, sans-serif', fontSize: 60, m:2}}>{user?.username} wins !</DialogContentText>
+		</Dialog>}
+
+		{ (!isRunning && secondPScore === winning_score && player_status === 'First player') && 
+		<Dialog open={dialogOpen} onClose={handleDialogClose} maxWidth="md">
+			<DialogContentText sx={{ fontFamily: 'Work Sans, sans-serif', fontSize: 60, m:2}}>{opponent} wins !</DialogContentText>
+		</Dialog>}
+
+		{ (!isRunning && firstPScore === winning_score && player_status === 'Second player') && 
+		<Dialog open={dialogOpen} onClose={handleDialogClose} maxWidth="md">
+			<DialogContentText sx={{ fontFamily: 'Work Sans, sans-serif', fontSize: 60, m:2}}>{opponent} wins !</DialogContentText>
+		</Dialog>}
+
+		{ (!isRunning && secondPScore === winning_score && player_status === 'Second player') && 
+		<Dialog open={dialogOpen} onClose={handleDialogClose} maxWidth="md">
+			<DialogContentText sx={{ fontFamily: 'Work Sans, sans-serif', fontSize: 60, m:2}}>{user?.username} wins !</DialogContentText>
+		</Dialog>}
+
+		{/* **************************** Matchmaking button *****************************/}
 		{( location.pathname === "/normal" && !isRunning && !disabled) && 
 			<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif'}} onClick={handleMatchmakingClick}>I want to play, add me to queue !</Button> 
 		}
 
 		{( location.pathname === "/normal" && !isRunning && disabled) && 
-			<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif'}} disabled>I want to play, add me to queue !</Button>
+			<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif' }} disabled>I want to play, add me to queue !</Button>
 		}
 
 		{((location.pathname === "/chatmode" && replay && player_status !== "Watching"))&&
 			<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif'}} onClick={handlePlayClick}>Play again !</Button>
 		}
 
+		{/* **************************** Scores *****************************/}
 		<Table>
 			<tbody>
 			<TableRow>
@@ -216,13 +243,14 @@ function Canvas(props: any) {
 			</tbody>
 		</Table>
 
-
+		{/* **************************** Alert disconnection *****************************/}
 		{((location.pathname === "/normal" || location.pathname === "/chatmode" ) && disconnection === true) &&
 			<div>
 			<Alert severity="info">Your opponent left the game...</Alert>
 			</div>
 		}
 
+		{/* **************************** Canvas and background image *****************************/}
 		<div className="outsideWrapper">
 			<div className="insideWrapper">
 				<img alt="" src={back} className="coveredImage"></img>

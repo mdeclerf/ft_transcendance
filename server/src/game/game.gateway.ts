@@ -56,7 +56,7 @@ class Pong{
 	ball_y: number = 250;
 	ball_angle: number = random_ball();
 	spectator: Player[] = [];
-	winning_score: number = 6;
+	winning_score: number = 3;
 	ball_speed: number = 12;
 	mode: string = "";
 	removed: boolean = false;
@@ -116,9 +116,6 @@ class Pong{
 		}
 	}
 
-	end_of_game() {
-	}
-	
 	async run_game() {
 		this.ball_angle = random_ball();
 		while (this.is_running) {
@@ -155,14 +152,12 @@ class Pong{
 	add_player(p: Player) {
 			if (this.first_player == null) {
 				this.first_player = p;
-				console.log(`in pong class first_player ${p.username}`);
 				this.first_player.socket.emit("players", "First player");
 				this.first_player.socket.emit("winning_score", this.winning_score.toString());
 			}
 
 			else if (this.second_player == null) {
 				this.second_player = p;
-				console.log(`in pong class second_player ${p.username}`);
 				this.second_player.socket.emit("players", "Second player");
 				this.second_player.socket.emit("winning_score", this.winning_score.toString());
 				this.first_player.socket.emit("opponent_login", this.second_player.username);
@@ -174,7 +169,6 @@ class Pong{
 			}
 
 			else {
-				console.log(`in pong class watcher_player ${p.username}`);
 				this.spectator.push(p);
 				p.socket.emit("players", "Watching");
 				p.socket.emit("winning_score", this.winning_score.toString());
@@ -247,7 +241,6 @@ export class GameGateway implements OnGatewayDisconnect {
 
 	Game: Map<string, Pong> = new Map();
 	queue: Player[] = [];
-	private logger: Logger = new Logger('GameGateway');
 
 	@SubscribeMessage("join_room") // NOT TESTED
 	handleRoom(client: Socket, message: any) : void {
@@ -258,25 +251,14 @@ export class GameGateway implements OnGatewayDisconnect {
 		this.Game.get(message[0]).add_player(new Player(client.id, client, message[1]));
 	}
 
-	@SubscribeMessage("monitor")
-	Monitor(client: Socket) : void {
-		for(let value of this.Game.values())
-		{
-			if (value.is_over || (value.first_player === null && value.removed) || (value.second_player === null && value.removed))
-			{
-				this.wss.sockets.emit("remove_ongoing_game", `${value.key}`);
-				let tmp: string = value.key;
-				this.Game.delete(tmp);
-				continue;
-			}
-			if (value.first_player && value.second_player)
-				client.emit("add_ongoing_game", value.key, value.first_player.username, value.second_player.username);
-		}
+	@SubscribeMessage("kill_game")
+	Kill_room(client: Socket, message:string) : void {
+		this.Game.delete(message);
+		this.wss.sockets.emit("remove_ongoing_game", message);
 	}
 
 	@SubscribeMessage("add_spectator")
 	AddSpectator(client: Socket, message: any) : void {
-		console.log(`in add_spectator ${message[0]} ${message[1]}`);
 		if (this.Game.has(message[0]))
 			this.Game.get(message[0]).add_player(new Player(client.id, client, message[1]));
 	}
@@ -325,7 +307,10 @@ export class GameGateway implements OnGatewayDisconnect {
 	@SubscribeMessage('add_to_queue')
 	add_queue(client: Socket, message: string) : void {
 
-		this.queue.push(new Player(client.id, client, message));
+		console.log(`in add_queue ${message} ${client.id}`);
+
+		if (this.queue.some(e => e.username === message) === false)
+			this.queue.push(new Player(client.id, client, message));
 
 		if (this.queue.length >= 2)
 		{
@@ -339,6 +324,7 @@ export class GameGateway implements OnGatewayDisconnect {
 			this.Game.get(unique_id).second_player.socket.emit("assigned_room", unique_id);
 			this.Game.get(unique_id).first_player.socket.emit("running", "true");
 			this.Game.get(unique_id).second_player.socket.emit("running", "true");
+			this.wss.sockets.emit("add_ongoing_game", [this.Game.get(unique_id).key, this.Game.get(unique_id).first_player.username, this.Game.get(unique_id).second_player.username]);
 		}
 	}
 }
