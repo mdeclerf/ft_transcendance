@@ -11,6 +11,7 @@ import { Logger } from '@nestjs/common';
 import { GameService } from '../typeorm/game/game.service';
 import { GameDetails } from '../utils/types';
 import { v4 as uuidv4 } from 'uuid';
+import { UserDetails } from "../utils/types";
 
 let details: GameDetails = new GameDetails;
 
@@ -33,15 +34,15 @@ class Player {
 	id: string;
 	score: number;
 	socket: Socket;
-	username: string;
+	userDetails: UserDetails;
 
-	constructor(id: string, socket: Socket, username: string) {
+	constructor(id: string, socket: Socket, userDetails: UserDetails) {
 		this.y_pos = 0;
 		this.delta = 0;
 		this.id = id;
 		this.score = 0;
 		this.socket = socket;
-		this.username = username;
+		this.userDetails = userDetails;
 	}
 }
 
@@ -56,7 +57,7 @@ class Pong{
 	ball_y: number = 250;
 	ball_angle: number = random_ball();
 	spectator: Player[] = [];
-	winning_score: number = 3;
+	winning_score: number = 5;
 	ball_speed: number = 12;
 	mode: string = "";
 	removed: boolean = false;
@@ -152,16 +153,18 @@ class Pong{
 	add_player(p: Player) {
 			if (this.first_player == null) {
 				this.first_player = p;
+				console.log(this.first_player.userDetails.username, this.first_player.userDetails.displayName, this.first_player.userDetails.intraId, this.first_player.userDetails.photoURL);
 				this.first_player.socket.emit("players", "First player");
 				this.first_player.socket.emit("winning_score", this.winning_score.toString());
 			}
 
 			else if (this.second_player == null) {
 				this.second_player = p;
+				console.log(this.second_player.userDetails.username, this.second_player.userDetails.displayName, this.second_player.userDetails.intraId, this.second_player.userDetails.photoURL);
 				this.second_player.socket.emit("players", "Second player");
 				this.second_player.socket.emit("winning_score", this.winning_score.toString());
-				this.first_player.socket.emit("opponent_login", this.second_player.username);
-				this.second_player.socket.emit("opponent_login", this.first_player.username);
+				this.first_player.socket.emit("opponent_login", this.second_player.userDetails.username);
+				this.second_player.socket.emit("opponent_login", this.first_player.userDetails.username);
 				this.is_running = true;
 				this.ball_x = 350;
 				this.ball_y = 250;
@@ -170,6 +173,7 @@ class Pong{
 
 			else {
 				this.spectator.push(p);
+				console.log(p.userDetails.username, p.userDetails.displayName, p.userDetails.intraId, p.userDetails.photoURL);
 				p.socket.emit("players", "Watching");
 				p.socket.emit("winning_score", this.winning_score.toString());
 			}
@@ -215,10 +219,8 @@ class Pong{
 	{
 		if ((this.first_player && this.first_player.id == p1_id) && (this.second_player && this.second_player.id == p2_id))
 		{
-			details.player_1_id = this.first_player.id;
-			details.player_2_id = this.second_player.id;
-			details.player_1_login = this.first_player.username;
-			details.player_2_login = this.second_player.username;
+			details.player_1 = this.first_player.userDetails;
+			details.player_2 = this.second_player.userDetails;
 			details.player_1_score = this.first_player.score;
 			details.player_2_score = this.second_player.score;
 			details.mode = this.mode;
@@ -305,26 +307,39 @@ export class GameGateway implements OnGatewayDisconnect {
 	}
 
 	@SubscribeMessage('add_to_queue')
-	add_queue(client: Socket, message: string) : void {
+	add_queue(client: Socket, message: UserDetails) : void {
 
-		console.log(`in add_queue ${message} ${client.id}`);
+		
+		console.log(`in add_queue ${message.displayName} ${message.username} ${client.id}`);
 
-		if (this.queue.some(e => e.username === message) === false)
+		if (this.queue.some(e => e.userDetails.username === message.username) === false)
 			this.queue.push(new Player(client.id, client, message));
 
 		if (this.queue.length >= 2)
 		{
 			const unique_id = uuidv4();
 			this.Game.set(unique_id, new Pong(this.gameService, unique_id, "normal"));
-			this.Game.get(unique_id).add_player(new Player(this.queue[0].id, this.queue[0].socket, this.queue[0].username));
+			this.Game.get(unique_id).add_player(new Player(this.queue[0].id, this.queue[0].socket, this.queue[0].userDetails));
 			this.queue.splice(0,1);
-			this.Game.get(unique_id).add_player(new Player(this.queue[0].id, this.queue[0].socket, this.queue[0].username));
+			this.Game.get(unique_id).add_player(new Player(this.queue[0].id, this.queue[0].socket, this.queue[0].userDetails));
 			this.queue.splice(0,1);
 			this.Game.get(unique_id).first_player.socket.emit("assigned_room", unique_id);
 			this.Game.get(unique_id).second_player.socket.emit("assigned_room", unique_id);
 			this.Game.get(unique_id).first_player.socket.emit("running", "true");
 			this.Game.get(unique_id).second_player.socket.emit("running", "true");
-			this.wss.sockets.emit("add_ongoing_game", [this.Game.get(unique_id).key, this.Game.get(unique_id).first_player.username, this.Game.get(unique_id).second_player.username]);
+			console.log("before");
+			this.wss.sockets.emit("add_ongoing_game", [this.Game.get(unique_id).key, this.Game.get(unique_id).first_player.userDetails.username, this.Game.get(unique_id).second_player.userDetails.username]);
+			console.log("after");
+		}
+	}
+
+	@SubscribeMessage('get_current_games')
+	getCurrentGames(client: Socket) : void {
+		console.log("YO")
+		for (let value of this.Game.values())
+		{
+			console.log(`${value.key} ${value.first_player.userDetails.username} ${value.second_player.userDetails.username}`)
+			client.emit("current_games_list", [value.key, value.first_player.userDetails.username, value.second_player.userDetails.username]);
 		}
 	}
 }

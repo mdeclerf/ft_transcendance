@@ -54,19 +54,31 @@ function Watch(props: any) {
 		setCurrentlyWatched(match.key);
 	};
 
+	
 	useEffect(() => {
 		ws.on("add_ongoing_game", (message:string[]) => {
+			console.log(`HERE ${message[0]} ${message[1]} ${message[2]}`);
 			setIdAdd({key:message[0], player_1:message[1], player_2:message[2]});
 		});
-
+		
 		if (idAdd.key !== "" && idAdd.key !== lastRemoved )
 		{
 			if (array.some(e => e.key === idAdd.key) === false)
 			{
-				array.push(idAdd);
+				// array.push(idAdd);
+				setArray(oldArray => [...oldArray, idAdd]);
 				setIdAdd({key:"", player_1:"", player_2:""});
 			}
 		}
+
+		ws.on("current_games_list", (message:string[]) => {
+			console.log("YO")
+			console.log(message[0], message[1], message[2])
+			setIdAdd({key:message[0], player_1:message[1], player_2:message[2]});
+			// array.push(idAdd);
+			setArray(oldArray => [...oldArray, idAdd]);
+			setIdAdd({key:"", player_1:"", player_2:""});
+		});
 
 		ws.on("remove_ongoing_game", (message:string) => {
 			setLastRemoved(message);

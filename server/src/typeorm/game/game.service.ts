@@ -21,4 +21,8 @@ export class GameService {
 	const user = this.gameRepository.create(details);
 	return await this.gameRepository.save(user);
 }
+
+  getCurrentGames() {
+    
+  }
 }

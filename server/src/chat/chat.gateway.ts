@@ -33,9 +33,8 @@ implements OnGatewayConnection
 		
 	@WebSocketServer() server: Server;
 
-	
 	handleConnection(client: Socket) {
-		this.server.setMaxListeners(0); // Is it really fixing the bug ? I don't know...
+		// this.server.setMaxListeners(0); // Is it really fixing the bug ? I don't know...
 		this.server.once("chat_connection", (socket) => {
 			this.chatService.getActiveRooms()
 			.then(function(result){

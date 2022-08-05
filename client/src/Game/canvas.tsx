@@ -47,7 +47,7 @@ function Canvas(props: any) {
 
 	//////////////
 	const handleMatchmakingClick = () => {
-		ws.emit('add_to_queue', user?.username);
+		ws.emit('add_to_queue', user);
 		setDisabled(true);
 	};
 

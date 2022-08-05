@@ -88,7 +88,7 @@ function App() {
 
 			{((user && !user.isTwoFactorAuthenticationEnabled) || (user && user.isTwoFactorAuthenticationEnabled && user.isSecondFactorAuthenticated)) && !error ?
 				<Routes>
-					<Route path="/" element={<WelcomePage/>} />
+					<Route path="/" element={<WelcomePage socket={socket}/>} />
 					<Route path="/chat" element={<Chat socket={socket}/>}/>
 					<Route path="/game" element={<Mode/> }/>
 					<Route path="/profile" element={<Profile user={user}/>} />
