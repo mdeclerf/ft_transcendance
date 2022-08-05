@@ -17,6 +17,7 @@ import FormLabel from '@mui/material/FormLabel';
 import { Dialog } from '@mui/material';
 import { DialogContentText } from '@mui/material';
 import './canvas.css';
+import { Help } from './help';
 
 const up_key: string = "w";
 const down_key: string = "s";
@@ -26,7 +27,6 @@ let winning_score: string;
 let room_number: string = "";
 const CANVAS_HEIGHT = 500;
 const CANVAS_WIDTH = 700;
-
 
 function Canvas(props: any) {
 
@@ -276,10 +276,10 @@ function Canvas(props: any) {
 		
 				<FormControlLabel value="https://img.freepik.com/free-photo/plastic-texture-holographic-effect_53876-94659.jpg?w=1380&t=st=1659519889~exp=1659520489~hmac=28f106c7f3a587ea6318d552a001f6128ec5f795709f9a38c60dc4b6650bdaad" 
 				control={<Radio />} label="Plastic" />
-		
 			</RadioGroup>
 		</FormControl>
 
+		<Help/>
 		</Stack>
 	);
 }

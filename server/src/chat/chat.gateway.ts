@@ -34,12 +34,10 @@ implements OnGatewayConnection
 
 	handleConnection(client: Socket) {
 		// this.server.setMaxListeners(0); // Is it really fixing the bug ? I don't know...
-		this.server.once("chat_connection", (socket) => {
-			this.chatService.getActiveRooms()
-			.then(function(result){
-				socket.emit("chat_connected", result);
-			});
-		})
+		this.chatService.getActiveRooms()
+		.then(function(result){
+			client.emit("chat_connected", result);
+		});
 	}
 
 	@SubscribeMessage("chat_join_room")

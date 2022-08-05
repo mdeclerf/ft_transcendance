@@ -153,14 +153,14 @@ class Pong{
 	add_player(p: Player) {
 			if (this.first_player == null) {
 				this.first_player = p;
-				console.log(this.first_player.userDetails.username, this.first_player.userDetails.displayName, this.first_player.userDetails.intraId, this.first_player.userDetails.photoURL);
+				console.log(` First player : ${this.first_player.userDetails.username}, ${this.first_player.userDetails.displayName}, ${this.first_player.userDetails.intraId}, ${this.first_player.userDetails.photoURL}`);
 				this.first_player.socket.emit("players", "First player");
 				this.first_player.socket.emit("winning_score", this.winning_score.toString());
 			}
 
 			else if (this.second_player == null) {
 				this.second_player = p;
-				console.log(this.second_player.userDetails.username, this.second_player.userDetails.displayName, this.second_player.userDetails.intraId, this.second_player.userDetails.photoURL);
+				console.log(` Second player : ${this.second_player.userDetails.username}, ${this.second_player.userDetails.displayName}, ${this.second_player.userDetails.intraId}, ${this.second_player.userDetails.photoURL}`);
 				this.second_player.socket.emit("players", "Second player");
 				this.second_player.socket.emit("winning_score", this.winning_score.toString());
 				this.first_player.socket.emit("opponent_login", this.second_player.userDetails.username);
@@ -173,7 +173,6 @@ class Pong{
 
 			else {
 				this.spectator.push(p);
-				console.log(p.userDetails.username, p.userDetails.displayName, p.userDetails.intraId, p.userDetails.photoURL);
 				p.socket.emit("players", "Watching");
 				p.socket.emit("winning_score", this.winning_score.toString());
 			}
@@ -286,11 +285,11 @@ export class GameGateway implements OnGatewayDisconnect {
 
 	@SubscribeMessage('setPosition')
 	handleMessage(client: Socket, message: string): void {
-		if (message[1] == 'd') {
+		if (message[1] == 'd' && this.Game.get(message[0]).first_player && this.Game.get(message[0]).second_player) {
 			this.Game.get(message[0]).set_delta(1, client.id);
-		} else if (message[1] == 'u') {
+		} else if (message[1] == 'u' && this.Game.get(message[0]).first_player && this.Game.get(message[0]).second_player) {
 			this.Game.get(message[0]).set_delta(-1, client.id);
-		} else if (message[1] == 'o') {
+		} else if (message[1] == 'o' && this.Game.get(message[0]).first_player && this.Game.get(message[0]).second_player) {
 			this.Game.get(message[0]).set_delta(0, client.id);
 		}
 	}
@@ -308,10 +307,6 @@ export class GameGateway implements OnGatewayDisconnect {
 
 	@SubscribeMessage('add_to_queue')
 	add_queue(client: Socket, message: UserDetails) : void {
-
-		
-		console.log(`in add_queue ${message.displayName} ${message.username} ${client.id}`);
-
 		if (this.queue.some(e => e.userDetails.username === message.username) === false)
 			this.queue.push(new Player(client.id, client, message));
 
@@ -327,19 +322,13 @@ export class GameGateway implements OnGatewayDisconnect {
 			this.Game.get(unique_id).second_player.socket.emit("assigned_room", unique_id);
 			this.Game.get(unique_id).first_player.socket.emit("running", "true");
 			this.Game.get(unique_id).second_player.socket.emit("running", "true");
-			console.log("before");
 			this.wss.sockets.emit("add_ongoing_game", [this.Game.get(unique_id).key, this.Game.get(unique_id).first_player.userDetails.username, this.Game.get(unique_id).second_player.userDetails.username]);
-			console.log("after");
 		}
 	}
 
 	@SubscribeMessage('get_current_games')
 	getCurrentGames(client: Socket) : void {
-		console.log("YO")
 		for (let value of this.Game.values())
-		{
-			console.log(`${value.key} ${value.first_player.userDetails.username} ${value.second_player.userDetails.username}`)
 			client.emit("current_games_list", [value.key, value.first_player.userDetails.username, value.second_player.userDetails.username]);
-		}
 	}
 }

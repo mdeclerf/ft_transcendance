@@ -14,7 +14,7 @@ import { CssBaseline } from "@mui/material";
 import { ThemeProvider } from '@mui/material/styles';
 import { Header } from './Components/Header';
 import { Fab } from '@mui/material';
-import Brightness4Icon from '@mui/icons-material/Brightness4';
+import ColorLensIcon from '@mui/icons-material/ColorLens';
 import { Avatar, Button, CircularProgress } from '@mui/material/';
 import { CenteredDiv } from './utils/styles';
 import { Profile } from './Pages/Profile';
@@ -83,7 +83,7 @@ function App() {
 
 			<CssBaseline/>
 			<Fab sx={fabStyle} color="primary" onClick={() => setColors((prev: any) => !prev)}>
-				<Brightness4Icon />
+				<ColorLensIcon />
 			</Fab>
 
 			{((user && !user.isTwoFactorAuthenticationEnabled) || (user && user.isTwoFactorAuthenticationEnabled && user.isSecondFactorAuthenticated)) && !error ?
