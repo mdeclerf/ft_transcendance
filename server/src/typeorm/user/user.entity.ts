@@ -49,7 +49,4 @@ export class User {
 	@OneToMany(() => Block, (block) => block.blocked_user)
 	blockedlist: Block[];
 
-	// @ManyToMany(() => User, user => user.id)
-	// @JoinTable()
-	// friends: User[]
 }

@@ -1,4 +1,5 @@
-import { Column, CreateDateColumn, Entity, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Chat } from "../typeorm.module";
 
 @Entity()
 export class Room {
@@ -25,4 +26,8 @@ export class Room {
 
 	@UpdateDateColumn({ type: 'timestamp' })
 	public updated_at!: Date;
+
+	@OneToMany(() => Chat, (chat) => chat.room)
+	chat: Chat[];
 }
+

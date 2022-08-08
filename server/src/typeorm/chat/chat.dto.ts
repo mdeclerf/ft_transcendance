@@ -1,10 +1,9 @@
 import { IsInt, IsNotEmpty, IsPositive, IsString, Min } from "class-validator";
-import { User } from "../typeorm.module";
+import { User, Room } from "../typeorm.module";
 
 export class CreateChatDto{
-	@IsInt()
-	@IsPositive()
-	public room_number: number;
+
+	public room: Room;
 
 	@IsString()
 	@IsNotEmpty()

@@ -1,3 +1,4 @@
+
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { PassportModule } from '@nestjs/passport';
@@ -25,7 +26,7 @@ import { ChatGateway } from './chat/chat.gateway'
       synchronize: true,
     }),
     UserModule,
-	  OrmModule
+	OrmModule
   ],
   controllers: [AppController],
   providers: [AppService, ChatGateway],

@@ -1,4 +1,3 @@
-import { userInfo } from 'os';
 import {
     Entity,
     Column,
@@ -13,18 +12,6 @@ export class Game {
     @PrimaryGeneratedColumn('uuid')
     id: number;
 
-    /*@Column({type: 'text'})
-    player_1_id: string;
-
-    @Column({type: 'text'})
-    player_2_id: string;
-
-    @Column({type: 'text'})
-    player_1_login: string;
-
-    @Column({type: 'text'})
-    player_2_login: string;
-*/
 	@ManyToOne(() => User, (user) => user.p1_game)
 	public player_1 : User
 

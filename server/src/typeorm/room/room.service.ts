@@ -27,7 +27,13 @@ export class RoomService {
 		.execute();
 		return this.repository.findOneBy({ name: name });
 	}
-	
+
+	public getActiveRooms() : Promise<Room[]> {
+		return this.repository.createQueryBuilder('room')
+			.select('room.name')
+			.getMany();
+	}
+
 	public createRoom(body: CreateRoomDto): Promise<Room> {
 		
 		const room: Room = new Room();

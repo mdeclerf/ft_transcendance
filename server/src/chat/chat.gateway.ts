@@ -32,35 +32,31 @@ implements OnGatewayConnection
 		
 	@WebSocketServer() server: Server;
 
-	
 	handleConnection(client: Socket) {
-		this.server.setMaxListeners(0); // Is it really fixing the bug ? I don't know...
-		this.server.once("chat_connection", (socket) => {
-			this.chatService.getActiveRooms()
-			.then(function(result){
-				socket.emit("chat_connected", result);
-			});
-		})
+		// this.server.setMaxListeners(0); // Is it really fixing the bug ? I don't know...
+		this.roomService.getActiveRooms()
+		.then(function(result){
+			console.log(result);
+			client.emit("chat_connected", result);
+		});
 	}
 
 	@SubscribeMessage("chat_join_room")
-	chatJoinRoom(client: Socket, room: string) {
-		this.roomService.getRoomOrCreate(room)
-		.then(function(result) {
-			if (result)
-			{
-				console.log(result.name);
-				client.emit("chat_joined_room", result);
-			}
+	async chatJoinRoom(client: Socket, room: string) {
+		let res = await this.roomService.getRoomOrCreate(room)
+
+		this.chatService.getRoom(res.id)
+		.then(function(result){
+			client.emit("chat_joined_room", result);
 		})
 	}
 
 	@SubscribeMessage("chat_send_message")
-	chatSendMessage(client: Socket, data: dataType) {
+	async chatSendMessage(client: Socket, data: dataType) {
 		const { message, room, user } = data;
 		let msg : CreateChatDto = new CreateChatDto();
 		msg.body = message;
-		msg.room_number = room ? room : 0;
+		msg.room = await this.roomService.getRoomByName(room);
 		msg.user = user;
 		this.chatService.createMessage(msg);
 		client.to(room.toString()).emit("chat_receive_message", msg);
