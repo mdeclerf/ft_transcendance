@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Socket } from "socket.io-client";
 import Button from '@mui/material/Button';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Typography } from '@mui/material';
@@ -18,6 +17,7 @@ import { useFetchCurrentUser } from "../utils/hooks/useFetchCurrentUser";
 import { CurrentMatch } from '../utils/types';
 import { Dialog } from '@mui/material';
 import { DialogContentText } from '@mui/material';
+import { socket } from '../socket';
 
 const CANVAS_WIDTH = 700;
 const CANVAS_HEIGHT = 500;
@@ -40,7 +40,6 @@ const draw_players = (context:any, player1_y: number, player2_y: number, ball_x:
 
 function Watch(props: any) {
 	const { user } = useFetchCurrentUser();
-	const ws: Socket = props.socket;
 	const [array, setArray] = useState<CurrentMatch[]>([]);
 	const [toAdd, setToAdd] = useState<CurrentMatch>({key:"", player_1:"", player_2:""})
 	const [currentlyWatched, setCurrentlyWatched] = useState<CurrentMatch>({key:"", player_1:"", player_2:""});
@@ -51,8 +50,8 @@ function Watch(props: any) {
 	const handleClick = (e : any, match: CurrentMatch) => {
 		setDisconnection(false);
 		if(currentlyWatched.key !== "")
-			ws.emit("remove_spectator", currentlyWatched.key);
-		ws.emit("add_spectator", match.key, user?.username);
+			socket.emit("remove_spectator", currentlyWatched.key);
+		socket.emit("add_spectator", match.key, user?.username);
 		setCurrentlyWatched(match);
 	};
 
@@ -61,7 +60,11 @@ function Watch(props: any) {
 	};
 
 	useEffect(() => {
-		ws.on("add_ongoing_game", (message:string[]) => {
+		socket.emit("get_current_games");
+	}, [])
+
+	useEffect(() => {
+		socket.on("add_ongoing_game", (message:string[]) => {
 			setToAdd({key:message[0], player_1:message[1], player_2:message[2]});
 		});
 		
@@ -71,29 +74,29 @@ function Watch(props: any) {
 			setToAdd({key:"", player_1:"", player_2:""});
 		}
 
-		ws.on("current_games_list", (message:string[]) => {
+		socket.on("current_games_list", (message:string[]) => {
 			setArray(oldArray => [...oldArray, {key:message[0], player_1:message[1], player_2:message[2]}]);
 		});
 
-		ws.on("remove_ongoing_game", (message:string) => {
+		socket.on("remove_ongoing_game", (message:string) => {
 			setDialogOpen(true);
 			setArray((prev: CurrentMatch[]) => prev.filter(item => item.key !== message));
 		});
 
-		ws.on("disconnection_of_player", (message:string) => {
+		socket.on("disconnection_of_player", (message:string) => {
 			if (message === currentlyWatched.key)
 			{
 				setDisconnection(true);
 				setCurrentlyWatched({key:"", player_1:"", player_2:""});
 			}
 		});
-	}, [array, toAdd, currentlyWatched, ws]);
+	}, [array, toAdd, currentlyWatched]);
 
 	const canvasRef = useRef(null);
 	const [firstPScore, setFirstPScore] = useState<string>("0");
 	const [secondPScore, setSecondPScore] = useState<string>("0");
 
-	ws.on('winning_score', (message:string) => {
+	socket.on('winning_score', (message:string) => {
 		winning_score = message;
 	});
 
@@ -105,7 +108,7 @@ function Watch(props: any) {
 		const context = canvas.getContext('2d');
 		draw_players(context, 10, 10, 350, 250);
 
-		ws.on('getPosition', (message: string) => {
+		socket.on('getPosition', (message: string) => {
 			let data = message.split(" ");
 			draw_players(context, parseInt(data[0]), parseInt(data[1]), parseInt(data[2]), parseInt(data[3]));
 			setFirstPScore(data[4]);
@@ -113,8 +116,8 @@ function Watch(props: any) {
 		});
 
 		return () => {
-			ws.off();
-			ws.close();
+			socket.off();
+			socket.close();
 		}
 	// eslint-disable-next-line
 	}, []);
@@ -174,7 +177,7 @@ function Watch(props: any) {
 					control={<Radio />} label="Plain" />
 			
 					<FormControlLabel 
-					value="https://previews.123rf.com/images/stephaniezieber/stephaniezieber1510/stephaniezieber151000010/47595727-white-silver-glitter-sparkle-texture.jpg" 
+					value="https://previesocket.123rf.com/images/stephaniezieber/stephaniezieber1510/stephaniezieber151000010/47595727-white-silver-glitter-sparkle-texture.jpg" 
 					control={<Radio />} label="Glitter" />
 			
 					<FormControlLabel value="https://img.freepik.com/free-photo/natural-sand-beach-background_53876-139816.jpg?w=1380&t=st=1659519778~exp=1659520378~hmac=33b874ee18163ebf580426cc1d7527b5fca6668a6644d851abe061f2c999f396" 

@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState} from 'react';
-import { Socket } from "socket.io-client";
+import { socket } from "../socket";
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import { useLocation } from 'react-router-dom';
@@ -31,7 +31,6 @@ const CANVAS_WIDTH = 700;
 function Canvas(props: any) {
 
 	const { user } = useFetchCurrentUser();
-	const ws: Socket = props.socket;
 	const location = useLocation();
 	const canvasRef = useRef(null);
 	const [room, setRoom] = useState<string>("");
@@ -48,12 +47,12 @@ function Canvas(props: any) {
 
 	//////////////
 	const handleMatchmakingClick = () => {
-		ws.emit('add_to_queue', user);
+		socket.emit('add_to_queue', user);
 		setDisabled(true);
 	};
 
 	const handlePlayClick = () => {
-		ws.emit('play_again', room_number, {player_status});
+		socket.emit('play_again', room_number, {player_status});
 	};
 
 	const handleDialogClose = () => {
@@ -63,45 +62,45 @@ function Canvas(props: any) {
 
 	const joinRoom = () => {
 		if (room !== "") {
-			ws.emit("join_room", room, user?.username);
+			socket.emit("join_room", room, user?.username);
 			room_number = room;
 		}
 	};
 
-	ws.on("running", (message:string) => {
+	socket.on("running", (message:string) => {
 		if (message === 'true')
 			setIsRunning(true);
 		if (message === 'false')
 		{
 			setIsRunning(false);
 			setDialogOpen(true);
-			ws.emit("kill_game", room_number);
+			socket.emit("kill_game", room_number);
 		}
 	});
 
-	ws.on('assigned_room', (message:string) => {
+	socket.on('assigned_room', (message:string) => {
 		room_number = message;
 	});
 
-	ws.on('winning_score', (message:string) => {
+	socket.on('winning_score', (message:string) => {
 		winning_score = message;
 	});
 
-	ws.on('players', (message:string) => {
+	socket.on('players', (message:string) => {
 		player_status = message;
 	});
 
-	ws.on('opponent_login', (message:string) => {
+	socket.on('opponent_login', (message:string) => {
 		setOpponent(message);
 	});
 
-	ws.on('disconnection', (message:string) => {
+	socket.on('disconnection', (message:string) => {
 		setDisconnection(true);
 		setIsRunning(false);
-		ws.emit("kill_game", room_number);
+		socket.emit("kill_game", room_number);
 	});
 
-	ws.on('replay', (message:string) => {
+	socket.on('replay', (message:string) => {
 		setReplay(true);
 	});
 
@@ -131,23 +130,23 @@ function Canvas(props: any) {
 		window.addEventListener('keydown', (e) => {
 
 			if (e.key === up_key && last_send !== 'u') {
-				ws.emit('setPosition', room_number, 'u');
+				socket.emit('setPosition', room_number, 'u');
 				last_send = 'u';
 			}
 			if (e.key === down_key && last_send !== 'd') {
-				ws.emit('setPosition', room_number, 'd');
+				socket.emit('setPosition', room_number, 'd');
 				last_send = 'd';
 			}
 		});
 
 		window.addEventListener('keyup', (e) => {
 			if (last_send !== 'o' && room_number !== "") {
-				ws.emit('setPosition', room_number, 'o');
+				socket.emit('setPosition', room_number, 'o');
 				last_send = 'o';
 			}
 		});
 
-		ws.on('getPosition', (message: string) => {
+		socket.on('getPosition', (message: string) => {
 			setDisabled(false);
 			setDisconnection(false);
 			setReplay(false);
@@ -158,8 +157,8 @@ function Canvas(props: any) {
 		});
 
 		return () => {
-			ws.off();
-			ws.close();
+			socket.off();
+			socket.close();
 		}
 	// eslint-disable-next-line
 	}, []);
@@ -288,7 +287,7 @@ function Canvas(props: any) {
 					control={<Radio />} label="Plain" />
 			
 					<FormControlLabel 
-					value="https://previews.123rf.com/images/stephaniezieber/stephaniezieber1510/stephaniezieber151000010/47595727-white-silver-glitter-sparkle-texture.jpg" 
+					value="https://previesocket.123rf.com/images/stephaniezieber/stephaniezieber1510/stephaniezieber151000010/47595727-white-silver-glitter-sparkle-texture.jpg" 
 					control={<Radio />} label="Glitter" />
 			
 					<FormControlLabel value="https://img.freepik.com/free-photo/natural-sand-beach-background_53876-139816.jpg?w=1380&t=st=1659519778~exp=1659520378~hmac=33b874ee18163ebf580426cc1d7527b5fca6668a6644d851abe061f2c999f396" 

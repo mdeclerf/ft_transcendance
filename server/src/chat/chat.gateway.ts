@@ -1,8 +1,6 @@
 import { Inject, UseGuards } from '@nestjs/common';
 import {
 	WebSocketGateway,
-	OnGatewayInit,
-	WebSocketServer,
 	OnGatewayConnection,
 	SubscribeMessage,
 } from '@nestjs/websockets';
@@ -10,7 +8,6 @@ import { Socket, Server } from 'socket.io';
 import { dataType } from 'src/utils/types';
 import { CreateChatDto } from '../typeorm/chat/chat.dto';
 import { ChatService } from '../typeorm/chat/chat.service';
-import { CreateRoomDto } from 'src/typeorm/room/room.dto';
 import { RoomService } from '../typeorm/room/room.service'
 
 @WebSocketGateway({
@@ -29,30 +26,34 @@ implements OnGatewayConnection
 		@Inject(ChatService) private readonly chatService: ChatService,
 		@Inject(RoomService) private readonly roomService: RoomService
 	) {}
-		
-	@WebSocketServer() server: Server;
 
 	handleConnection(client: Socket) {
-		// this.server.setMaxListeners(0); // Is it really fixing the bug ? I don't know...
+		console.log(`new socket ${client.id}`);
+	}
+
+	@SubscribeMessage("chat_connect")
+	handleConnect(client: Socket) {
 		this.roomService.getActiveRooms()
-		.then(function(result){
-			console.log(result);
+		.then((result) => {
+			console.log('new chat connection, current rooms: ', result);
 			client.emit("chat_connected", result);
 		});
 	}
 
 	@SubscribeMessage("chat_join_room")
 	async chatJoinRoom(client: Socket, room: string) {
-		let res = await this.roomService.getRoomOrCreate(room)
+		const res = await this.roomService.getRoomOrCreate(room)
 
 		this.chatService.getRoom(res.id)
-		.then(function(result){
+		.then((result) => {
+			console.log('result: ', result);
 			client.emit("chat_joined_room", result);
 		})
 	}
 
 	@SubscribeMessage("chat_send_message")
 	async chatSendMessage(client: Socket, data: dataType) {
+		console.log(data);
 		const { message, room, user } = data;
 		let msg : CreateChatDto = new CreateChatDto();
 		msg.body = message;
@@ -65,7 +66,7 @@ implements OnGatewayConnection
 	@SubscribeMessage("chat_get_room")
 	handleChannels(client: Socket) : void {
 		this.chatService.getActiveRooms()
-		.then(function(result){
+		.then((result) => {
 			client.emit("chat_set_rooms", result);
 		});
 	}

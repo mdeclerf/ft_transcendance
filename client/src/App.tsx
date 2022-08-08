@@ -24,9 +24,6 @@ import { UserPage } from './Pages/UserPage';
 import { TwoFactor } from './Pages/TwoFactor';
 import AuthCode, { AuthCodeRef } from 'react-auth-code-input';
 import axios from 'axios/';
-import { io } from 'socket.io-client';
-
-const socket = io('http://localhost:3001');
 
 const fabStyle = {
 	position: 'absolute',
@@ -88,8 +85,8 @@ function App() {
 
 			{((user && !user.isTwoFactorAuthenticationEnabled) || (user && user.isTwoFactorAuthenticationEnabled && user.isSecondFactorAuthenticated)) && !error ?
 				<Routes>
-					<Route path="/" element={<WelcomePage socket={socket}/>} />
-					<Route path="/chat" element={<Chat socket={socket}/>}/>
+					<Route path="/" element={<WelcomePage/>} />
+					<Route path="/chat" element={<Chat/>}/>
 					<Route path="/game" element={<Mode/> }/>
 					<Route path="/profile" element={<Profile user={user}/>} />
 					<Route path="/user/:username" element={<UserPage/>}/>
@@ -105,13 +102,13 @@ function App() {
 
 					<Route path='/normal' element={
 						<Grid container justifyContent='center'>
-							<Canvas socket={socket}/>
+							<Canvas/>
 						</Grid> }>
 					</Route>
 
 					<Route path='/watch' element={
 						<Grid container justifyContent='center'>
-							<Watch socket={socket}/>
+							<Watch/>
 						</Grid> }>
 					</Route>
 
