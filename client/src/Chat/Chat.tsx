@@ -170,7 +170,7 @@ function Chat(props: any) {
 			socket.off();
 		}
 	})
-	
+
 	// RESET THE FORM
 	// function reset() {
 	// 	(document.getElementById("textareaInput") as HTMLFormElement).reset();

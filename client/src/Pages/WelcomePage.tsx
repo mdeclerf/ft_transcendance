@@ -12,7 +12,7 @@ export const WelcomePage = (props: IWelcomePageProps) => {
 				Chat
 			</Button>
 
-			<Button component={Link} to="/normal" variant="contained" sx={{m: 1, maxWidth: '200px', maxHeight: '100px', minWidth: '200px', minHeight: '100px', fontSize: '40px', fontFamily: 'Work Sans, sans-serif'}}>
+			<Button component={Link} to="/play" variant="contained" sx={{m: 1, maxWidth: '200px', maxHeight: '100px', minWidth: '200px', minHeight: '100px', fontSize: '40px', fontFamily: 'Work Sans, sans-serif'}}>
 				Play
 			</Button>
 

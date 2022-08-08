@@ -115,10 +115,6 @@ function Watch(props: any) {
 			setSecondPScore(data[5]);
 		});
 
-		return () => {
-			socket.off();
-			socket.close();
-		}
 	// eslint-disable-next-line
 	}, []);
 

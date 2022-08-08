@@ -24,6 +24,7 @@ import { UserPage } from './Pages/UserPage';
 import { TwoFactor } from './Pages/TwoFactor';
 import AuthCode, { AuthCodeRef } from 'react-auth-code-input';
 import axios from 'axios/';
+import { Game } from './Game/Leave'
 
 const fabStyle = {
 	position: 'absolute',
@@ -100,10 +101,8 @@ function App() {
 						</Grid> }>
 					</Route>
 
-					<Route path='/normal' element={
-						<Grid container justifyContent='center'>
-							<Canvas/>
-						</Grid> }>
+					<Route path='/play' element={
+						<Game user={user}/> }>
 					</Route>
 
 					<Route path='/watch' element={

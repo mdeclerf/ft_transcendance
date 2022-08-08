@@ -28,7 +28,7 @@ let room_number: string = "";
 const CANVAS_HEIGHT = 500;
 const CANVAS_WIDTH = 700;
 
-function Canvas(props: any) {
+function Canvas() {
 
 	const { user } = useFetchCurrentUser();
 	const location = useLocation();
@@ -156,10 +156,6 @@ function Canvas(props: any) {
 			setSecondPScore(data[5]);
 		});
 
-		return () => {
-			socket.off();
-			socket.close();
-		}
 	// eslint-disable-next-line
 	}, []);
 
@@ -200,11 +196,11 @@ function Canvas(props: any) {
 		</Dialog>}
 
 		{/* **************************** Matchmaking button *****************************/}
-		{( location.pathname === "/normal" && !isRunning && !disabled) && 
+		{( location.pathname === "/play" && !isRunning && !disabled) && 
 			<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif'}} onClick={handleMatchmakingClick}>I want to play, add me to queue !</Button> 
 		}
 
-		{( location.pathname === "/normal" && !isRunning && disabled) && 
+		{( location.pathname === "/play" && !isRunning && disabled) && 
 			<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif' }} disabled>I want to play, add me to queue !</Button>
 		}
 
@@ -244,7 +240,7 @@ function Canvas(props: any) {
 		</Table>
 
 		{/* **************************** Alert disconnection *****************************/}
-		{((location.pathname === "/normal" || location.pathname === "/chatmode" ) && disconnection === true) &&
+		{((location.pathname === "/play" || location.pathname === "/chatmode" ) && disconnection === true) &&
 			<div>
 			<Alert severity="info">Your opponent left the game...</Alert>
 			</div>

@@ -307,22 +307,46 @@ export class GameGateway implements OnGatewayDisconnect {
 
 	@SubscribeMessage('add_to_queue')
 	add_queue(client: Socket, message: UserDetails) : void {
+
+		////
+		// if(this.queue.length === 0)
+		// 	console.log(`Currently in queue EMPTY`);
+		// else
+		// {
+		// 	for (let i = 0; i < this.queue.length; i++)
+		// 		console.log(`Currently in queue | ${i} | ${this.queue[i].userDetails.username}`);
+		// }
+		////
+
 		if (this.queue.some(e => e.userDetails.username === message.username) === false)
+		{
 			this.queue.push(new Player(client.id, client, message));
+			console.log(`added to queue --> ${message.username}`);
+		}
 
 		if (this.queue.length >= 2)
 		{
 			const unique_id = uuidv4();
-			this.Game.set(unique_id, new Pong(this.gameService, unique_id, "normal"));
+			this.Game.set(unique_id, new Pong(this.gameService, unique_id, "play"));
 			this.Game.get(unique_id).add_player(new Player(this.queue[0].id, this.queue[0].socket, this.queue[0].userDetails));
 			this.queue.splice(0,1);
 			this.Game.get(unique_id).add_player(new Player(this.queue[0].id, this.queue[0].socket, this.queue[0].userDetails));
 			this.queue.splice(0,1);
 			this.Game.get(unique_id).first_player.socket.emit("assigned_room", unique_id);
 			this.Game.get(unique_id).second_player.socket.emit("assigned_room", unique_id);
-			this.Game.get(unique_id).first_player.socket.emit("running", "true");
-			this.Game.get(unique_id).second_player.socket.emit("running", "true");
 			this.wss.sockets.emit("add_ongoing_game", [this.Game.get(unique_id).key, this.Game.get(unique_id).first_player.userDetails.username, this.Game.get(unique_id).second_player.userDetails.username]);
+		}
+	}
+
+	@SubscribeMessage('remove_from_queue')
+	removefromQueue(client: Socket, message: UserDetails) : void {
+		for (let i = 0; i < this.queue.length; i++)
+		{
+			if (message.username === this.queue[i].userDetails.username)
+			{
+				console.log(`removed from queue --> ${this.queue[i].userDetails.username}`);
+				this.queue.splice(i,1);
+			}
 		}
 	}
 
