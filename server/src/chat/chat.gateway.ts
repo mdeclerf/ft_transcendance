@@ -28,7 +28,7 @@ implements OnGatewayConnection
 	) {}
 
 	handleConnection(client: Socket) {
-		console.log(`new socket ${client.id}`);
+		// console.log(`new socket ${client.id}`);
 	}
 
 	@SubscribeMessage("chat_connect")
