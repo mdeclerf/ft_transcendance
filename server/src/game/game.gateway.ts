@@ -222,7 +222,10 @@ class Pong{
 			details.player_2 = this.second_player.userDetails;
 			details.player_1_score = this.first_player.score;
 			details.player_2_score = this.second_player.score;
-			details.mode = this.mode;
+			if (this.mode === "play")
+				details.mode = "normal"
+			else if (this.mode === "chat")
+				details.mode = "invitation";
 		}
 	}
 

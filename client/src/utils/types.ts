@@ -21,6 +21,11 @@ export type Game = {
 	mode : string;
 }
 
+export type Result = {
+	x : string,
+	y : number
+}
+
 export type UserResponse = {
 	found: boolean;
 	user: User;
