@@ -13,7 +13,7 @@ export function Game (props: IProfileProps) {
     const { user } = props;
     React.useEffect(() => {
         return () => {
-            console.log("LeaveGame");
+            // console.log("LeaveGame");
             socket.emit("remove_from_queue", user);
         }
     }, [user]);

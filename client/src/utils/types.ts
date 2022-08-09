@@ -13,9 +13,18 @@ export type NameChangeResponse = {
 	user: User;
 }
 
+export type Game = {
+	player_1 : User;
+	player_2 : User;
+	player_1_score : number;
+	player_2_score : number;
+	mode : string;
+}
+
 export type UserResponse = {
 	found: boolean;
 	user: User;
+	games: Game[];
 }
 
 export type ChatResponse = {

@@ -1,26 +1,35 @@
 import { Avatar, Box, Grid, List, ListItem, ListItemText, Typography } from "@mui/material/";
 import React from "react";
 import { ProfileDiv, StyledBadge } from "../utils/styles"
-import { User } from "../utils/types"
+import { Game, User } from "../utils/types"
 
 export interface IProfileProps {
 	user: User | undefined;
+	games?: Game[];
 }
 
 export const Profile = (props: IProfileProps) => {
-	const { user } = props;
+	const { user, games } = props;
 
-	const generate = (element: React.ReactElement) => {
-		return [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((value, i) =>
-			React.cloneElement(element, {
-				key: value,
-				sx: {
-					borderRadius: '10px',
-					backgroundColor: (Math.round(Math.random())) ? '#c84949' : '#49c860',
-					marginTop: '2px',
-				}
-			})
-		);
+	console.log(games);
+
+	const generate = () => {
+		return games?.map((game, i) => {
+			return (
+				<ListItem
+					key={i}
+					sx={{
+						borderRadius: '10px',
+						backgroundColor: (game.player_1_score < game.player_2_score) ? '#c84949' : '#49c860',
+						marginTop: '2px',
+					}}
+				>
+					<ListItemText
+						primary={`${game.player_2.username} | ${game.player_1_score} - ${game.player_2_score} | ${game.mode}`}
+					/>
+				</ListItem>
+			)
+		})
 	}
 
 	const getTypography = (content: string | undefined) => {
@@ -76,13 +85,7 @@ export const Profile = (props: IProfileProps) => {
 				>
 					<Grid item xs='auto'>
 						<List>
-							{generate(
-								<ListItem>
-									<ListItemText
-										primary="mdeclerf"
-									/>
-								</ListItem>,
-							)}
+							{generate()}
 						</List>
 					</Grid>
 				</Box>

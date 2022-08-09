@@ -7,14 +7,14 @@ import { Profile } from './Profile';
 
 export const UserPage = () => {
 	const { username } = useParams();
-	const { user, error, loading } = useFetchUser(username);
+	const { user, error, loading, games } = useFetchUser(username);
 
 	if (loading) return <CenteredDiv><CircularProgress /></CenteredDiv>
 
 	return (
 		<>
 			{user && !error ?
-				<Profile user={user} />
+				<Profile user={user} games={games} />
 				:
 				<CenteredDiv><h1>No user named <i>{username}</i> was found</h1></CenteredDiv>
 			}

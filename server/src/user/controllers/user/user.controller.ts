@@ -63,9 +63,10 @@ export class UserController {
 		const user = await this.userService.findUserByUsername(username);
 
 		if (user) {
-			return res.json({ found: true, user: user });
+			const games = await this.userService.findMatches(user.id);
+			return res.json({ found: true, user: user, games: games });
 		} else {
-			return res.json({ found: false, user: null });
+			return res.json({ found: false, user: null, games: null });
 		}
 	}
 }

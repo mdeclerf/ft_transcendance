@@ -36,3 +36,11 @@ export type dataType = {
 	room: string;
 	user: User;
 }
+
+export type Game = {
+	player_1 : UserDetails;
+	player_2 : UserDetails;
+	player_1_score : number;
+	player_2_score : number;
+	mode : string;
+}
