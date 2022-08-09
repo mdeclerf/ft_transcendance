@@ -39,6 +39,7 @@ export function ChatMsg (props: IChatMsgProps) {
 					return (
 						<Box key={i} sx={{
 							textAlign: side,
+							margin: '0px 5px',
 						}}
 						>
 							<Typography
@@ -46,8 +47,8 @@ export function ChatMsg (props: IChatMsgProps) {
 								sx={[
 									{
 										padding: '8px 16px',
-										borderRadius: 4,
-										marginBottom: 4,
+										borderRadius: 2,
+										marginBottom: 1,
 										display: 'inline-block',
 										wordBreak: 'break-word',
 										fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"',
