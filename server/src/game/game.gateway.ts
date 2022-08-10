@@ -1,14 +1,12 @@
 import {
 	SubscribeMessage,
 	WebSocketGateway,
-	OnGatewayInit,
 	WebSocketServer,
-	OnGatewayConnection,
 	OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { Logger } from '@nestjs/common';
-import { GameService } from '../typeorm/game/game.service';
+import { GameService } from './game.service';
 import { GameDetails } from '../utils/types';
 import { v4 as uuidv4 } from 'uuid';
 import { UserDetails } from "../utils/types";

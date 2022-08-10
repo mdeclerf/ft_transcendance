@@ -1,14 +1,9 @@
-import { Inject, UseGuards } from '@nestjs/common';
-import {
-	WebSocketGateway,
-	OnGatewayConnection,
-	SubscribeMessage,
-} from '@nestjs/websockets';
-import { Socket, Server } from 'socket.io';
-import { dataType } from 'src/utils/types';
-import { CreateChatDto } from '../typeorm/chat/chat.dto';
-import { ChatService } from '../typeorm/chat/chat.service';
-import { RoomService } from '../typeorm/room/room.service'
+import { Inject } from '@nestjs/common';
+import { WebSocketGateway, SubscribeMessage } from '@nestjs/websockets';
+import { Socket } from 'socket.io';
+import { ChatService } from './chat.service';
+import { RoomInfo } from '../utils/types';
+import { CreateChatDto } from '../typeorm';
 
 @WebSocketGateway({
 	cors: {
@@ -20,54 +15,32 @@ import { RoomService } from '../typeorm/room/room.service'
 // @UseGuards(JwtAuthGuard)
 @WebSocketGateway({ cors: true })
 export class ChatGateway
-implements OnGatewayConnection
 {
 	constructor(
-		@Inject(ChatService) private readonly chatService: ChatService,
-		@Inject(RoomService) private readonly roomService: RoomService
+		@Inject('CHAT_SERVICE') private readonly chatService: ChatService,
 	) {}
 
-	handleConnection(client: Socket) {
-		// console.log(`new socket ${client.id}`);
+	@SubscribeMessage('chat_connection')
+	connect(client: Socket) {
+		const { channel } = client.handshake.query;
+		client.join(channel);
 	}
 
-	@SubscribeMessage("chat_connect")
-	handleConnect(client: Socket) {
-		this.roomService.getActiveRooms()
-		.then((result) => {
-			console.log('new chat connection, current rooms: ', result);
-			client.emit("chat_connected", result);
-		});
+	@SubscribeMessage('room_switch')
+	roomSwitch(client: Socket, roomInfo: RoomInfo) {
+		const { prevRoom, room } = roomInfo;
+		if (prevRoom) {
+			client.leave(prevRoom);
+		}
+		if (room) {
+			client.join(room);
+		}
 	}
 
-	@SubscribeMessage("chat_join_room")
-	async chatJoinRoom(client: Socket, room: string) {
-		const res = await this.roomService.getRoomOrCreate(room)
-
-		this.chatService.getRoom(res.id)
-		.then((result) => {
-			console.log('result: ', result);
-			client.emit("chat_joined_room", result);
-		})
-	}
-
-	@SubscribeMessage("chat_send_message")
-	async chatSendMessage(client: Socket, data: dataType) {
-		console.log(data);
-		const { message, room, user } = data;
-		let msg : CreateChatDto = new CreateChatDto();
-		msg.body = message;
-		msg.room = await this.roomService.getRoomByName(room);
-		msg.user = user;
-		this.chatService.createMessage(msg);
-		client.to(room.toString()).emit("chat_receive_message", msg);
-	}
-
-	@SubscribeMessage("chat_get_room")
-	handleChannels(client: Socket) : void {
-		this.chatService.getActiveRooms()
-		.then((result) => {
-			client.emit("chat_set_rooms", result);
-		});
+	@SubscribeMessage('message_send')
+	messageSend(socket: Socket, message: CreateChatDto) {
+		this.chatService.createMessage(message);
+		const { room } = message;
+		socket.broadcast.to(room.name).emit('new_message', message);
 	}
 }
