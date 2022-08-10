@@ -25,7 +25,7 @@ export class Room {
  	public created_at!: Date;
 
 	@UpdateDateColumn({ type: 'timestamp' })
-	public updated_at!: Date;
+	public updated_at!: Date; // TODO : add an update to a room for every new message in it
 
 	@OneToMany(() => Chat, (chat) => chat.room)
 	chat: Chat[];

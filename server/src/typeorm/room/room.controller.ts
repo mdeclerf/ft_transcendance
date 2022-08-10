@@ -14,15 +14,20 @@ export class RoomController {
 		return this.service.getRoomByName(name);
 	}
 
-	@Get("c/:name")
+	/*@Get("c/:name")
 	public getRoomOrCreate(@Param('name') name: string) : Promise<Room> {
 		return this.service.getRoomOrCreate(name);
-	}
+	}*/
 
 	@Post()
 	public createRoom(@Body() body: CreateRoomDto): Promise<Room> {
 		console.log(body.name);
 		//return this.service.getRoomOrCreate(body.name);
 		return this.service.createRoom(body);
+	}
+
+	@Get('update/:name')
+	public updateRoom(@Param('name') name: string) {
+		this.service.updateRoomWithName(name);
 	}
 }

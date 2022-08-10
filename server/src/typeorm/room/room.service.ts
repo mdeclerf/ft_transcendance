@@ -31,6 +31,7 @@ export class RoomService {
 	public getActiveRooms() : Promise<Room[]> {
 		return this.repository.createQueryBuilder('room')
 			.select('room.name')
+			.orderBy('updated_at')
 			.getMany();
 	}
 
@@ -45,4 +46,20 @@ export class RoomService {
 		
 		return this.repository.save(room);
 	}
+	
+	public updateRoomWithName(name: string) {
+		this.repository.createQueryBuilder()
+		.update()
+		.set({name: name})
+		.where("name = name", {name: name})
+		.execute();
+	}
+
+	public updateRoom(id: number) {
+		this.repository.createQueryBuilder()
+		.update()
+		.where("id = id", {id: id})
+		.execute();
+	}
+
 }
