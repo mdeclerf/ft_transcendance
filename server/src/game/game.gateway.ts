@@ -288,12 +288,15 @@ export class GameGateway implements OnGatewayDisconnect {
 
 	@SubscribeMessage('setPosition')
 	handleMessage(client: Socket, message: string): void {
-		if (message[1] == 'd' && this.Game.get(message[0]).first_player && this.Game.get(message[0]).second_player) {
-			this.Game.get(message[0]).set_delta(1, client.id);
-		} else if (message[1] == 'u' && this.Game.get(message[0]).first_player && this.Game.get(message[0]).second_player) {
-			this.Game.get(message[0]).set_delta(-1, client.id);
-		} else if (message[1] == 'o' && this.Game.get(message[0]).first_player && this.Game.get(message[0]).second_player) {
-			this.Game.get(message[0]).set_delta(0, client.id);
+		if (this.Game.has(message[0]))
+		{
+			if (message[1] == 'd' && this.Game.get(message[0]).first_player && this.Game.get(message[0]).second_player) {
+				this.Game.get(message[0]).set_delta(1, client.id);
+			} else if (message[1] == 'u' && this.Game.get(message[0]).first_player && this.Game.get(message[0]).second_player) {
+				this.Game.get(message[0]).set_delta(-1, client.id);
+			} else if (message[1] == 'o' && this.Game.get(message[0]).first_player && this.Game.get(message[0]).second_player) {
+				this.Game.get(message[0]).set_delta(0, client.id);
+			}
 		}
 	}
 

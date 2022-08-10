@@ -2,7 +2,7 @@ import { Avatar, Box, Grid, List, ListItem, ListItemText, Typography } from "@mu
 import React from "react";
 import { ProfileDiv, StyledBadge } from "../utils/styles";
 import { Game, User, Result } from "../utils/types";
-import { VictoryPie } from "victory-pie";
+//import { VictoryPie } from "victory-pie";
 
 export interface IProfileProps {
 	user: User | undefined;
@@ -12,7 +12,7 @@ export interface IProfileProps {
 export const Profile = (props: IProfileProps) => {
 	const { user, games } = props;
 
-	console.log(games);
+	console.log(user);
 
 	let backHeight: number;
 	if (games)
@@ -39,24 +39,31 @@ export const Profile = (props: IProfileProps) => {
 		return data;
 	}
 
+	const getMatchHistory = (p1_score: number, p2_score: number, p1_name: string, p2_name: string, mode: string, i: number) => {
+		return (
+			<ListItem
+			key={i}
+			sx={{
+				alignItems: 'center',
+				borderRadius: '10px',
+				backgroundColor: (p1_score < p2_score) ? '#c84949' : '#49c860',
+				marginTop: '2px',
+			}}
+			>
+				<ListItemText
+					sx={{ fontFamily: 'Work Sans, sans-serif', fontSize: 70, color: 'white'}}
+					primary={`Opponent: ${p2_name} | Scores: ${p1_score} - ${p2_score} | Mode: ${mode}`}
+				/>
+			</ListItem>
+		)
+	}
+
 	const generate = () => {
 		return games?.map((game, i) => {
-			return (
-				<ListItem
-					key={i}
-					sx={{
-						alignItems: 'center',
-						borderRadius: '10px',
-						backgroundColor: (game.player_1_score < game.player_2_score) ? '#c84949' : '#49c860',
-						marginTop: '2px',
-					}}
-				>
-					<ListItemText
-						sx={{ fontFamily: 'Work Sans, sans-serif', fontSize: 70, color: 'white'}}
-						primary={`Opponent: ${game.player_2.username} | Scores: ${game.player_1_score} - ${game.player_2_score} | Mode: ${game.mode}`}
-					/>
-				</ListItem>
-			)
+			if (game.player_1.username == user?.username)
+				return getMatchHistory(game.player_1_score, game.player_2_score, game.player_1.username, game.player_2.username, game.mode, i);
+			else
+				return getMatchHistory(game.player_2_score, game.player_1_score, game.player_2.username, game.player_1.username, game.mode, i);
 		})
 	}
 
@@ -126,12 +133,12 @@ export const Profile = (props: IProfileProps) => {
 						backgroundColor: 'primary.main',
 						borderRadius: '20px',
 					}}>
-					<VictoryPie
+					{/*<VictoryPie
 					style={{ labels: { fill: "white", fontSize: 20} }}
 					colorScale={['#49c860', '#c84949' ]}
 					innerRadius={50}
 					data={create_game_pie()}
-					/>
+					/>*/}
 				</Box>
 			</div>
 		</ProfileDiv>
