@@ -1,54 +1,47 @@
 import './Chat.css';
-import { useEffect, useState } from "react";
-import { ChatFeed, Message } from "react-chat-ui";
-import { Paper } from '@mui/material';
+import { useEffect, useRef, useState } from "react";
+import { Box, Paper } from '@mui/material';
 import { TextField } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import Button from '@mui/material/Button';
-import { Socket } from 'socket.io-client';
 import { useFetchCurrentUser } from "../utils/hooks/useFetchCurrentUser";
-import { ChatResponse, ChatRooms } from '../utils/types';
-import { useStyles } from './styles'
+import { ChatResponse, ChatRoom, Message, MessageGroup } from '../utils/types';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
+import { ChatMsg } from '../Components/ChatMsg';
+import { socket } from '../socket';
 
 // BULLES DE MESSAGES
-const customBubble = (props: any) => (
-	<div className="imessage">
-	<p className={`${props.message.id ? "from-them" : "from-me"}`}>{props.message.message}</p>
-	</div>
-);
+// const customBubble = (props: any) => (
+// 	<div className="imessage">
+// 	<p className={`${props.message.id ? "from-them" : "from-me"}`}>{props.message.message}</p>
+// 	</div>
+// );
 
 function Chat(props: any) {
-	const socket: Socket = props.socket;
-	const classes = useStyles();
 	const { user } = useFetchCurrentUser();
-	const [room, setRoom] = useState<string>("");
+	const [room, setRoom] = useState<string>("General");
 	const [message, setMessage] = useState<string>("");
-	const [allMessages, setAllMessages] = useState<Array<Message>>([]);
-	const [rooms, setRooms] = useState<Array<string>>([]);
+	const [allMessages, setAllMessages] = useState<Message[]>([]);
+	const [rooms, setRooms] = useState<string[]>([]);
+
+	const chatBoxRef = useRef<HTMLInputElement>(null);
 
 	// INITIALISATION DES CHANNELS ET REJOINDRE LE CHANNEL 0
-	if (rooms.length === 0)
-	{
-		socket.emit("handle_connect_test");
-		socket.emit("chat_get_room");
-		socket.emit("chat_join_room", "General");
-	}
+	// if (rooms.length === 0)
+	// {
+	// 	socket.emit("handle_connect_test");
+	// 	socket.emit("chat_get_room");
+	// 	socket.emit("chat_join_room", "General");
+	// }
 
 	// SEND MESSAGE
 	const sendMessage = () => {
+		console.log(room);
 		socket.emit('chat_send_message', { message, room, user });
-			setAllMessages([...allMessages,
-				new Message({
-					id: 0,
-					message: message,
-					senderName: user?.username
-				}),
-		])
 		socket.emit("chat_get_room");
 	};
 
@@ -62,72 +55,94 @@ function Chat(props: any) {
 
 	// JOIN A CHANNEL VIA LE BOUTON
 	const joinChannel = (room_name: string) => {
+		if (room === room_name)
+			return;
 		setRoom(room_name);
 		socket.emit("chat_join_room", room_name);
 	};
 	
 	// SEND THE MESSAGE AND RESET (due to the onClick accepting only one function)
-	function send_and_reset()
-	{
-		if (message !== "")
-			sendMessage();
-		reset();
-	}
+	// function send_and_reset()
+	// {
+	// 	if (message !== "")
+	// 		sendMessage();
+	// 	reset();
+	// }
+
+	useEffect(() => {
+		console.log('Chat page loaded');
+		socket.emit('chat_connect')
+
+		return () => {
+			console.log('Chat page unloaded');
+		}
+	}, [])
 
 	// DEAL WITH EVENTS
 	useEffect(() => {
 
-		function handleReceived(data:any) {
-			setAllMessages([...allMessages,
-				new Message({
-					id: 1,
-					message: data.body,
-					senderName: data.user.username //todo
-				}),
-			])
+		// function handleReceived(data:any) {
+		// 	setAllMessages([...allMessages,
+		// 		new Message({
+		// 			id: 1,
+		// 			message: data.body,
+		// 			senderName: data.user.username //todo
+		// 		}),
+		// 	])
+		// 	socket.emit("chat_get_room");
+		// }
+
+		// function handleJoined(data: ChatResponse[]) {
+		// 	if (room === "")
+		// 		setRoom("General");
+		// 	allMessages.splice(0, allMessages.length);
+		// 	setAllMessages([]);
+		// 	for (const chatEntry of data) {
+		// 		if (chatEntry.user.id === user?.id) {
+		// 			allMessages.push(new Message ({
+		// 				id: 0,
+		// 				message: chatEntry.body,
+		// 				senderName: chatEntry.user.username
+		// 			}));
+		// 			setAllMessages([...allMessages]);
+		// 		}
+		// 		else {
+		// 			allMessages.push(new Message ({
+		// 				id: 1,
+		// 				message: chatEntry.body,
+		// 				senderName: chatEntry.user.username
+		// 			}));
+		// 			setAllMessages([...allMessages]);
+		// 		}
+		// 	}
+		// }
+
+		function handleReceived(data: ChatResponse) {
+			if (user) {
+				const side = (data.user.id === user.id) ? 'right' : 'left';
+				const tmp: Message = {side, message: data.body, sender: data.user};
+				setAllMessages(oldMessages => [...oldMessages, tmp]);
+			}
 			socket.emit("chat_get_room");
 		}
 
 		function handleJoined(data: ChatResponse[]) {
-			if (room === "")
-				setRoom("General");
-			allMessages.splice(0, allMessages.length);
-			setAllMessages([]);
 			for (const chatEntry of data) {
-				if (chatEntry.user.id === user?.id) {
-					allMessages.push(new Message ({
-						id: 0,
-						message: chatEntry.body,
-						senderName: chatEntry.user.username
-					}));
-					setAllMessages([...allMessages]);
-				}
-				else {
-					allMessages.push(new Message ({
-						id: 1,
-						message: chatEntry.body,
-						senderName: chatEntry.user.username
-					}));
-					setAllMessages([...allMessages]);
+				if (user) {
+					const side = (chatEntry.user.id === user.id) ? 'right' : 'left';
+					const tmp: Message = { side, message: chatEntry.body, sender: chatEntry.user};
+					setAllMessages(oldMessages => [...oldMessages, tmp]);
 				}
 			}
 		}
 
-		function handleConnected(data: ChatRooms[]) {
-			if (room === "")
-				socket.emit("chat_join_room", "General");
-			for (const tmp of data) {
-				setRooms(oldRooms => [...oldRooms, tmp.name]);
-			}
-			console.log(rooms);
+		function handleConnected(data: ChatRoom[]) {
+			// socket.emit("chat_join_room", "General")
+			setRooms(data.map((room) => { return (room.name) }));
 		}
 
-		function handleSetRoom(data:ChatRooms[]) {
-			rooms.splice(0, rooms.length);
-			setRooms([]);
-			for (const tmp of data) {
-				setRooms(oldRooms => [...oldRooms, tmp.name]);
-			}
+		function handleSetRoom(data: ChatRoom[]) {
+			setRooms(data.map((room) => { return (room.name) }));
 		}
 
 		// RECEPTION DE MESSAGES
@@ -141,30 +156,33 @@ function Chat(props: any) {
 		});
 
 		//CONNECTION DU CLIENT
-		socket.on("chat_connected", (data: ChatRooms[]) => {
-			console.log(data);
+		socket.on("chat_connected", (data: ChatRoom[]) => {
+			console.log("test");
+			console.log('data from back: ', data);
 			handleConnected(data);
 		});
 
-		socket.on("chat_set_rooms", (data: ChatRooms[]) => {
+		socket.on("chat_set_rooms", (data: ChatRoom[]) => {
 			handleSetRoom(data);
 		})
 
 		return () => {
 			socket.off();
 		}
-	// eslint-disable-next-line
-	}, [message, allMessages, room, rooms])
-	
-	// RESET THE FORM
-	function reset() {
-		(document.getElementById("textareaInput") as HTMLFormElement).reset();
-		setMessage('');
-	}
+	})
 
-	const loadChannels = rooms.map((room_name: string) => {
+	// RESET THE FORM
+	// function reset() {
+	// 	(document.getElementById("textareaInput") as HTMLFormElement).reset();
+	// 	setMessage('');
+	// }
+
+	const loadChannels = rooms.map((room_name: string, i: number) => {
+		// console.log(`[${i}]: '${room_name}'`);
+		// console.log(i);
+
 		return (
-			<Button  sx={{mt:0.5}} variant="contained" size="large" fullWidth={true} key={room_name} onClick={() =>joinChannel(room_name)}>
+			<Button  sx={{mt:0.5}} variant="contained" size="large" fullWidth={true} key={i} onClick={() => joinChannel(room_name)}>
 				{room_name}
 			</Button>
 		)
@@ -180,6 +198,31 @@ function Chat(props: any) {
 		setOpenDialog(false);
 	};
 
+	const mapChatBubbles = () => {
+		const msgGrp: MessageGroup[] = [];
+		console.log(`allmessages: `, allMessages);
+		for (let i = 0; i < allMessages.length; i++) {
+			if (i !== 0) console.log(`${allMessages[i].sender.username} - ${allMessages[i - 1].sender.id !== allMessages[i].sender.id}`);
+			if (i === 0 || allMessages[i - 1].sender.id !== allMessages[i].sender.id) {
+				msgGrp.push({ side: allMessages[i].side, messages: [allMessages[i].message], sender: allMessages[i].sender});
+			} else {
+				msgGrp[msgGrp.length - 1].messages.push(allMessages[i].message);
+			}
+		}
+
+		console.log('msgGrp: ', msgGrp);
+
+		return msgGrp.map((msg) => {
+			return (
+				<ChatMsg
+					avatar={msg.side === 'left' ? msg.sender.photoURL : ''}
+					messages={msg.messages}
+					side={msg.side}
+				/>
+			)
+		})
+	}
+
 	// RETURN TO RENDER
 	return (
 	<>
@@ -187,7 +230,14 @@ function Chat(props: any) {
 		<div className="columns">
 			{/* colonne de gauche */}
 			<div className="col1">
-				<Paper className={classes.paper}>
+				<Paper sx={{
+					width: "100%",
+					height: "calc(100vh - 64px)",
+					position: "relative",
+					backgroundColor: "rgba(0, 0, 0, 0)",
+					overflowY: "scroll",
+					padding: "0"
+				}}>
 					{/* bouton pour ouvrir dialogue (fenetre pour entre room name) public */}
 					<Button fullWidth={true} variant="contained" size="large" onClick={handleClickOpen}>Create Public Room</Button>
 					<Dialog open={openDialog} onClose={handleClose}>
@@ -200,7 +250,7 @@ function Chat(props: any) {
 								type="text"
 								fullWidth
 								variant="standard"
-								onChange={(event: any) => {
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
 									setRoom(event.target.value);
 								}}
 							/>
@@ -220,45 +270,62 @@ function Chat(props: any) {
 			</div>
 			{/* colonne de droite */}
 			<div className="col2">
-				<Paper className={classes.paper2}>
+				<Paper sx={{
+					width: "100%",
+					height: "calc(100vh - 64px)",
+					position: "relative",
+					backgroundColor: "rgba(0, 0, 0, 0)",
+					padding: "0"
+				}}>
 					{/* papier pour l historique des messages */}
-					<Paper id="style-1" className={classes.messagesBody}>
+					<Paper id="style-1" sx={{
+						width: "100%",
+						margin: 0,
+						height: "calc( 100% - 80px )",
+						backgroundColor: "rgba(0, 0, 0, 0)",
+						display: "flex",
+						flexDirection: "column"
+					}}>
 						{/* gestion de l'historique des messages */}
-						<ChatFeed
-							messages={allMessages} // Boolean: list of message objects
-							isTyping={false} // Boolean: is the recipient typing
-							hasInputField={false} // Boolean: use our input, or use your own
-							showSenderName={true} // show the name of the user who sent the message
-							bubblesCentered={true} //Boolean should the bubbles be centered in the feed?
-							chatBubble={true && customBubble} // JSON: Custom bubble styles
-						/>
+						{mapChatBubbles()}
 					</Paper>
 					<>
 						{/* formulaire pour envoyer un message */}
-						<form className={classes.wrapForm}  noValidate autoComplete="off" id="textareaInput">
+						<Box sx={{
+							display: "flex",
+							minWidth: "0",
+							justifyContent: "center",
+							width: "100%",
+							paddingTop: "1vh",
+							margin: `0`,
+						}}>
 							<TextField
+								ref={chatBoxRef}
 								placeholder='Type your message'
-								onChange={(event: any) => {
+								onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
 									setMessage(event.target.value);
 								}}
 								// si on presse enter, le message s'envoie et le formulaire se vide
-								onKeyDown={(event: any) => {
+								onKeyDown={(event: React.KeyboardEvent<HTMLInputElement>) => {
 									if (event.key === 'Enter')
 									{
 										if (message !== "")
-										sendMessage();
-										event.preventDefault();//avoid refreshing at each enter
-										reset();//clear the form
+											sendMessage();
+										event.target.value = '';
 										setMessage('');
 									}
 								}}
 							/>
 							{/* bouton d'envoi de messages */}
 							<Button
-								onClick={send_and_reset}>
+								onClick={() => {
+									if (message !== '') sendMessage();
+									if (chatBoxRef.current !== null) chatBoxRef.current.value = '';
+									setMessage('');
+								}}>
 								<SendIcon />
 							</Button>
-						</form>
+						</Box>
 					</>
 				</Paper>
 			</div>  

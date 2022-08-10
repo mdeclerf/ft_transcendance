@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AuthService } from 'src/auth/services/auth.service';
-import { User } from '../typeorm/typeorm.module';
+import { Game, User } from '../typeorm/typeorm.module';
 import { TwoFactorAuthenticationController } from './controllers/user/2fa.controller';
 import { UserController } from './controllers/user/user.controller';
 import { TwoFactorAuthenticationService } from './services/user/2fa.service';
@@ -24,7 +24,7 @@ import { UserService } from './services/user/user.service';
     },
   ],
   imports: [
-    TypeOrmModule.forFeature([User])
+    TypeOrmModule.forFeature([User, Game])
   ]
 })
 export class UserModule {}

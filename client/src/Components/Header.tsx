@@ -3,6 +3,7 @@ import Svg42Logo from './Svg42Logo';
 import { styled } from '@mui/material/styles';
 import { Account } from './Account';
 import { User } from '../utils/types';
+import { Link } from 'react-router-dom';
 
 const StyledToolbar = styled(Toolbar)`
 	display: flex;
@@ -36,8 +37,8 @@ export function Header (props: IHeaderProps) {
 	const transcendenceLogo = (
 		<Typography 
 			variant="h6" 
-			component="a"
-			href="/"
+			component={Link}
+			to="/"
 			sx={{
 				mr: 2,
 				display: { xs: 'none', md: 'flex' },

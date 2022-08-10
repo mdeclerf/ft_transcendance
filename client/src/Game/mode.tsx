@@ -13,7 +13,7 @@ function Mode() {
 					Chat mode
 				</Button>
 
-				<Button component={Link} sx={{fontFamily: 'Work Sans, sans-serif'}} to="/normal" >
+				<Button component={Link} sx={{fontFamily: 'Work Sans, sans-serif'}} to="/play" >
 					Normal mode
 				</Button>
 
