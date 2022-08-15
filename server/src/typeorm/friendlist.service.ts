@@ -1,5 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { resolve } from 'path';
 import { Repository } from 'typeorm';
 import { CreateFriendlistDto } from './DTOs/friendlist.dto';
 import { Friendlist } from './entities/friendlist.entity';

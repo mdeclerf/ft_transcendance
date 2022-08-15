@@ -23,7 +23,7 @@ const storage = {
 
 @Controller('user')
 export class UserController {
-	constructor(@Inject('USER_SERVICE') private readonly userService: UserService) {}
+	constructor(@Inject(UserService) private readonly userService: UserService) {}
 
 	@Post('upload')
 	@UseGuards(AuthenticatedGuard)

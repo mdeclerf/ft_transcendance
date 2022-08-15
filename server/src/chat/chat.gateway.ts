@@ -3,7 +3,7 @@ import { WebSocketGateway, SubscribeMessage } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 import { RoomInfo } from '../utils/types';
-import { CreateChatDto } from '../typeorm';
+import { CreateChatDto } from '../typeorm/';
 
 @WebSocketGateway({
 	cors: {
@@ -17,7 +17,7 @@ import { CreateChatDto } from '../typeorm';
 export class ChatGateway
 {
 	constructor(
-		@Inject('CHAT_SERVICE') private readonly chatService: ChatService,
+		@Inject(ChatService) private readonly chatService: ChatService,
 	) {}
 
 	@SubscribeMessage('chat_connection')

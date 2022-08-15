@@ -1,5 +1,5 @@
-import { IsNotEmpty, IsString } from "class-validator";
-import { Room, User } from "../";
+import { IsInt, IsNotEmpty, IsPositive, IsString, Min } from "class-validator";
+import { User, Room } from "../";
 
 export class CreateChatDto{
 

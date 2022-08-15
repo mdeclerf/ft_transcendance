@@ -1,4 +1,4 @@
-import { IsInt, IsPositive } from "class-validator";
+import { IsInt, IsPositive, Min } from "class-validator";
 
 export class CreateFriendlistDto {
 	@IsInt()

@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsInt, IsNotEmpty, IsString, Max, Min } from 'class-validator';
 
 export class CreateRoomDto {
 
@@ -6,9 +6,10 @@ export class CreateRoomDto {
 	@IsString()
 	public name: string;
 
-	@IsNotEmpty()
-	@IsString()
-	public type: 'public' | 'protected' | 'private';
+	@IsInt()
+	@Min(0)
+	@Max(2)
+	public type: number;
 
 	@IsString()
 	public hash: string;

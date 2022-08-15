@@ -2,12 +2,12 @@ import { Inject, Injectable } from "@nestjs/common";
 import { Response } from "express";
 import { authenticator } from "otplib";
 import { toFileStream } from "qrcode";
-import { User } from "../typeorm";
+import { User } from "../typeorm/";
 import { UserService } from "./user.service";
 
 @Injectable()
 export class TwoFactorAuthenticationService {
-	constructor(@Inject('USER_SERVICE') private readonly userService: UserService) {}
+	constructor(@Inject(UserService) private readonly userService: UserService) {}
 
 	async generateTwoFactorAuthenticationSecret(user: User) {
 		const secret = authenticator.generateSecret();

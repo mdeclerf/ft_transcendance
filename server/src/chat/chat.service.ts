@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Chat, CreateChatDto, CreateRoomDto, Room } from '../typeorm';
+import { Chat, CreateChatDto, CreateRoomDto, Room } from '../typeorm/';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -68,7 +68,7 @@ export class ChatService {
 		.insert()
 		.orIgnore()
 		.into(Room)
-		.values([{name, type: 'public'}])
+		.values([{name, type: 0}]) //type should be 'public' be it won't compile idk why
 		.execute();
 		return this.roomRepo.findOneBy({ name: name });
 	}

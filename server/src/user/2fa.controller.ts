@@ -10,9 +10,9 @@ import { RequestWithUser } from "../utils/types";
 @UseInterceptors(ClassSerializerInterceptor)
 export class TwoFactorAuthenticationController {
 	constructor(
-		@Inject('2FA_SERVICE') private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,
-		@Inject('USER_SERVICE') private readonly userService: UserService,
-		@Inject('AUTH_SERVICE') private readonly authService: AuthService
+		@Inject(TwoFactorAuthenticationService) private readonly twoFactorAuthenticationService: TwoFactorAuthenticationService,
+		@Inject(UserService) private readonly userService: UserService,
+		@Inject(AuthService) private readonly authService: AuthService
 	) {}
 
 	@Post('generate')

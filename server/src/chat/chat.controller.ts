@@ -6,7 +6,7 @@ import { ChatService } from './chat.service';
 export class ChatController {
 
 	constructor(
-		@Inject('CHAT_SERVICE') private readonly chatService: ChatService,
+		@Inject(ChatService) private readonly chatService: ChatService,
 	) {}
 
 	@Get('get_rooms')

@@ -1,14 +1,14 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { Game, User } from '../typeorm/';
 import { UserDetails } from '../utils/types';
 import { Repository } from 'typeorm';
-import { Game, User } from '../typeorm';
 
 @Injectable()
 export class UserService {
 	constructor(
 		@InjectRepository(User) private readonly userRepo: Repository<User>,
-		@InjectRepository(Game) private readonly gameRepo: Repository<Game>,
+		@InjectRepository(Game) private readonly gameRepo: Repository<Game> ///
 	) {}
 
 	async updateOne(details: UserDetails) {
@@ -20,6 +20,7 @@ export class UserService {
 		});
 		if (user) {
 			this.userRepo.update({ intraId }, details);
+			// console.log(`${details.username} updated`);
 		}
 	}
 

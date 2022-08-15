@@ -1,10 +1,10 @@
-import { Chat } from "./entities/chat.entity";
-import { ChatUser } from "./entities/chat_user.entity";
-import { Friendlist } from "./entities/friendlist.entity";
-import { Game } from "./entities/game.entity";
-import { Room } from "./entities/room.entity";
-import { Session } from "./entities/session.entity";
-import { User } from "./entities/user.entity";
+import { Chat } from './entities/chat.entity';
+import { ChatUser } from './entities/chat_user.entity';
+import { Friendlist } from './entities/friendlist.entity';
+import { Game } from './entities/game.entity';
+import { Room } from './entities/room.entity';
+import { Session } from './entities/session.entity';
+import { User } from './entities/user.entity';
 import { CreateChatDto } from "./DTOs/chat.dto";
 import { CreateChatUserDto } from "./DTOs/chat_user.dto";
 import { CreateFriendlistDto } from "./DTOs/friendlist.dto";

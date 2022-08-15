@@ -2,10 +2,11 @@ import { Strategy, Profile } from 'passport-42';
 import { PassportStrategy } from '@nestjs/passport';
 import { Inject, Injectable } from '@nestjs/common';
 import { IAuthService } from '../services/auth';
+import { AuthService } from '../services/auth.service';
 
 @Injectable()
 export class IntraStrategy extends PassportStrategy(Strategy, '42') {
-	constructor(@Inject('AUTH_SERVICE') private readonly authService: IAuthService) {
+	constructor(@Inject(AuthService) private readonly authService: IAuthService) {
 		super({
 			clientID: process.env.INTRA_CLIENT_ID,
 			clientSecret: process.env.INTRA_CLIENT_SECRET,
