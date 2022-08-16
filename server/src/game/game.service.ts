@@ -22,7 +22,4 @@ export class GameService {
 	return await this.gameRepository.save(user);
 }
 
-  getCurrentGames() {
-    
-  }
 }

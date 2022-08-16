@@ -61,8 +61,8 @@ class Pong{
 	ball_y: number = CANVAS_HEIGHT / 2;
 	ball_angle: number = random_ball();
 	spectator: Player[] = [];
-	winning_score: number = 5;
-	ball_speed: number = 6;
+	winning_score: number = 4;
+	ball_speed: number = 12;
 	mode: string = "";
 	removed: boolean = false;
 
@@ -333,7 +333,6 @@ export class GameGateway implements OnGatewayDisconnect {
 	@SubscribeMessage('add_to_queue')
 	add_queue(client: Socket, message: UserDetails) : void {
 		this.queue.push(new Player(client.id, client, message));
-		console.log(`added to queue --> ${message.username}`);
 
 		if (this.queue.length >= 2)
 		{
@@ -357,6 +356,20 @@ export class GameGateway implements OnGatewayDisconnect {
 			{
 				console.log(`removed from queue --> ${this.queue[i].userDetails.username}`);
 				this.queue.splice(i,1);
+			}
+		}
+	}
+
+	@SubscribeMessage('remove_from_game')
+	removefromGame(client: Socket) : void {
+		for (let value of this.Game.values())
+		{
+			if ((value.first_player && client.id === value.first_player.id) || (value.second_player && client.id === value.second_player.id)) {
+			
+				value.remove_player(client.id);
+				for(let i = 0; i < value.spectator.length; i++)
+					value.spectator[i].socket.emit("disconnection_of_player", value.key);
+				break;
 			}
 		}
 	}

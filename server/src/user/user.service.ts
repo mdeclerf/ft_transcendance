@@ -38,9 +38,7 @@ export class UserService {
 			.leftJoinAndSelect('game.player_2', 'player_2')
 			.where('game.player_1 = :id OR game.player_2 = :id', { id: id })
 			.getMany()
-
 		// console.log(player_1_games);
-
 		return player_1_games;
 	}
 

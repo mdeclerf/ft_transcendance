@@ -2,7 +2,7 @@ import { Avatar, Box, Grid, List, ListItem, ListItemText, Typography } from "@mu
 import React from "react";
 import { ProfileDiv, StyledBadge } from "../utils/styles";
 import { Game, User, Result } from "../utils/types";
-//import { VictoryPie } from "victory-pie";
+import { VictoryPie } from "victory-pie";
 
 export interface IProfileProps {
 	user: User | undefined;
@@ -10,8 +10,7 @@ export interface IProfileProps {
 }
 
 export const Profile = (props: IProfileProps) => {
-	const { user, games } = props;
-
+	let { user, games } = props;
 	console.log(user);
 
 	let backHeight: number;
@@ -133,12 +132,12 @@ export const Profile = (props: IProfileProps) => {
 						backgroundColor: 'primary.main',
 						borderRadius: '20px',
 					}}>
-					{/*<VictoryPie
+					<VictoryPie
 					style={{ labels: { fill: "white", fontSize: 20} }}
 					colorScale={['#49c860', '#c84949' ]}
 					innerRadius={50}
 					data={create_game_pie()}
-					/>*/}
+					/>
 				</Box>
 			</div>
 		</ProfileDiv>
