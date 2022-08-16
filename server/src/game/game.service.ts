@@ -22,4 +22,13 @@ export class GameService {
 	return await this.gameRepository.save(user);
 }
 
+async findLeader() {
+  const leaderBoard = await this.gameRepository.createQueryBuilder('game')
+    .leftJoinAndSelect('game.player_1', 'player_1')
+    .leftJoinAndSelect('game.player_2', 'player_2')
+    .getMany()
+  console.log("in service");
+  return leaderBoard;
+}
+
 }

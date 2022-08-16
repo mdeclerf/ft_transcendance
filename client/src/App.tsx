@@ -4,7 +4,7 @@ import { LoginPage } from './Pages/LoginPage';
 import { useFetchCurrentUser } from './utils/hooks/useFetchCurrentUser';
 //import Chat from "./Chat/Chat";
 import { Logout } from './Pages/Logout';
-import Mode from './Game/mode';
+import Mode from './Game/Mode';
 import  theme_2  from './themes/2';
 import  theme_1  from './themes/1';
 import Canvas from './Game/canvas';
@@ -18,6 +18,7 @@ import ColorLensIcon from '@mui/icons-material/ColorLens';
 import { Avatar, Button, CircularProgress } from '@mui/material/';
 import { CenteredDiv } from './utils/styles';
 import { Profile } from './Pages/Profile';
+import { LeaderBoard } from './Pages/Leaderboard';
 import { MyAccount } from './Pages/MyAccount';
 import { WelcomePage } from './Pages/WelcomePage';
 import { UserPage } from './Pages/UserPage';
@@ -95,6 +96,7 @@ function App() {
 					<Route path="/account" element={<MyAccount user={user} />} />
 					<Route path="/logout" element={<Logout/>}/>
 					<Route path="/2fa" element={<TwoFactor user={user} />}/>
+					<Route path="/leaderboard" element={<LeaderBoard />}/>
 
 					<Route path='/chatmode' element={
 						<Grid container justifyContent='center'>

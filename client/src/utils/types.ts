@@ -58,3 +58,7 @@ export type MessageGroup = {
 	messages: string[];
 	sender: User;
 }
+
+export type Leader = {
+	games: Game[];
+}
