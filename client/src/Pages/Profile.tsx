@@ -10,7 +10,7 @@ export interface IProfileProps {
 }
 
 export const Profile = (props: IProfileProps) => {
-	let { user, games } = props;
+	const { user, games } = props;
 	console.log(user);
 
 	let backHeight: number;

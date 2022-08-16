@@ -24,7 +24,8 @@ import { UserPage } from './Pages/UserPage';
 import { TwoFactor } from './Pages/TwoFactor';
 import AuthCode, { AuthCodeRef } from 'react-auth-code-input';
 import axios from 'axios/';
-import { Game } from './Game/Leave'
+import { PlayGame } from './Game/Leave';
+import { useFetchUser } from './utils/hooks/useFetchUser';
 
 const fabStyle = {
 	position: 'absolute',
@@ -33,12 +34,12 @@ const fabStyle = {
 };
 
 function App() {
-	const { user, error, loading } = useFetchCurrentUser();
+	let { user, error, loading } = useFetchCurrentUser();
+	let { games } = useFetchUser(user?.username);
 	const [twoFactorCode, setTwoFactorCode] = useState('');
 	const AuthInputRef = useRef<AuthCodeRef>(null);
 	const AuthInputDivRef = useRef<HTMLDivElement>(null);
 	const ButtonRef = useRef<HTMLButtonElement>(null);
-
 	const [colors, setColors] = React.useState(true);
 
 	useEffect(() => {
@@ -89,7 +90,7 @@ function App() {
 					<Route path="/" element={<WelcomePage/>} />
 					{/*<Route path="/chat" element={<Chat/>}/>*/}
 					<Route path="/game" element={<Mode/> }/>
-					<Route path="/profile" element={<Profile user={user}/>} />
+					<Route path="/profile" element={<Profile user={user} games={games}/>} />
 					<Route path="/user/:username" element={<UserPage/>}/>
 					<Route path="/account" element={<MyAccount user={user} />} />
 					<Route path="/logout" element={<Logout/>}/>
@@ -102,7 +103,7 @@ function App() {
 					</Route>
 
 					<Route path='/play' element={
-						<Game user={user}/> }>
+						<PlayGame user={user}/> }>
 					</Route>
 
 					<Route path='/watch' element={

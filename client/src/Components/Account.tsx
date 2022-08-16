@@ -53,7 +53,7 @@ export function Account(props: IAccountProps) {
 				open={Boolean(anchorElUser)}
 				onClose={handleCloseUserMenu}
 			>
-				<MenuItem component={Link} to="/profile" onClick={handleCloseUserMenu}>Profile</MenuItem>
+				<MenuItem component={Link} to="./profile" onClick={handleCloseUserMenu}>Profile</MenuItem>
 				<MenuItem component={Link} to="/account" onClick={handleCloseUserMenu}>My Account</MenuItem>
 				<MenuItem onClick={logout}>
 					<ListItemIcon>

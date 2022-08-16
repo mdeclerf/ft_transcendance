@@ -37,7 +37,7 @@ export const MyAccount = (props: IMyAccountProps) => {
 
 		const formData = new FormData();
 		formData.append("file", fileSelected, fileSelected.name);
-		
+
 		axios.post('http://localhost:3001/api/user/upload', formData, {
 			headers: {
 				"Content-Type": "multipart-form/data",

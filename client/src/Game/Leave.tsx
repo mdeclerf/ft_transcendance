@@ -8,7 +8,7 @@ export interface IProfileProps {
 	user: User | undefined;
 }
 
-export function Game (props: IProfileProps) {
+export function PlayGame (props: IProfileProps) {
 
     const { user } = props;
     React.useEffect(() => {

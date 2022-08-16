@@ -11,7 +11,6 @@ export function useFetchCurrentUser() {
 		setLoading(true);
 		getAuthStatus()
 			.then(({ data }) => {
-				// console.log(data);
 				setLoading(false);
 				setUser(data);
 			})
