@@ -60,7 +60,7 @@ export const Profile = (props: IProfileProps) => {
 
 	const generate = () => {
 		return games?.map((game, i) => {
-			if (game.player_1.username == user?.username)
+			if (game.player_1.username === user?.username)
 				return getMatchHistory(game.player_1_score, game.player_2_score, game.player_1.username, game.player_2.username, game.mode, i);
 			else
 				return getMatchHistory(game.player_2_score, game.player_1_score, game.player_2.username, game.player_1.username, game.mode, i);

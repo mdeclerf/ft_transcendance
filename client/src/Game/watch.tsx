@@ -19,18 +19,22 @@ import { Dialog } from '@mui/material';
 import { DialogContentText } from '@mui/material';
 import { socket } from '../socket';
 
-const CANVAS_WIDTH = 700;
 const CANVAS_HEIGHT = 500;
+const CANVAS_WIDTH = 700;
+const PADDLE_HEIGHT = 60;
+const PADDLE_MARGIN = 10;
+const PADDLE_WIDTH = 10;
+const BALL_SIDE = 10;
+
 let winning_score: string;
 
 const draw_players = (context:any, player1_y: number, player2_y: number, ball_x: number, ball_y: number) => {
 	context.clearRect(-100, -100, context.canvas.width + 100, context.canvas.height + 100);
 	context.fillStyle = '#000';
-	context.fillRect(ball_x -5, ball_y - 5, 10, 10);
-	context.fill();
+	context.fillRect(ball_x - (BALL_SIDE / 2), ball_y - (BALL_SIDE / 2), BALL_SIDE, BALL_SIDE);
 	context.fillStyle = '#000';
-	context.fillRect(10, player1_y, 10, 60);
-	context.fillRect(context.canvas.width - 20, player2_y, 10, 60);
+	context.fillRect(PADDLE_MARGIN, player1_y, PADDLE_WIDTH, PADDLE_HEIGHT);
+	context.fillRect(context.canvas.width - (PADDLE_MARGIN + PADDLE_WIDTH), player2_y, PADDLE_WIDTH, PADDLE_HEIGHT);
 	let net = 8;
 	for (let i = net; i < CANVAS_HEIGHT; i += net * 2) {
 		context.fillStyle = '#000';
@@ -38,7 +42,7 @@ const draw_players = (context:any, player1_y: number, player2_y: number, ball_x:
 	};
 }
 
-function Watch(props: any) {
+function Watch() {
 	const { user } = useFetchCurrentUser();
 	const [array, setArray] = useState<CurrentMatch[]>([]);
 	const [toAdd, setToAdd] = useState<CurrentMatch>({key:"", player_1:"", player_2:""})
@@ -106,7 +110,7 @@ function Watch(props: any) {
 		canvas.width = CANVAS_WIDTH;
 		canvas.height = CANVAS_HEIGHT;
 		const context = canvas.getContext('2d');
-		draw_players(context, 10, 10, 350, 250);
+		draw_players(context, PADDLE_MARGIN, PADDLE_MARGIN, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
 
 		socket.on('getPosition', (message: string) => {
 			let data = message.split(" ");

@@ -1,9 +1,7 @@
 import {
 	SubscribeMessage,
 	WebSocketGateway,
-	OnGatewayInit,
 	WebSocketServer,
-	OnGatewayConnection,
 	OnGatewayDisconnect,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
@@ -14,6 +12,12 @@ import { v4 as uuidv4 } from 'uuid';
 import { UserDetails } from "../utils/types";
 
 let details: GameDetails = new GameDetails;
+const CANVAS_HEIGHT = 500;
+const CANVAS_WIDTH = 700;
+const PADDLE_HEIGHT = 60;
+const PADDLE_MARGIN = 10;
+const PADDLE_WIDTH = 10;
+const BALL_SIDE = 10;
 
 const sleep = (milliseconds: number) => {
 	return new Promise(resolve => setTimeout(resolve, milliseconds))
@@ -53,12 +57,12 @@ class Pong{
 	key: string;
 	first_player: Player = null;
 	second_player: Player = null;
-	ball_x: number = 350;
-	ball_y: number = 250;
+	ball_x: number = CANVAS_WIDTH / 2;
+	ball_y: number = CANVAS_HEIGHT / 2;
 	ball_angle: number = random_ball();
 	spectator: Player[] = [];
 	winning_score: number = 5;
-	ball_speed: number = 12;
+	ball_speed: number = 6;
 	mode: string = "";
 	removed: boolean = false;
 
@@ -69,36 +73,41 @@ class Pong{
 
 	change_position(player: Player) {
 		player.y_pos += player.delta * 10;
-		if (player.y_pos < 10) {
-			player.y_pos = 10;
-		} else if (player.y_pos > 430) {
-			player.y_pos = 430;
+		if (player.y_pos < PADDLE_MARGIN) {
+			player.y_pos = PADDLE_MARGIN;
+		} else if (player.y_pos > CANVAS_HEIGHT - PADDLE_HEIGHT - PADDLE_MARGIN) {
+			player.y_pos = CANVAS_HEIGHT - PADDLE_HEIGHT - PADDLE_MARGIN;
 		}
 	}
 
 	touch_player(player: Player): boolean {
-		const x: number = player == this.first_player ? 5 : 670;
+		const x: number = player == this.first_player ? PADDLE_MARGIN / 2 : CANVAS_WIDTH - PADDLE_WIDTH - PADDLE_MARGIN; // 670
+		return (this.ball_x >= x && this.ball_x <= x + PADDLE_WIDTH + PADDLE_MARGIN) && (this.ball_y >= player.y_pos && this.ball_y <= player.y_pos + PADDLE_HEIGHT + BALL_SIDE);
+	}
 
-		return (this.ball_x >= x && this.ball_x <= x + 20) && (this.ball_y >= player.y_pos && this.ball_y <= player.y_pos + 70);
+	touch_top_bottom(player : Player): boolean {
+		const left_edge: number = this.first_player ? PADDLE_MARGIN : CANVAS_WIDTH - PADDLE_MARGIN - PADDLE_WIDTH;
+		const right_edge: number = this.second_player ? PADDLE_MARGIN + PADDLE_WIDTH : CANVAS_WIDTH - PADDLE_MARGIN;
+		return ((this.ball_x >= left_edge && this.ball_x <= right_edge) && (this.ball_y + (BALL_SIDE / 2) >= player.y_pos && this.ball_y + (BALL_SIDE / 2) <= player.y_pos + PADDLE_HEIGHT + BALL_SIDE / 2));
 	}
 
 	change_ball_pos(player_1: Player, player_2: Player) {
 		this.ball_x += this.ball_speed * Math.cos(this.ball_angle);
 		this.ball_y += this.ball_speed * Math.sin(this.ball_angle);
-		if (this.ball_x > 700) {
+		if (this.ball_x > CANVAS_WIDTH) {
 			player_1.score += 1;
-			this.ball_x = 350;
-			this.ball_y = 250;
+			this.ball_x = CANVAS_WIDTH / 2;
+			this.ball_y = CANVAS_HEIGHT / 2;
 			this.ball_angle = random_ball();
 		} else if (this.ball_x < 0) {
 			player_2.score += 1;
-			this.ball_x = 350;
-			this.ball_y = 250;
+			this.ball_x = CANVAS_WIDTH / 2;
+			this.ball_y = CANVAS_HEIGHT / 2;
 			this.ball_angle = random_ball();
 		}
-		if (this.ball_y >= 495) {
+		if (this.ball_y >= CANVAS_HEIGHT - (BALL_SIDE / 2)) {
 			this.ball_angle = -this.ball_angle;
-		} else if (this.ball_y <= 5) {
+		} else if (this.ball_y <= BALL_SIDE / 2) {
 			this.ball_angle = -this.ball_angle;
 		}
 		if (this.touch_player(this.first_player)) {
@@ -106,6 +115,14 @@ class Pong{
 		}
 		if (this.touch_player(this.second_player)) {
 			this.ball_angle = Math.PI - this.ball_angle;
+		}
+		if (this.touch_top_bottom(this.first_player)) {
+			this.ball_angle = -this.ball_angle;
+			this.ball_x = PADDLE_MARGIN + PADDLE_HEIGHT;
+		}
+		if (this.touch_top_bottom(this.second_player)) {
+			this.ball_angle = -this.ball_angle;
+			this.ball_x = CANVAS_WIDTH - (PADDLE_MARGIN + PADDLE_HEIGHT);
 		}
 	}
 
@@ -124,9 +141,9 @@ class Pong{
 			this.change_position(this.first_player);
 			this.change_position(this.second_player);
 			this.first_player.socket.emit("getPosition", `${this.first_player.y_pos} ${this.second_player.y_pos} ${this.ball_x} ${this.ball_y} ${this.first_player.score} ${this.second_player.score}`);
-			this.second_player.socket.emit("getPosition", `${this.second_player.y_pos} ${this.first_player.y_pos} ${700 - this.ball_x} ${this.ball_y} ${this.first_player.score} ${this.second_player.score} `);
+			this.second_player.socket.emit("getPosition", `${this.second_player.y_pos} ${this.first_player.y_pos} ${CANVAS_WIDTH - this.ball_x} ${this.ball_y} ${this.first_player.score} ${this.second_player.score} `);
 			for (let index = 0; index < this.spectator.length; index++) {
-				this.spectator[index].socket.emit("getPosition", `${this.second_player.y_pos} ${this.first_player.y_pos} ${700 - this.ball_x} ${this.ball_y} ${this.first_player.score} ${this.second_player.score} `);
+				this.spectator[index].socket.emit("getPosition", `${this.second_player.y_pos} ${this.first_player.y_pos} ${CANVAS_WIDTH - this.ball_x} ${this.ball_y} ${this.first_player.score} ${this.second_player.score} `);
 			}
 
 			if ((this.is_running && this.first_player && this.second_player && (this.first_player.score >= this.winning_score) || this.second_player.score >= this.winning_score))
@@ -135,7 +152,7 @@ class Pong{
 				this.first_player.socket.emit("running", "false");
 				this.second_player.socket.emit("running", "false");
 				this.first_player.socket.emit("getPosition", `${this.first_player.y_pos} ${this.second_player.y_pos} ${this.ball_x} ${this.ball_y} ${this.first_player.score} ${this.second_player.score}`);
-				this.second_player.socket.emit("getPosition", `${this.second_player.y_pos} ${this.first_player.y_pos} ${700 - this.ball_x} ${this.ball_y} ${this.first_player.score} ${this.second_player.score} `);
+				this.second_player.socket.emit("getPosition", `${this.second_player.y_pos} ${this.first_player.y_pos} ${CANVAS_WIDTH - this.ball_x} ${this.ball_y} ${this.first_player.score} ${this.second_player.score} `);
 				this.database_create(this.first_player.id, this.second_player.id);
 
 				if (this.mode === "chat")
@@ -166,9 +183,11 @@ class Pong{
 				this.first_player.socket.emit("opponent_login", this.second_player.userDetails.username);
 				this.second_player.socket.emit("opponent_login", this.first_player.userDetails.username);
 				this.is_running = true;
-				this.ball_x = 350;
-				this.ball_y = 250;
+				this.ball_x = CANVAS_WIDTH / 2;
+				this.ball_y = CANVAS_HEIGHT / 2;
 				this.run_game();
+				this.first_player.socket.emit("running", "true");
+				this.second_player.socket.emit("running", "true");
 			}
 
 			else {
@@ -313,22 +332,8 @@ export class GameGateway implements OnGatewayDisconnect {
 
 	@SubscribeMessage('add_to_queue')
 	add_queue(client: Socket, message: UserDetails) : void {
-
-		////
-		// if(this.queue.length === 0)
-		// 	console.log(`Currently in queue EMPTY`);
-		// else
-		// {
-		// 	for (let i = 0; i < this.queue.length; i++)
-		// 		console.log(`Currently in queue | ${i} | ${this.queue[i].userDetails.username}`);
-		// }
-		////
-
-		if (this.queue.some(e => e.userDetails.username === message.username) === false)
-		{
-			this.queue.push(new Player(client.id, client, message));
-			console.log(`added to queue --> ${message.username}`);
-		}
+		this.queue.push(new Player(client.id, client, message));
+		console.log(`added to queue --> ${message.username}`);
 
 		if (this.queue.length >= 2)
 		{
