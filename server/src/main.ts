@@ -4,7 +4,7 @@ import * as session from 'express-session';
 import * as passport from 'passport';
 import { TypeormStore } from 'connect-typeorm/out';
 import { getRepositoryToken } from '@nestjs/typeorm';
-import { Session } from './typeorm/typeorm.module';
+import { Session } from './typeorm/';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

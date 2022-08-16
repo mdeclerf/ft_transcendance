@@ -1,4 +1,4 @@
-import { User } from "../../typeorm/typeorm.module";
+import { User } from "../../typeorm/";
 import { UserDetails } from "../../utils/types";
 
 export interface IAuthService {
