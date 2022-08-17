@@ -61,11 +61,6 @@ export class UserController {
 	@UseGuards(AuthenticatedGuard)
 	async getLeader() {
 		const leader = await this.userService.findLeader();
-
-		// leader.forEach((value, key) => {
-		// 	console.log(`${key} | ${value}`);
-		// });
-
 		return leader;
 	}
 

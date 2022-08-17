@@ -354,7 +354,7 @@ export class GameGateway implements OnGatewayDisconnect {
 		{
 			if (message.username === this.queue[i].userDetails.username)
 			{
-				console.log(`removed from queue --> ${this.queue[i].userDetails.username}`);
+				// console.log(`removed from queue --> ${this.queue[i].userDetails.username}`);
 				this.queue.splice(i,1);
 			}
 		}

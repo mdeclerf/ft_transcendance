@@ -96,7 +96,12 @@ function App() {
 					<Route path="/account" element={<MyAccount user={user} />} />
 					<Route path="/logout" element={<Logout/>}/>
 					<Route path="/2fa" element={<TwoFactor user={user} />}/>
-					<Route path="/leaderboard" element={<LeaderBoard />}/>
+
+
+					<Route path="/leaderboard" element={
+						<Grid container justifyContent='center' sx={{pt: 10}}>
+							<LeaderBoard user={user} />
+						</Grid>} />
 
 					<Route path='/chatmode' element={
 						<Grid container justifyContent='center'>

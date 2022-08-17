@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Game, User } from '../typeorm/';
-import { UserDetails } from '../utils/types';
+import { Game, User} from '../typeorm/';
+import { UserDetails, Ranking } from '../utils/types';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -55,7 +55,6 @@ export class UserService {
 			.leftJoinAndSelect('game.player_1', 'player_1')
 			.leftJoinAndSelect('game.player_2', 'player_2')
 			.getMany()
-		// console.log(games);
 
 		let leaderBoard = new Map<string, number>();
 		for (let i = 0; i < games.length; i++)
@@ -79,6 +78,18 @@ export class UserService {
 				leaderBoard.set(games[i].player_2.username, tmp);
 			}
 		}
-		return leaderBoard;
+
+		let ret: Ranking[] = [];
+
+		leaderBoard.forEach((value, key) => {
+			let tmp : Ranking = {username : key, victories : value};
+			ret.push(tmp);
+			// console.log(`${key} | ${value}`);
+		});
+
+		// for (let i = 0; i < ret.length; i ++)
+		// 	console.log(ret[i]);
+
+		return ret;
 	}
 }

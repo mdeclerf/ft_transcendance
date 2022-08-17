@@ -1,28 +1,69 @@
-import React from "react";
-import { Typography } from '@mui/material';
 import { useFetchLeader } from "../utils/hooks/useFetchLeaderBoard";
-import { getLeaderBoard } from "../utils/api";
-import axios, { AxiosRequestConfig } from "axios/";
+import { Box, Grid, List, ListItem, ListItemText} from "@mui/material/";
+import { User } from "../utils/types";
 
-export const LeaderBoard = () => {
+export interface IBoardProps {
+	user: User | undefined;
+}
 
-     // const CONFIG: AxiosRequestConfig = { withCredentials: true };
+export const LeaderBoard = (props: IBoardProps) => {
+
+     const { user } = props;
+     let leader = useFetchLeader().Response;
      
-     // axios.get<Map<string, number>>('http://localhost:3001/api/user/leaderboard', CONFIG)
-     // .then(({data}) => {
-          //      console.log(data);
-          // })
-          
-          // let Map : Map<string, number> = await getLeaderBoard();
-          
-     let leader  = useFetchLeader();
-     // for (let value of leader.values)
-	// {
+     leader?.sort((a, b) => {
+          return b.victories - a.victories;
+      });
+
+     let backHeight: number;
+	if (leader)
+		backHeight = leader.length * 80;
+	else
+		backHeight = 80;
+
+     const getRanking = (username: string, victories : number, i: number) => {
+		return (
+			<ListItem
+			key={i}
+			sx={{
+				alignItems: 'center',
+				borderRadius: '10px',
+                    backgroundColor: (username === user?.username) ? '#49c860' : '#E6EEE8',
+				marginTop: '2px',
+			}}
+			>
+				<ListItemText
+					sx={{ fontFamily: 'Work Sans, sans-serif', fontSize: 70, color: 'black'}}
+					primary={`Player: ${username} | Number of matches won: ${victories}`}
+				/>
+			</ListItem>
+		)
+	}
+
+     const generate = () => {
+          return leader?.map((item, i) => {
+				return getRanking(item.username, item.victories, i);
+		})
+     }
 
 	return (
        <div>
-            <Typography>Leaderboard</Typography>
-            
-       </div>
+          <Box
+               sx={{
+                    
+                    width: 800,
+                    height: {backHeight},
+                    padding: '2%',
+                    backgroundColor: 'primary.main',
+                    borderRadius: '20px',
+               }}
+          >
+               <Grid item xs='auto'>
+                    <List>
+                         {generate()}
+                    </List>
+               </Grid>
+          </Box>
+     </div>
 	)
 }
