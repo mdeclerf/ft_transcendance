@@ -42,13 +42,43 @@ export class UserService {
 		return player_1_games;
 	}
 
-	// SELECT * FROM game LEFT JOIN user ON game.player_1 = user.id OR game.player_2 = user.id WHERE game.player_1.id = id OR game.player_2.id = id;
-
 	async setTwoFactorAuthenticationSecret(secret: string, userId: number) {
 		return this.userRepo.update(userId, { twoFactorAuthenticationSecret: secret });
 	}
 
 	async enableTwoFactorAuthentication(userId: number) {
 		return this.userRepo.update(userId, { isTwoFactorAuthenticationEnabled: true });
+	}
+
+	async findLeader() {
+		const games = await this.gameRepo.createQueryBuilder('game')
+			.leftJoinAndSelect('game.player_1', 'player_1')
+			.leftJoinAndSelect('game.player_2', 'player_2')
+			.getMany()
+		// console.log(games);
+
+		let leaderBoard = new Map<string, number>();
+		for (let i = 0; i < games.length; i++)
+		{
+			leaderBoard.set(games[i].player_1.username, 0);
+			leaderBoard.set(games[i].player_2.username, 0);
+		}
+
+		for (let i = 0; i < games.length; i++)
+		{
+			if (games[i].player_1_score > games[i].player_2_score)
+			{
+				let tmp : number = leaderBoard.get(games[i].player_1.username);
+				tmp ++ ;
+				leaderBoard.set(games[i].player_1.username, tmp);
+			}
+			if (games[i].player_2_score > games[i].player_1_score)
+			{
+				let tmp : number = leaderBoard.get(games[i].player_2.username);
+				tmp ++ ;
+				leaderBoard.set(games[i].player_2.username, tmp);
+			}
+		}
+		return leaderBoard;
 	}
 }
