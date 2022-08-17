@@ -51,6 +51,6 @@ export type Game = {
 }
 
 export type Ranking = {
-	username : string;
+	user : UserDetails;
 	victories: number;
 }

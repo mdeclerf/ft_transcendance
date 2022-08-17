@@ -59,6 +59,6 @@ export type MessageGroup = {
 	sender: User;
 }
 export type Ranking = {
-	username : string;
+	user : User;
 	victories : number;
 }

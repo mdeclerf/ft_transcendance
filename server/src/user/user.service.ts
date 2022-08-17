@@ -56,33 +56,33 @@ export class UserService {
 			.leftJoinAndSelect('game.player_2', 'player_2')
 			.getMany()
 
-		let leaderBoard = new Map<string, number>();
+		let leaderBoard = new Map<string, Ranking>();
 		for (let i = 0; i < games.length; i++)
 		{
-			leaderBoard.set(games[i].player_1.username, 0);
-			leaderBoard.set(games[i].player_2.username, 0);
+			leaderBoard.set(games[i].player_1.intraId, {user: games[i].player_1, victories: 0});
+			leaderBoard.set(games[i].player_2.intraId, {user: games[i].player_2, victories: 0});
 		}
 
 		for (let i = 0; i < games.length; i++)
 		{
 			if (games[i].player_1_score > games[i].player_2_score)
 			{
-				let tmp : number = leaderBoard.get(games[i].player_1.username);
+				let tmp : number = leaderBoard.get(games[i].player_1.intraId).victories;
 				tmp ++ ;
-				leaderBoard.set(games[i].player_1.username, tmp);
+				leaderBoard.set(games[i].player_1.intraId, {user: games[i].player_1, victories: tmp} );
 			}
 			if (games[i].player_2_score > games[i].player_1_score)
 			{
-				let tmp : number = leaderBoard.get(games[i].player_2.username);
+				let tmp : number = leaderBoard.get(games[i].player_2.intraId).victories;
 				tmp ++ ;
-				leaderBoard.set(games[i].player_2.username, tmp);
+				leaderBoard.set(games[i].player_2.intraId, {user: games[i].player_2, victories: tmp} );
 			}
 		}
 
 		let ret: Ranking[] = [];
 
-		leaderBoard.forEach((value, key) => {
-			let tmp : Ranking = {username : key, victories : value};
+		leaderBoard.forEach((value) => {
+			let tmp : Ranking = {user : value.user, victories : value.victories};
 			ret.push(tmp);
 			// console.log(`${key} | ${value}`);
 		});

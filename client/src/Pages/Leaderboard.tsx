@@ -1,6 +1,7 @@
 import { useFetchLeader } from "../utils/hooks/useFetchLeaderBoard";
-import { Box, Grid, List, ListItem, ListItemText} from "@mui/material/";
+import { Avatar, Box, Grid, List, ListItem, ListItemText, ListItemAvatar} from "@mui/material/";
 import { User } from "../utils/types";
+import { Link } from 'react-router-dom';
 
 export interface IBoardProps {
 	user: User | undefined;
@@ -21,20 +22,33 @@ export const LeaderBoard = (props: IBoardProps) => {
 	else
 		backHeight = 80;
 
-     const getRanking = (username: string, victories : number, i: number) => {
+     const getRanking = (player: User, victories : number, i: number) => {
+          let path = `/user/${player.username}`;
 		return (
 			<ListItem
+               button component={Link} to={path}
 			key={i}
 			sx={{
 				alignItems: 'center',
 				borderRadius: '10px',
-                    backgroundColor: (username === user?.username) ? '#49c860' : '#E6EEE8',
+                    backgroundColor: (player.username === user?.username) ? '#49c860' : '#E6EEE8',
 				marginTop: '2px',
 			}}
 			>
+                    <ListItemAvatar>
+                         <Avatar
+                              alt={player.username}
+                              src={player.photoURL}
+                              sx={{
+                                   minWidth: { xs: 50 },
+                                   minHeight: { xs: 50 }
+                              }}
+					/>
+                    </ListItemAvatar>
+
 				<ListItemText
 					sx={{ fontFamily: 'Work Sans, sans-serif', fontSize: 70, color: 'black'}}
-					primary={`Player: ${username} | Number of matches won: ${victories}`}
+					primary={`${player.username} | Number of matches won: ${victories}`}
 				/>
 			</ListItem>
 		)
@@ -42,7 +56,7 @@ export const LeaderBoard = (props: IBoardProps) => {
 
      const generate = () => {
           return leader?.map((item, i) => {
-				return getRanking(item.username, item.victories, i);
+			return getRanking(item.user, item.victories, i);
 		})
      }
 
