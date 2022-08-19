@@ -80,19 +80,6 @@ class Pong{
 		}
 	}
 
-	// touch_player(player: Player): boolean {
-	// 	const x: number = player == this.first_player ? 5 : 670;
-
-	// 	return (this.ball_x >= x && this.ball_x <= x + 20) && (this.ball_y >= player.y_pos && this.ball_y <= player.y_pos + 70);
-	// }
-
-// 	const CANVAS_HEIGHT = 500;
-// const CANVAS_WIDTH = 700;
-// const BALL_SIDE = 10;
-// const PADDLE_HEIGHT = 60;
-// const PADDLE_MARGIN = 10;
-// const PADDLE_WIDTH = 10;
-
 	touch_player(player: Player): boolean {
 		let x: number = player == this.first_player ? PADDLE_MARGIN + PADDLE_WIDTH : CANVAS_WIDTH - PADDLE_WIDTH - PADDLE_MARGIN;
 		const d: number = this.ball_angle + Math.PI;
