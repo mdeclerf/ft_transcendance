@@ -114,14 +114,6 @@ class Pong{
 		if (this.touch_player(this.second_player)) {
 			this.ball_angle = Math.PI - this.ball_angle;
 		}
-		// if (this.touch_top_bottom(this.first_player)) {
-		// 	this.ball_angle = -this.ball_angle;
-		// 	this.ball_x = PADDLE_MARGIN + PADDLE_HEIGHT;
-		// }
-		// if (this.touch_top_bottom(this.second_player)) {
-		// 	this.ball_angle = -this.ball_angle;
-		// 	this.ball_x = CANVAS_WIDTH - (PADDLE_MARGIN + PADDLE_HEIGHT);
-		// }
 	}
 
 	set_delta(delta: number, id: string) {
