@@ -21,5 +21,5 @@ export function useFetchCurrentUser() {
 			.finally(() => setTimeout(() => setLoading(false), 1000));
 	}, [])
 
-	return { user, error, loading };
+	return { user, error, loading, setUser };
 }

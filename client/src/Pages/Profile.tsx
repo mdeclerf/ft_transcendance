@@ -26,7 +26,6 @@ export const Profile = (props: IProfileProps) => {
 		{
 			for(let i = 0; i < games?.length; i++)
 			{
-				console.log(` p1 ${games[i].player_1.username} ${games[i].player_1_score} p2${games[i].player_2.username} ${games[i].player_2_score}`)
 				if ((games[i].player_2_score > games[i].player_1_score && games[i].player_2.username === user?.username) || (games[i].player_1_score > games[i].player_2_score && games[i].player_1.username === user?.username))
 					w.y++;
 				else

@@ -35,7 +35,7 @@ const fabStyle = {
 };
 
 function App() {
-	let { user, error, loading } = useFetchCurrentUser();
+	let { user, error, loading, setUser } = useFetchCurrentUser();
 	let { games } = useFetchUser(user?.username);
 	const [twoFactorCode, setTwoFactorCode] = useState('');
 	const AuthInputRef = useRef<AuthCodeRef>(null);
@@ -93,7 +93,7 @@ function App() {
 					<Route path="/game" element={<Mode/> }/>
 					<Route path="/profile" element={<Profile user={user} games={games}/>} />
 					<Route path="/user/:username" element={<UserPage/>}/>
-					<Route path="/account" element={<MyAccount user={user} />} />
+					<Route path="/account" element={<MyAccount user={user} setUser={setUser}/>} />
 					<Route path="/logout" element={<Logout/>}/>
 					<Route path="/2fa" element={<TwoFactor user={user} />}/>
 
