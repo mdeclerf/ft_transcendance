@@ -62,7 +62,7 @@ export function Header (props: IHeaderProps) {
 	}
 
 	return (
-		<AppBar position="static">
+		<AppBar position="static" sx={{ flexGrow: 0 }}>
 			{displayDesktop()}
 		</AppBar>
 	);

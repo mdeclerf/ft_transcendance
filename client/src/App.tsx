@@ -5,8 +5,8 @@ import { useFetchCurrentUser } from './utils/hooks/useFetchCurrentUser';
 //import Chat from "./Chat/Chat";
 import { Logout } from './Pages/Logout';
 import Mode from './Game/mode';
-import  theme_2  from './themes/2';
-import  theme_1  from './themes/1';
+import theme_2 from './themes/2';
+import theme_1 from './themes/1';
 import Canvas from './Game/canvas';
 import Watch from './Game/watch';
 import { Grid } from '@mui/material';
@@ -26,16 +26,17 @@ import AuthCode, { AuthCodeRef } from 'react-auth-code-input';
 import axios from 'axios/';
 import { PlayGame } from './Game/Leave';
 import { useFetchUser } from './utils/hooks/useFetchUser';
+import { Chat } from './Chat/Chat';
 
 const fabStyle = {
 	position: 'absolute',
 	bottom: 16,
 	left: 16,
+	flexGrow: 1,
 };
 
 function App() {
 	let { user, error, loading } = useFetchCurrentUser();
-	let { games } = useFetchUser(user?.username);
 	const [twoFactorCode, setTwoFactorCode] = useState('');
 	const AuthInputRef = useRef<AuthCodeRef>(null);
 	const AuthInputDivRef = useRef<HTMLDivElement>(null);
@@ -75,7 +76,7 @@ function App() {
 	if (loading) return <CenteredDiv><CircularProgress /></CenteredDiv>
 
 	return (
-		<>
+		<div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
 			<ThemeProvider theme={colors ? theme_1 : theme_2}>
 
 			<Header user={user} error={error}/>
@@ -88,9 +89,9 @@ function App() {
 			{((user && !user.isTwoFactorAuthenticationEnabled) || (user && user.isTwoFactorAuthenticationEnabled && user.isSecondFactorAuthenticated)) && !error ?
 				<Routes>
 					<Route path="/" element={<WelcomePage/>} />
-					{/*<Route path="/chat" element={<Chat/>}/>*/}
+					<Route path="/chat" element={<Chat/>}/>
 					<Route path="/game" element={<Mode/> }/>
-					<Route path="/profile" element={<Profile user={user} games={games}/>} />
+					<Route path="/profile" element={<UserPage userProps={user}/>} />
 					<Route path="/user/:username" element={<UserPage/>}/>
 					<Route path="/account" element={<MyAccount user={user} />} />
 					<Route path="/logout" element={<Logout/>}/>
@@ -150,7 +151,7 @@ function App() {
 				</Routes>
 			}
 			</ThemeProvider>
-		</>
+		</div>
 	);
 }
 

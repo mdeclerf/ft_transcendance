@@ -31,13 +31,9 @@ export class ChatService {
 	}
 
 	//Add a message to the database from the DTO
-	public createMessage(body: CreateChatDto) : Promise<Chat> {
-		const message: Chat = new Chat();
-
-		message.room = body.room;
-		message.body = body.body;
-		message.user = body.user;
-		return this.chatRepo.save(message);
+	public async createMessage(body: CreateChatDto) : Promise<Chat> {
+		body.room = await this.getRoomByName(body.room.name);
+		return this.chatRepo.save(body);
 	}
 
 	//Return the last message of a given room
@@ -60,6 +56,7 @@ export class ChatService {
 	public getActiveRooms() : Promise<Room[]> {
 		return this.roomRepo.createQueryBuilder('room')
 			.select('room.name')
+			.orderBy('room.id', 'ASC')
 			.getMany();
 	}
 

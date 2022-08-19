@@ -1,17 +1,23 @@
-import { Box, Tab, Tabs, Typography } from '@mui/material';
+import { Box, CircularProgress, FormGroup, Button, Tab, Tabs, TextField, Typography } from '@mui/material';
+import SendIcon from '@mui/icons-material/Send';
 import * as React from 'react';
-import { Message, MessageGroup } from '../utils/types';
+import { CenteredDiv } from '../utils/styles';
+import { Message, MessageGroup, Room, User } from '../utils/types';
 import { ChatMsg } from './ChatMsg';
 
 interface ITabPanelProps {
 	title: string;
 	children?: React.ReactNode;
+	message: string;
 	index: number;
 	value: number;
+	messageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+	messageSend: (event: React.FormEvent) => void;
 }
 
 const TabPanel = (props: ITabPanelProps) => {
-	const { title, children, value, index, ...other } = props;
+	const { title, message, children, value, index, messageChange, messageSend } = props;
+	const formRef = React.useRef<HTMLFormElement>(null);
 
 	return (
 		<div
@@ -19,12 +25,22 @@ const TabPanel = (props: ITabPanelProps) => {
 			hidden={value !== index}
 			id={`vertical-tabpanel-${index}`}
 			aria-labelledby={`vertical-tab-${index}`}
-			{...other}
+			style={{ flexGrow: 1 }}
 		>
 			{value === index && (
-				<Box sx={{ p: 3, minWidth: '80vw' }}>
-					<Typography>{title}</Typography>
-					{children}
+				<Box sx={{ p: 3, minWidth: '80vw', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+					<Typography sx={{ flexGrow: 0 }}>{title}</Typography>
+					<div style={{ flexGrow: 1, maxHeight: '80vh', overflowY: 'auto' }}>
+						{children}
+					</div>
+					<form ref={formRef} onSubmit={messageSend} style={{ flexGrow: 0 }}>
+						<FormGroup sx={{ display: 'flex', flexDirection: 'row'}}>
+							<TextField sx={{ flexGrow: 1 }} onChange={messageChange} value={message}/>
+							<Button type="submit" variant="outlined" >
+								<SendIcon />
+							</Button>
+						</FormGroup>
+					</form>
 				</Box>
 			)}
 		</div>
@@ -39,36 +55,50 @@ const a11yProps = (index: number) => {
 }
 
 export interface IVerticalTabsProps {
-	channels: string[];
+	rooms: Room[];
+	message: string;
 	messages: Message[];
+	currentUser: User;
+	switchRooms: (room: Room) => void;
+	messagesLoading: boolean;
+	messageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+	messageSend: (event: React.FormEvent) => void;
 };
 
 export const VerticalTabs = (props: IVerticalTabsProps) => {
-	const { channels, messages } = props;
+	const { rooms, message, messages, currentUser, switchRooms, messagesLoading, messageChange, messageSend } = props;
 	const [value, setValue] = React.useState(0);
 
 	const mapChatBubbles = () => {
+		if (messagesLoading) return <CenteredDiv><CircularProgress /></CenteredDiv>;
+
 		const msgGrp: MessageGroup[] = [];
 		for (let i = 0; i < messages.length; i++) {
-			if (i === 0 || messages[i - 1].sender.id !== messages[i].sender.id) {
-				msgGrp.push({ side: messages[i].side, messages: [messages[i].message], sender: messages[i].sender});
+			if (i === 0 || messages[i - 1].user.id !== messages[i].user.id) {
+				msgGrp.push({ 
+					side: (messages[i].user.id === currentUser.id) ? 'right' : 'left', 
+					messages: [messages[i].body], 
+					user: messages[i].user
+				});
 			} else {
-				msgGrp[msgGrp.length - 1].messages.push(messages[i].message);
+				msgGrp[msgGrp.length - 1].messages.push(messages[i].body);
 			}
 		}
 
-		return msgGrp.map((msg) => {
+		return msgGrp.map((msg, i) => {
 			return (
 				<ChatMsg
-					avatar={msg.side === 'left' ? msg.sender.photoURL : ''}
+					avatar={msg.side === 'left' ? msg.user.photoURL : ''}
 					messages={msg.messages}
 					side={msg.side}
+					key={i}
 				/>
 			)
-		})
+		});
 	}
 
 	const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+		switchRooms(rooms[newValue]);
 		setValue(newValue);
 	};
 
@@ -76,8 +106,8 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 		<Box
 			sx={{
 				bgColor: 'background.paper',
+				flexGrow: 2,
 				display: 'flex',
-				alignItems: 'flex-end',
 			}}
 		>
 			<Tabs
@@ -86,17 +116,25 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 				value={value}
 				onChange={handleChange}
 				aria-label="Chat channels"
-				sx={{ borderRight: 1, borderColor: 'divider', maxWidth: '20vw' }}
+				sx={{ borderRight: 1, borderColor: 'divider', maxWidth: '20vw', flexGrow: 1 }}
 			>
-				{channels.map((channel, i) => {
+				{rooms.map((room, i) => {
 					return (
-						<Tab label={channel} key={i} {...a11yProps(i)} />
+						<Tab label={room.name} key={i} {...a11yProps(i)} />
 					)
 				})}
 			</Tabs>
-			{channels.map((channel, i) => {
+			{rooms.map((room, i) => {
 				return (
-					<TabPanel title={channel} value={value} index={i} key={i}>
+					<TabPanel
+						title={room.name}
+						value={value}
+						index={i}
+						key={i}
+						messageChange={messageChange}
+						messageSend={messageSend}
+						message={message}
+					>
 						{mapChatBubbles()}
 					</TabPanel>
 				)

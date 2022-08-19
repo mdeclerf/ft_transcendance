@@ -37,24 +37,24 @@ export type ChatResponse = {
 	user: User;
 }
 
-export type ChatRoom = {
+export type Message = {
+	room: Room;
+	body: string;
+	user: User;
+}
+
+export type Room = {
 	name: string;
+}
+
+export type MessageGroup = {
+	side: 'left' | 'right';
+	messages: string[];
+	user: User;
 }
 
 export type CurrentMatch = {
 	key: string;
 	player_1: string;
 	player_2: string;
-}
-
-export type Message = {
-	side: 'left' | 'right';
-	message: string;
-	sender: User;
-}
-
-export type MessageGroup = {
-	side: 'left' | 'right';
-	messages: string[];
-	sender: User;
 }
