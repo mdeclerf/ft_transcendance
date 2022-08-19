@@ -4,7 +4,7 @@ import { LoginPage } from './Pages/LoginPage';
 import { useFetchCurrentUser } from './utils/hooks/useFetchCurrentUser';
 //import Chat from "./Chat/Chat";
 import { Logout } from './Pages/Logout';
-import Mode from './Game/Mode';
+import  Mode from './Game/Mode';
 import  theme_2  from './themes/2';
 import  theme_1  from './themes/1';
 import Canvas from './Game/canvas';

@@ -80,15 +80,26 @@ class Pong{
 		}
 	}
 
-	touch_player(player: Player): boolean {
-		const x: number = player == this.first_player ? PADDLE_MARGIN / 2 : CANVAS_WIDTH - PADDLE_WIDTH - PADDLE_MARGIN; // 670
-		return (this.ball_x >= x && this.ball_x <= x + PADDLE_WIDTH + PADDLE_MARGIN) && (this.ball_y >= player.y_pos && this.ball_y <= player.y_pos + PADDLE_HEIGHT + BALL_SIDE);
-	}
+	// touch_player(player: Player): boolean {
+	// 	const x: number = player == this.first_player ? 5 : 670;
 
-	touch_top_bottom(player : Player): boolean {
-		const left_edge: number = this.first_player ? PADDLE_MARGIN : CANVAS_WIDTH - PADDLE_MARGIN - PADDLE_WIDTH;
-		const right_edge: number = this.second_player ? PADDLE_MARGIN + PADDLE_WIDTH : CANVAS_WIDTH - PADDLE_MARGIN;
-		return ((this.ball_x >= left_edge && this.ball_x <= right_edge) && (this.ball_y + (BALL_SIDE / 2) >= player.y_pos && this.ball_y + (BALL_SIDE / 2) <= player.y_pos + PADDLE_HEIGHT + BALL_SIDE / 2));
+	// 	return (this.ball_x >= x && this.ball_x <= x + 20) && (this.ball_y >= player.y_pos && this.ball_y <= player.y_pos + 70);
+	// }
+
+// 	const CANVAS_HEIGHT = 500;
+// const CANVAS_WIDTH = 700;
+// const BALL_SIDE = 10;
+// const PADDLE_HEIGHT = 60;
+// const PADDLE_MARGIN = 10;
+// const PADDLE_WIDTH = 10;
+
+	touch_player(player: Player): boolean {
+		let x: number = player == this.first_player ? PADDLE_MARGIN + PADDLE_WIDTH : CANVAS_WIDTH - PADDLE_WIDTH - PADDLE_MARGIN;
+		const d: number = this.ball_angle + Math.PI;
+		if ((this.first_player == player && (d > Math.PI / 2 && d < Math.PI / 2 * 3)) || (this.second_player == player && !(d > Math.PI / 2 && d < Math.PI / 2 * 3)) )
+			return (false);
+		return ((this.first_player == player && this.ball_x <= x) || (this.second_player == player && this.ball_x >= x))
+		&& (this.ball_y >= player.y_pos && this.ball_y <= player.y_pos + PADDLE_HEIGHT + BALL_SIDE);
 	}
 
 	change_ball_pos(player_1: Player, player_2: Player) {
@@ -116,14 +127,14 @@ class Pong{
 		if (this.touch_player(this.second_player)) {
 			this.ball_angle = Math.PI - this.ball_angle;
 		}
-		if (this.touch_top_bottom(this.first_player)) {
-			this.ball_angle = -this.ball_angle;
-			this.ball_x = PADDLE_MARGIN + PADDLE_HEIGHT;
-		}
-		if (this.touch_top_bottom(this.second_player)) {
-			this.ball_angle = -this.ball_angle;
-			this.ball_x = CANVAS_WIDTH - (PADDLE_MARGIN + PADDLE_HEIGHT);
-		}
+		// if (this.touch_top_bottom(this.first_player)) {
+		// 	this.ball_angle = -this.ball_angle;
+		// 	this.ball_x = PADDLE_MARGIN + PADDLE_HEIGHT;
+		// }
+		// if (this.touch_top_bottom(this.second_player)) {
+		// 	this.ball_angle = -this.ball_angle;
+		// 	this.ball_x = CANVAS_WIDTH - (PADDLE_MARGIN + PADDLE_HEIGHT);
+		// }
 	}
 
 	set_delta(delta: number, id: string) {
