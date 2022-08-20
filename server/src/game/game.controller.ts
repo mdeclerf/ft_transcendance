@@ -1,6 +1,7 @@
-import { Controller, Inject, Get} from '@nestjs/common';
+import { Controller, Inject, Get, Res} from '@nestjs/common';
 import { GameService } from './game.service';
 import { Game } from '../typeorm/entities/game.entity';
+import { Response } from 'express';
 
 @Controller('game')
 export class GameController {
@@ -11,4 +12,5 @@ export class GameController {
 	public getChat() : Promise<Game[]> {
 		return this.service.getGame();
 	}
+
 }

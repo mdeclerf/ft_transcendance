@@ -1,3 +1,4 @@
+
 import React, { useEffect, useRef, useState} from 'react';
 import { socket } from "../socket";
 import Button from '@mui/material/Button';
@@ -17,7 +18,7 @@ import FormLabel from '@mui/material/FormLabel';
 import { Dialog } from '@mui/material';
 import { DialogContentText } from '@mui/material';
 import './canvas.css';
-import { Help } from './help';
+import { Help } from './Help';
 
 const up_key: string = "w";
 const down_key: string = "s";

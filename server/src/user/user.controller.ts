@@ -57,6 +57,13 @@ export class UserController {
 		return res.json({ taken: false, user: user });
 	}
 
+	@Get('leaderboard')
+	@UseGuards(AuthenticatedGuard)
+	async getLeader() {
+		const leader = await this.userService.findLeader();
+		return leader;
+	}
+
 	@Get(':username')
 	@UseGuards(AuthenticatedGuard)
 	async getUser(@Param('username') username: string, @Res() res: Response) {

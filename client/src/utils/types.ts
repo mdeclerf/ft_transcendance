@@ -58,3 +58,8 @@ export type CurrentMatch = {
 	player_1: string;
 	player_2: string;
 }
+
+export type Ranking = {
+	user : User;
+	victories : number;
+}

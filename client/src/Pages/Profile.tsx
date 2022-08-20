@@ -11,7 +11,6 @@ export interface IProfileProps {
 
 export const Profile = (props: IProfileProps) => {
 	const { user, games } = props;
-	console.log(user);
 
 	let backHeight: number;
 	if (games)
@@ -27,7 +26,7 @@ export const Profile = (props: IProfileProps) => {
 		{
 			for(let i = 0; i < games?.length; i++)
 			{
-				if (games[i].player_1_score > games[i].player_2_score)
+				if ((games[i].player_2_score > games[i].player_1_score && games[i].player_2.username === user?.username) || (games[i].player_1_score > games[i].player_2_score && games[i].player_1.username === user?.username))
 					w.y++;
 				else
 					l.y++;
@@ -134,7 +133,7 @@ export const Profile = (props: IProfileProps) => {
 					}}>
 					<VictoryPie
 					style={{ labels: { fill: "white", fontSize: 20} }}
-					colorScale={['#49c860', '#c84949' ]}
+					colorScale={['#49c860', '#c84949' ]} // #49c860
 					innerRadius={50}
 					data={create_game_pie()}
 					/>

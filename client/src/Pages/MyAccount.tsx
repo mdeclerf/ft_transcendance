@@ -6,10 +6,11 @@ import { NameChangeResponse, User } from "../utils/types"
 
 export interface IMyAccountProps {
 	user: User;
+	setUser: React.Dispatch<React.SetStateAction<User>>
 }
 
 export const MyAccount = (props: IMyAccountProps) => {
-	const [user, setUser] = useState<User>(props.user);
+	const {user, setUser} = props;
 
 	const [taken, setTaken] = useState(false);
 
