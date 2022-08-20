@@ -80,13 +80,21 @@ class Pong{
 		}
 	}
 
+	// touch_player(player: Player): boolean {
+	// 	let x: number = player == this.first_player ? PADDLE_MARGIN + PADDLE_WIDTH : CANVAS_WIDTH - PADDLE_WIDTH - PADDLE_MARGIN;
+	// 	const d: number = this.ball_angle + Math.PI;
+	// 	if ((this.first_player == player && (d > Math.PI / 2 && d < Math.PI / 2 * 3)) || (this.second_player == player && !(d > Math.PI / 2 && d < Math.PI / 2 * 3)) )
+	// 		return (false);
+	// 	return ((this.first_player == player && this.ball_x <= x) || (this.second_player == player && this.ball_x >= x))
+	// 	&& (this.ball_y >= player.y_pos && this.ball_y <= player.y_pos + PADDLE_HEIGHT + BALL_SIDE);
+	// }
+
 	touch_player(player: Player): boolean {
-		let x: number = player == this.first_player ? PADDLE_MARGIN + PADDLE_WIDTH : CANVAS_WIDTH - PADDLE_WIDTH - PADDLE_MARGIN;
+		const x: number = player == this.first_player ? 5 : 670;
 		const d: number = this.ball_angle + Math.PI;
 		if ((this.first_player == player && (d > Math.PI / 2 && d < Math.PI / 2 * 3)) || (this.second_player == player && !(d > Math.PI / 2 && d < Math.PI / 2 * 3)) )
 			return (false);
-		return ((this.first_player == player && this.ball_x <= x) || (this.second_player == player && this.ball_x >= x))
-		&& (this.ball_y >= player.y_pos && this.ball_y <= player.y_pos + PADDLE_HEIGHT + BALL_SIDE);
+		return (this.ball_x >= x && this.ball_x <= x + 20) && (this.ball_y >= player.y_pos && this.ball_y <= player.y_pos + 70);
 	}
 
 	change_ball_pos(player_1: Player, player_2: Player) {

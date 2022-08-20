@@ -18,7 +18,7 @@ export function Chat (props: IChatProps) {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [messagesLoading, setMessagesLoading] = useState(true);
 	const [roomsLoading, setRoomsLoading] = useState(true);
-	
+
 	const prevRoomRef = useRef<Room>();
 	useEffect(() => {
 		prevRoomRef.current = room;
