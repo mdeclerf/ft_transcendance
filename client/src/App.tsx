@@ -9,7 +9,7 @@ import theme_2 from './themes/2';
 import theme_1 from './themes/1';
 import Canvas from './Game/canvas';
 import Watch from './Game/watch';
-import { Grid } from '@mui/material';
+import { Dialog, DialogContentText, Grid } from '@mui/material';
 import { CssBaseline } from "@mui/material";
 import { ThemeProvider } from '@mui/material/styles';
 import { Header } from './Components/Header';
@@ -28,6 +28,7 @@ import { PlayGame } from './Game/Leave';
 import { Chat } from './Chat/Chat';
 import { Friends } from './Components/Friends';
 import { socket } from './socket';
+import { User } from './utils/types';
 
 const fabStyle = {
 	position: 'absolute',
@@ -43,6 +44,8 @@ function App() {
 	const AuthInputDivRef = useRef<HTMLDivElement>(null);
 	const ButtonRef = useRef<HTMLButtonElement>(null);
 	const [colors, setColors] = React.useState(true);
+	const [invitation, setInvitation] = React.useState(false);
+	const [invitingUser, setInvitingUser] = React.useState("");
 
 	useEffect(() => {
 		const keyDownHandler = (event: KeyboardEvent) => {
@@ -59,7 +62,16 @@ function App() {
 
 	useEffect(() => {
 		socket.emit('identity', user.id);
+
 	}, [user.id]);
+	
+	useEffect(() => {
+		socket.on('invited', (message:User) => {
+			console.log("HERERERERE");
+			setInvitation(true);
+			setInvitingUser(message.username);
+		});
+	}, []);
 
 	const handleChange = (res: string) => {
 		setTwoFactorCode(res);
@@ -160,6 +172,11 @@ function App() {
 					</Routes>
 				}
 				<Friends user={user} />
+
+				<Dialog open={invitation} onClose={() => { setInvitation(false)}} maxWidth="md">
+					<DialogContentText sx={{ fontFamily: 'Work Sans, sans-serif', fontSize: 60, m:2}}>{invitingUser} invited you to a game !</DialogContentText>
+				</Dialog>
+
 			</ThemeProvider>
 		</div>
 	);

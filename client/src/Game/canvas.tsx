@@ -47,7 +47,6 @@ function Canvas() {
 	const [opponent, setOpponent] = useState<string>("");
 	const [secondPScore, setSecondPScore] = useState<string>("0");
 	const [dialogOpen, setDialogOpen] = useState<boolean>(false);
-	// const [back, setBack] = useState<string>("../Images/paper.webp");
 	const [back, setBack] = useState<string>("https://img.freepik.com/free-photo/white-paper-texture_1194-5998.jpg?w=1380&t=st=1659519955~exp=1659520555~hmac=a499219d876edb294bdebf8e768cddf59069e34d1c6f9ae680be92b4f17d7e92");
 
 	//////////////

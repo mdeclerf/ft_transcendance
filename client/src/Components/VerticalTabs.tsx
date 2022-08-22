@@ -77,7 +77,7 @@ export interface IVerticalTabsProps {
 };
 
 export const VerticalTabs = (props: IVerticalTabsProps) => {
-	const { rooms, message, messages, currentUser, switchRooms, messagesLoading, messageChange, messageSend } = props;
+	const { rooms, message, messages, currentUser, switchRooms, messageChange, messageSend } = props;
 	const [value, setValue] = React.useState(0);
 	const [formattedMessages, setFormattedMessages] = React.useState<MessageGroup[]>([]);
 
@@ -97,7 +97,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 
 		setFormattedMessages([]);
 		setFormattedMessages(msgGrp);
-	}, [messages]);
+	}, [messages, currentUser.id]);
 
 	const mapChatBubbles = () => {
 		return formattedMessages.map((msg, i) => {
