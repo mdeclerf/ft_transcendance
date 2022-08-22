@@ -10,7 +10,7 @@ const theme_1 = {
             main: '#ED127C', 
         },
         error: {
-            main: '#12ED83',
+            main: '#ed1212',
         },
         background: {
             default: '#E6EEE8',

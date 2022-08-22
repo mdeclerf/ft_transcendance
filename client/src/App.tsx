@@ -4,7 +4,7 @@ import { LoginPage } from './Pages/LoginPage';
 import { useFetchCurrentUser } from './utils/hooks/useFetchCurrentUser';
 //import Chat from "./Chat/Chat";
 import { Logout } from './Pages/Logout';
-import Mode from './Game/mode';
+import Mode from './Game/Mode';
 import theme_2 from './themes/2';
 import theme_1 from './themes/1';
 import Canvas from './Game/canvas';
@@ -17,6 +17,7 @@ import { Fab } from '@mui/material';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
 import { Avatar, Button, CircularProgress } from '@mui/material/';
 import { CenteredDiv } from './utils/styles';
+import { LeaderBoard } from './Pages/Leaderboard';
 import { MyAccount } from './Pages/MyAccount';
 import { WelcomePage } from './Pages/WelcomePage';
 import { UserPage } from './Pages/UserPage';
@@ -34,7 +35,7 @@ const fabStyle = {
 };
 
 function App() {
-	let { user, error, loading } = useFetchCurrentUser();
+	let { user, error, loading, setUser } = useFetchCurrentUser();
 	const [twoFactorCode, setTwoFactorCode] = useState('');
 	const AuthInputRef = useRef<AuthCodeRef>(null);
 	const AuthInputDivRef = useRef<HTMLDivElement>(null);
@@ -91,9 +92,15 @@ function App() {
 					<Route path="/game" element={<Mode/> }/>
 					<Route path="/profile" element={<UserPage userProps={user}/>} />
 					<Route path="/user/:username" element={<UserPage/>}/>
-					<Route path="/account" element={<MyAccount user={user} />} />
+					<Route path="/account" element={<MyAccount user={user} setUser={setUser}/>} />
 					<Route path="/logout" element={<Logout/>}/>
 					<Route path="/2fa" element={<TwoFactor user={user} />}/>
+
+
+					<Route path="/leaderboard" element={
+						<Grid container justifyContent='center' sx={{pt: 10}}>
+							<LeaderBoard user={user} />
+						</Grid>} />
 
 					<Route path='/chatmode' element={
 						<Grid container justifyContent='center'>

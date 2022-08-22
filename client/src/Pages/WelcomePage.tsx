@@ -19,6 +19,10 @@ export const WelcomePage = (props: IWelcomePageProps) => {
 			<Button component={Link} to="/watch" variant="contained" sx={{m: 1, maxWidth: '200px', maxHeight: '100px', minWidth: '200px', minHeight: '100px', fontSize: '40px', fontFamily: 'Work Sans, sans-serif'}}>
 				Watch
 			</Button>
+
+			<Button component={Link} to="/leaderboard" variant="contained" sx={{m: 1, maxWidth: '200px', maxHeight: '100px', minWidth: '200px', minHeight: '100px', fontSize: '40px', fontFamily: 'Work Sans, sans-serif'}}>
+				Board
+			</Button>
 		</CenteredDiv>
 	)
 }

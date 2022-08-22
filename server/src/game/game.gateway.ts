@@ -80,15 +80,21 @@ class Pong{
 		}
 	}
 
-	touch_player(player: Player): boolean {
-		const x: number = player == this.first_player ? PADDLE_MARGIN / 2 : CANVAS_WIDTH - PADDLE_WIDTH - PADDLE_MARGIN; // 670
-		return (this.ball_x >= x && this.ball_x <= x + PADDLE_WIDTH + PADDLE_MARGIN) && (this.ball_y >= player.y_pos && this.ball_y <= player.y_pos + PADDLE_HEIGHT + BALL_SIDE);
-	}
+	// touch_player(player: Player): boolean {
+	// 	let x: number = player == this.first_player ? PADDLE_MARGIN + PADDLE_WIDTH : CANVAS_WIDTH - PADDLE_WIDTH - PADDLE_MARGIN;
+	// 	const d: number = this.ball_angle + Math.PI;
+	// 	if ((this.first_player == player && (d > Math.PI / 2 && d < Math.PI / 2 * 3)) || (this.second_player == player && !(d > Math.PI / 2 && d < Math.PI / 2 * 3)) )
+	// 		return (false);
+	// 	return ((this.first_player == player && this.ball_x <= x) || (this.second_player == player && this.ball_x >= x))
+	// 	&& (this.ball_y >= player.y_pos && this.ball_y <= player.y_pos + PADDLE_HEIGHT + BALL_SIDE);
+	// }
 
-	touch_top_bottom(player : Player): boolean {
-		const left_edge: number = this.first_player ? PADDLE_MARGIN : CANVAS_WIDTH - PADDLE_MARGIN - PADDLE_WIDTH;
-		const right_edge: number = this.second_player ? PADDLE_MARGIN + PADDLE_WIDTH : CANVAS_WIDTH - PADDLE_MARGIN;
-		return ((this.ball_x >= left_edge && this.ball_x <= right_edge) && (this.ball_y + (BALL_SIDE / 2) >= player.y_pos && this.ball_y + (BALL_SIDE / 2) <= player.y_pos + PADDLE_HEIGHT + BALL_SIDE / 2));
+	touch_player(player: Player): boolean {
+		const x: number = player == this.first_player ? 5 : 670;
+		const d: number = this.ball_angle + Math.PI;
+		if ((this.first_player == player && (d > Math.PI / 2 && d < Math.PI / 2 * 3)) || (this.second_player == player && !(d > Math.PI / 2 && d < Math.PI / 2 * 3)) )
+			return (false);
+		return (this.ball_x >= x && this.ball_x <= x + 20) && (this.ball_y >= player.y_pos && this.ball_y <= player.y_pos + 70);
 	}
 
 	change_ball_pos(player_1: Player, player_2: Player) {
@@ -115,14 +121,6 @@ class Pong{
 		}
 		if (this.touch_player(this.second_player)) {
 			this.ball_angle = Math.PI - this.ball_angle;
-		}
-		if (this.touch_top_bottom(this.first_player)) {
-			this.ball_angle = -this.ball_angle;
-			this.ball_x = PADDLE_MARGIN + PADDLE_HEIGHT;
-		}
-		if (this.touch_top_bottom(this.second_player)) {
-			this.ball_angle = -this.ball_angle;
-			this.ball_x = CANVAS_WIDTH - (PADDLE_MARGIN + PADDLE_HEIGHT);
 		}
 	}
 
@@ -155,13 +153,7 @@ class Pong{
 				this.second_player.socket.emit("getPosition", `${this.second_player.y_pos} ${this.first_player.y_pos} ${CANVAS_WIDTH - this.ball_x} ${this.ball_y} ${this.first_player.score} ${this.second_player.score} `);
 				this.database_create(this.first_player.id, this.second_player.id);
 
-				if (this.mode === "chat")
-				{
-					this.first_player.socket.emit("replay", "");
-					this.second_player.socket.emit("replay", "");
-				}
-				else
-					this.is_over = true;
+				this.is_over = true;
 			}
 			await sleep(50);
 		}
@@ -265,8 +257,8 @@ export class GameGateway implements OnGatewayDisconnect {
 	Game: Map<string, Pong> = new Map();
 	queue: Player[] = [];
 
-	@SubscribeMessage("join_room") // NOT TESTED
-	handleRoom(client: Socket, message: any) : void {
+	@SubscribeMessage("join_room")
+	handleRoom(client: Socket, message: UserDetails) : void {
 		client.join(message[0]);
 
 		if (!this.Game.has(message[0]))
@@ -319,17 +311,6 @@ export class GameGateway implements OnGatewayDisconnect {
 		}
 	}
 
-	@SubscribeMessage('play_again')
-	handleReplay(client: Socket, message: string) : void {
-		if (!JSON.stringify(message[1]).includes("Watching") && !this.Game.get(message[0]).is_running)
-		{
-			this.Game.get(message[0]).is_running = true;
-			this.Game.get(message[0]).first_player.score = 0;
-			this.Game.get(message[0]).second_player.score = 0;
-			this.Game.get(message[0]).run_game();
-		}
-	}
-
 	@SubscribeMessage('add_to_queue')
 	add_queue(client: Socket, message: UserDetails) : void {
 		this.queue.push(new Player(client.id, client, message));
@@ -354,7 +335,7 @@ export class GameGateway implements OnGatewayDisconnect {
 		{
 			if (message.username === this.queue[i].userDetails.username)
 			{
-				console.log(`removed from queue --> ${this.queue[i].userDetails.username}`);
+				// console.log(`removed from queue --> ${this.queue[i].userDetails.username}`);
 				this.queue.splice(i,1);
 			}
 		}

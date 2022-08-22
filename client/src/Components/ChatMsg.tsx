@@ -1,8 +1,10 @@
 import * as React from 'react';
-import { Grid, Typography, AvatarTypeMap, Box, Avatar } from "@mui/material";
+import { Grid, Typography, AvatarTypeMap, Box, Avatar, IconButton } from "@mui/material";
+import { Link } from 'react-router-dom';
+import { User } from '../utils/types';
 
 export interface IChatMsgProps {
-	avatar?: string;
+	user?: User;
 	messages: string[];
 	side?: 'left' | 'right';
 	AvatarProps?: AvatarTypeMap;
@@ -10,7 +12,7 @@ export interface IChatMsgProps {
 
 export function ChatMsg (props: IChatMsgProps) {
 	const {
-		avatar,
+		user,
 		messages,
 		side,
 		AvatarProps
@@ -24,14 +26,19 @@ export function ChatMsg (props: IChatMsgProps) {
 		>
 			{side === 'left' && (
 				<Grid item>
+				<IconButton
+				component={Link} to={`/user/${user?.username}`}
+				color="inherit"
+				>
 					<Avatar
-						src={avatar || ''}
+						src={user?.photoURL || ''}
 						{...AvatarProps}
 						sx={{
 							width: '32px',
 							height: '32px'
 						}}
 					/>
+					</IconButton>
 				</Grid>
 			)}
 			<Grid item xs={8}>

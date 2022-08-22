@@ -1,8 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Game } from '../typeorm/';
-import { GameDetails } from '../utils/types';
+import { Game, User } from '../typeorm/';
+import { GameDetails} from '../utils/types';
 
 @Injectable()
 export class GameService {
@@ -21,5 +21,6 @@ export class GameService {
 	const user = this.gameRepository.create(details);
 	return await this.gameRepository.save(user);
 }
+
 
 }

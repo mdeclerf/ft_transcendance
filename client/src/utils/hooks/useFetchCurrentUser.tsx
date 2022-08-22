@@ -20,5 +20,5 @@ export function useFetchCurrentUser() {
 			});
 	}, [])
 
-	return { user, error, loading };
+	return { user, error, loading, setUser };
 }

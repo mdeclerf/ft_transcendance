@@ -11,7 +11,9 @@ export interface IProfileProps {
 
 export const Profile = (props: IProfileProps) => {
 	const { user, games } = props;
-	console.log(user);
+
+	console.log(games);
+	console.log(games?.length);
 
 	let backHeight: number;
 	if (games)
@@ -27,7 +29,7 @@ export const Profile = (props: IProfileProps) => {
 		{
 			for(let i = 0; i < games?.length; i++)
 			{
-				if (games[i].player_1_score > games[i].player_2_score)
+				if ((games[i].player_2_score > games[i].player_1_score && games[i].player_2.username === user?.username) || (games[i].player_1_score > games[i].player_2_score && games[i].player_1.username === user?.username))
 					w.y++;
 				else
 					l.y++;
@@ -126,7 +128,7 @@ export const Profile = (props: IProfileProps) => {
 				</Box>
 
 				{getTypography('Wins and losses')}
-				<Box sx={{
+				{ (games?.length !== 0) && <Box sx={{
 						width: 600,
 						height: 300,
 						backgroundColor: 'primary.main',
@@ -134,11 +136,18 @@ export const Profile = (props: IProfileProps) => {
 					}}>
 					<VictoryPie
 					style={{ labels: { fill: "white", fontSize: 20} }}
-					colorScale={['#49c860', '#c84949' ]}
+					colorScale={['#49c860', '#c84949' ]} // #49c860
 					innerRadius={50}
 					data={create_game_pie()}
 					/>
-				</Box>
+				</Box> }
+				{ (games?.length === 0) && <Box sx={{
+						width: 600,
+						height: 50,
+						backgroundColor: 'primary.main',
+						borderRadius: '20px',
+					}}>
+				</Box> }
 			</div>
 		</ProfileDiv>
 	)

@@ -49,3 +49,8 @@ export type Game = {
 	player_2_score : number;
 	mode : string;
 }
+
+export type Ranking = {
+	user : UserDetails;
+	victories: number;
+}
