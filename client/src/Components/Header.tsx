@@ -35,24 +35,6 @@ export function Header (props: IHeaderProps) {
 			Login with 42Intra
 		</Button>
 	)
-	
-	const transcendenceLogo = (
-		<Typography 
-			variant="h6" 
-			component={Link}
-			to="/"
-			sx={{
-				mr: 2,
-				display: { xs: 'none', md: 'flex' },
-				fontFamily: 'Work Sans, sans-serif',
-				fontWeight: 700,
-				color: 'inherit',
-				textDecoration: 'none',
-			}}
-		>
-			Transcendence
-		</Typography>
-	)
 
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const open = Boolean(anchorEl);
@@ -67,23 +49,14 @@ export function Header (props: IHeaderProps) {
 
 	const homeButton = (
 		<div>
-			{/*<Button
-				id="basic-button"
-				variant="contained"
-				aria-controls={open ? 'basic-menu' : undefined}
-				aria-haspopup="true"
-				aria-expanded={open ? 'true' : undefined}
-				onClick={handleClick}
-			>
-				Transcendence
-			</Button>*/}
 			<Typography
 				id="basic-button"
 				variant="h6"
+				onClick={handleClick}
 				aria-controls={open ? 'basic-menu' : undefined}
 				aria-haspopup="true"
 				aria-expanded={open ? 'true' : undefined}
-				onClick={handleClick}
+				sx={{ cursor: 'pointer' }}
 			>
 				Transcendence
 			</Typography>
@@ -104,61 +77,62 @@ export function Header (props: IHeaderProps) {
 		</div>
 	)
 
-	const buttons = (
-		<Stack spacing={2} direction="row">
-			<Button
-				variant="text"
-				component={Link}
-				to="/chat"
-				sx={{
-					mr: 2,
-					display: { xs: 'none', md: 'flex' },
-					fontFamily: 'Work Sans, sans-serif',
-					fontWeight: 700,
-					color: 'inherit',
-					textDecoration: 'none',
-				}}
-			>
-				Chat
-			</Button>
-			<Button
-				variant="text"
-				component={Link}
-				to="/play"
-				sx={{
-					mr: 2,
-					display: { xs: 'none', md: 'flex' },
-					fontFamily: 'Work Sans, sans-serif',
-					fontWeight: 700,
-					color: 'inherit',
-					textDecoration: 'none',
-				}}
-			>
-				Play
-			</Button>
-			<Button
-				variant="text"
-				component={Link}
-				to="/watch"
-				sx={{
-					mr: 2,
-					display: { xs: 'none', md: 'flex' },
-					fontFamily: 'Work Sans, sans-serif',
-					fontWeight: 700,
-					color: 'inherit',
-					textDecoration: 'none',
-				}}
-			>
-				Watch
-			</Button>
-		</Stack>
-	)
+	//Nav buttons in header maybe to throw away
+	//const buttons = (
+	//	<Stack spacing={2} direction="row">
+	//		<Button
+	//			variant="text"
+	//			component={Link}
+	//			to="/chat"
+	//			sx={{
+	//				mr: 2,
+	//				display: { xs: 'none', md: 'flex' },
+	//				fontFamily: 'Work Sans, sans-serif',
+	//				fontWeight: 700,
+	//				color: 'inherit',
+	//				textDecoration: 'none',
+	//			}}
+	//		>
+	//			Chat
+	//		</Button>
+	//		<Button
+	//			variant="text"
+	//			component={Link}
+	//			to="/play"
+	//			sx={{
+	//				mr: 2,
+	//				display: { xs: 'none', md: 'flex' },
+	//				fontFamily: 'Work Sans, sans-serif',
+	//				fontWeight: 700,
+	//				color: 'inherit',
+	//				textDecoration: 'none',
+	//			}}
+	//		>
+	//			Play
+	//		</Button>
+	//		<Button
+	//			variant="text"
+	//			component={Link}
+	//			to="/watch"
+	//			sx={{
+	//				mr: 2,
+	//				display: { xs: 'none', md: 'flex' },
+	//				fontFamily: 'Work Sans, sans-serif',
+	//				fontWeight: 700,
+	//				color: 'inherit',
+	//				textDecoration: 'none',
+	//			}}
+	//		>
+	//			Watch
+	//		</Button>
+	//	</Stack>
+	//)
 
 	const displayDesktop = () => {
 		return (
 			<StyledToolbar>
 				{homeButton}
-				<div>{buttons}</div>
+				{/*<div>{buttons}</div>*/}
 				<div>{loginButton}</div>
 			</StyledToolbar>
 		)

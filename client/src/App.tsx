@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Routes, Route} from 'react-router-dom/';
 import { LoginPage } from './Pages/LoginPage';
 import { useFetchCurrentUser } from './utils/hooks/useFetchCurrentUser';
-//import Chat from "./Chat/Chat";
+import Chat from "./Chat/Chat";
 import { Logout } from './Pages/Logout';
 import Mode from './Game/mode';
 import  theme_2  from './themes/2';
@@ -87,7 +87,7 @@ function App() {
 			{((user && !user.isTwoFactorAuthenticationEnabled) || (user && user.isTwoFactorAuthenticationEnabled && user.isSecondFactorAuthenticated)) && !error ?
 				<Routes>
 					<Route path="/" element={<WelcomePage/>} />
-					{/*<Route path="/chat" element={<Chat/>}/>*/}
+					<Route path="/chat" element={<Chat/>}/>
 					<Route path="/game" element={<Mode/> }/>
 					<Route path="/profile" element={<Profile user={user}/>} />
 					<Route path="/user/:username" element={<UserPage/>}/>

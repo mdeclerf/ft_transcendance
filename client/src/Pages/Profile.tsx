@@ -35,6 +35,7 @@ export const Profile = (props: IProfileProps) => {
 			data.push(w);
 			data.push(l);
 		}
+		console.log(data);
 		return data;
 	}
 
@@ -138,6 +139,7 @@ export const Profile = (props: IProfileProps) => {
 					innerRadius={50}
 					data={create_game_pie()}
 					/>
+					{}
 				</Box>
 			</div>
 		</ProfileDiv>

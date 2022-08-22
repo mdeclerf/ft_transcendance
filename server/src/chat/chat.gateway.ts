@@ -20,27 +20,26 @@ export class ChatGateway
 		@Inject(ChatService) private readonly chatService: ChatService,
 	) {}
 
-	@SubscribeMessage('chat_connection')
-	connect(client: Socket) {
-		const { channel } = client.handshake.query;
-		client.join(channel);
-	}
+	@SubscribeMessage('room_join')
+    connect(client: Socket, room: string) {
+        client.join(room);
+    }
 
-	@SubscribeMessage('room_switch')
-	roomSwitch(client: Socket, roomInfo: RoomInfo) {
-		const { prevRoom, room } = roomInfo;
-		if (prevRoom) {
-			client.leave(prevRoom);
-		}
-		if (room) {
-			client.join(room);
-		}
-	}
+    @SubscribeMessage('room_switch')
+    roomSwitch(client: Socket, roomInfo: RoomInfo) {
+        const { prevRoom, room } = roomInfo;
+        if (prevRoom) {
+            client.leave(prevRoom);
+        }
+        if (room) {
+            client.join(room);
+        }
+    }
 
-	@SubscribeMessage('message_send')
-	messageSend(socket: Socket, message: CreateChatDto) {
-		this.chatService.createMessage(message);
-		const { room } = message;
-		socket.broadcast.to(room.name).emit('new_message', message);
-	}
+    @SubscribeMessage('message_send')
+    messageSend(socket: Socket, message: CreateChatDto) {
+        this.chatService.createMessage(message);
+        const { room } = message;
+        socket.broadcast.to(room.name).emit('new_message', message);
+    }
 }
