@@ -26,6 +26,8 @@ import AuthCode, { AuthCodeRef } from 'react-auth-code-input';
 import axios from 'axios/';
 import { PlayGame } from './Game/Leave';
 import { Chat } from './Chat/Chat';
+import { Friends } from './Components/Friends';
+import { socket } from './socket';
 
 const fabStyle = {
 	position: 'absolute',
@@ -55,6 +57,10 @@ function App() {
 		};
 	}, []);
 
+	useEffect(() => {
+		socket.emit('identity', user.id);
+	}, [user.id]);
+
 	const handleChange = (res: string) => {
 		setTwoFactorCode(res);
 		AuthInputDivRef.current?.classList.remove('error');
@@ -77,84 +83,83 @@ function App() {
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
 			<ThemeProvider theme={colors ? theme_1 : theme_2}>
+				<Header user={user} error={error}/>
+				<CssBaseline/>
+				<Fab sx={fabStyle} color="primary" onClick={() => setColors((prev: any) => !prev)}>
+					<ColorLensIcon />
+				</Fab>
 
-			<Header user={user} error={error}/>
-
-			<CssBaseline/>
-			<Fab sx={fabStyle} color="primary" onClick={() => setColors((prev: any) => !prev)}>
-				<ColorLensIcon />
-			</Fab>
-
-			{((user && !user.isTwoFactorAuthenticationEnabled) || (user && user.isTwoFactorAuthenticationEnabled && user.isSecondFactorAuthenticated)) && !error ?
-				<Routes>
-					<Route path="/" element={<WelcomePage/>} />
-					<Route path="/chat" element={<Chat/>}/>
-					<Route path="/game" element={<Mode/> }/>
-					<Route path="/profile" element={<UserPage userProps={user}/>} />
-					<Route path="/user/:username" element={<UserPage/>}/>
-					<Route path="/account" element={<MyAccount user={user} setUser={setUser}/>} />
-					<Route path="/logout" element={<Logout/>}/>
-					<Route path="/2fa" element={<TwoFactor user={user} />}/>
+				{((user && !user.isTwoFactorAuthenticationEnabled) || (user && user.isTwoFactorAuthenticationEnabled && user.isSecondFactorAuthenticated)) && !error ?
+					<Routes>
+						<Route path="/" element={<WelcomePage/>} />
+						<Route path="/chat" element={<Chat/>}/>
+						<Route path="/game" element={<Mode/> }/>
+						<Route path="/profile" element={<UserPage userProps={user}/>} />
+						<Route path="/user/:username" element={<UserPage/>}/>
+						<Route path="/account" element={<MyAccount user={user} setUser={setUser}/>} />
+						<Route path="/logout" element={<Logout/>}/>
+						<Route path="/2fa" element={<TwoFactor user={user} />}/>
 
 
-					<Route path="/leaderboard" element={
-						<Grid container justifyContent='center' sx={{pt: 10}}>
-							<LeaderBoard user={user} />
-						</Grid>} />
+						<Route path="/leaderboard" element={
+							<Grid container justifyContent='center' sx={{pt: 10}}>
+								<LeaderBoard user={user} />
+							</Grid>} />
 
-					<Route path='/chatmode' element={
-						<Grid container justifyContent='center'>
-							<Canvas/>
-						</Grid> }>
-					</Route>
+						<Route path='/chatmode' element={
+							<Grid container justifyContent='center'>
+								<Canvas/>
+							</Grid> }>
+						</Route>
 
-					<Route path='/play' element={
-						<PlayGame user={user}/> }>
-					</Route>
+						<Route path='/play' element={
+							<PlayGame user={user}/> }>
+						</Route>
 
-					<Route path='/watch' element={
-						<Grid container justifyContent='center'>
-							<Watch/>
-						</Grid> }>
-					</Route>
+						<Route path='/watch' element={
+							<Grid container justifyContent='center'>
+								<Watch/>
+							</Grid> }>
+						</Route>
 
-				</Routes>
-				:
-				<Routes>
-					{ user?.isTwoFactorAuthenticationEnabled && 
-						<Route 
-							path="*" 
-							element={
-								<CenteredDiv>
-									<h1>Welcome{user.username}</h1>
-									<Avatar
-										alt={user?.username}
-										src={user?.photoURL}
-										sx={{
-											minWidth: { xs: 255 },
-											minHeight: { xs: 255 }
-										}}
-									/>
-									<br/><br/>
-									<div ref={AuthInputDivRef}>
-										<AuthCode 
-											allowedCharacters='numeric'
-											onChange={handleChange}
-											inputClassName='authCodeInput'
-											containerClassName='authCodeContainer'
-											ref={AuthInputRef}
+					</Routes>
+					:
+					<Routes>
+						{ user?.isTwoFactorAuthenticationEnabled && 
+							<Route 
+								path="*" 
+								element={
+									<CenteredDiv>
+										<h1>Welcome{user.username}</h1>
+										<Avatar
+											alt={user?.username}
+											src={user?.photoURL}
+											sx={{
+												minWidth: { xs: 255 },
+												minHeight: { xs: 255 }
+											}}
 										/>
-									</div>
-									<Button ref={ButtonRef} onClick={handleClick} variant="contained">Login with 2FA</Button>
-								</CenteredDiv>
-							}
-						/>
-					}
-					{ !user?.isTwoFactorAuthenticationEnabled && 
-						<Route path="*" element={<LoginPage />}></Route>
-					}
-				</Routes>
-			}
+										<br/><br/>
+										<div ref={AuthInputDivRef}>
+											<AuthCode 
+												allowedCharacters='numeric'
+												onChange={handleChange}
+												inputClassName='authCodeInput'
+												containerClassName='authCodeContainer'
+												ref={AuthInputRef}
+											/>
+										</div>
+										<Button ref={ButtonRef} onClick={handleClick} variant="contained">Login with 2FA</Button>
+									</CenteredDiv>
+								}
+							/>
+						}
+						{ !user?.isTwoFactorAuthenticationEnabled && 
+							<Route path="*" element={<LoginPage />}></Route>
+						}
+					</Routes>
+				}
+				<Friends user={user} />
 			</ThemeProvider>
 		</div>
 	);

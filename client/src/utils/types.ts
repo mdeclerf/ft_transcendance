@@ -1,6 +1,7 @@
 export type User = {
 	id: string;
 	intraId: string;
+	status: string;
 	photoURL: string;
 	username: string;
 	displayName: string;
@@ -11,6 +12,12 @@ export type User = {
 export type NameChangeResponse = {
 	taken: boolean;
 	user: User;
+}
+
+export type AutoCompleteResult = {
+	username: string;
+	photoURL: string;
+	displayName: string;
 }
 
 export type Game = {

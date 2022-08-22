@@ -1,16 +1,16 @@
 import { Inject } from '@nestjs/common';
-import { WebSocketGateway, SubscribeMessage } from '@nestjs/websockets';
-import { Socket } from 'socket.io';
+import { WebSocketGateway, SubscribeMessage, WebSocketServer } from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 import { RoomInfo } from '../utils/types';
 import { CreateChatDto, Room, User } from '../typeorm/';
 
-@WebSocketGateway({
-	cors: {
-		origin: "http://localhost:3000",
-		methods: ["GET", "POST"],
-	},
-})
+// @WebSocketGateway({
+// 	cors: {
+// 		origin: "http://localhost:3000",
+// 		methods: ["GET", "POST"],
+// 	},
+// })
 
 // @UseGuards(JwtAuthGuard)
 @WebSocketGateway({ cors: true })
@@ -20,10 +20,13 @@ export class ChatGateway
 		@Inject(ChatService) private readonly chatService: ChatService,
 	) {}
 
+	@WebSocketServer()
+	server: Server;
+
 	@SubscribeMessage('room_join')
 	connect(client: Socket, room: string) {
 		client.join(room);
-		console.log(client.rooms);
+		console.log(this.server.sockets.adapter.rooms.get(room));
 	}
 
 	@SubscribeMessage('room_switch')

@@ -1,5 +1,6 @@
-import { Column, Entity, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Chat, ChatUser, Friendlist, Game } from "../";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Chat, Game } from "../";
+import { Subscription } from "./subscription.entity";
 
 @Entity({ name: 'users' })
 export class User {
@@ -13,6 +14,9 @@ export class User {
 	@Column ({type: 'text'})
 	public username: string;
 
+	@Column({ default: 'offline' })
+	status: 'online' | 'offline' | 'in_game';
+
 	@Column ({type: 'text', name: 'display_name'})
 	public displayName: string;
 
@@ -25,17 +29,23 @@ export class User {
 	@Column ({default: false})
 	public isTwoFactorAuthenticationEnabled: boolean;
 
+	@Column({ name: '2fa_authed', default: false })
+	isSecondFactorAuthenticated: boolean;
+
 	@OneToMany(() => Chat, (chat) => chat.user)
 	chat: Chat[]
+
+	@Column({name: 'socket_id', nullable: true})
+	socketId: string;
 
 	// @OneToMany(() => ChatUser, (chat_user) => chat_user.user)
 	// chat_user: ChatUser[]
 
-	// @OneToMany(() => Friendlist, (friendlist) => friendlist.user)
-	// friendlist: Friendlist[]
+	@OneToMany(type => Subscription, subscription => subscription.subscriber)
+	subscriptions: Subscription[];
 
-	// @OneToMany(() => Friendlist, (friendlist) => friendlist.friend)
-	// friendof: Friendlist[]
+	@OneToMany(type => Subscription, subscription => subscription.subscribedTo)
+	subscribers: Subscription[];
 
 	@OneToMany(() => Game, (game) => game.player_1)
 	p1_game: Game[]

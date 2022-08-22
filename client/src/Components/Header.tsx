@@ -5,6 +5,7 @@ import { styled } from '@mui/material/styles';
 import { Account } from './Account';
 import { User } from '../utils/types';
 import { Link } from 'react-router-dom';
+import { SearchBar } from './Search';
 // import React, { useState } from 'react';
 
 const StyledToolbar = styled(Toolbar)`
@@ -38,7 +39,7 @@ export function Header (props: IHeaderProps) {
 	
 	const transcendenceLogo = (
 		<Typography 
-			variant="h6" 
+			variant="h5" 
 			component={Link}
 			to="/"
 			sx={{
@@ -53,63 +54,6 @@ export function Header (props: IHeaderProps) {
 			Transcendence
 		</Typography>
 	)
-
-	// const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-	// const open = Boolean(anchorEl);
-
-	// const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
-	// 	setAnchorEl(event.currentTarget);
-	// };
-
-	// const handleClose = () => {
-	// 	setAnchorEl(null);
-	// };
-
-	// const homeButton = (
-	// 	<div>
-	// 		<Button
-	// 			id="basic-button"
-	// 			variant="contained"
-	// 			aria-controls={open ? 'basic-menu' : undefined}
-	// 			aria-haspopup="true"
-	// 			aria-expanded={open ? 'true' : undefined}
-	// 			onClick={handleClick}
-	// 		>
-	// 			Transcendence
-	// 		</Button>
-	// 		<Typography
-	// 			id="basic-button"
-	// 			variant="h6"
-	// 			aria-controls={open ? 'basic-menu' : undefined}
-	// 			aria-haspopup="true"
-	// 			aria-expanded={open ? 'true' : undefined}
-	// 			onClick={handleClick}
-	// 			sx={{
-	// 				fontFamily: 'Work Sans, sans-serif',
-	// 				fontWeight: 700,
-	// 				color: 'inherit',
-	// 				textDecoration: 'none',
-	// 			}}
-	// 		>
-	// 			Transcendence
-	// 		</Typography>
-	// 		<Menu
-	// 			id="basic-menu"
-	// 			anchorEl={anchorEl}
-	// 			open={open}
-	// 			onClose={handleClose}
-	// 			MenuListProps={{
-	// 			'aria-labelledby': 'basic-button',
-	// 			}}
-	// 		>
-	// 		<MenuItem component={Link} to="/" onClick={handleClose}>Homepage</MenuItem>
-	// 		<MenuItem component={Link} to="/chat" onClick={handleClose}>Chat</MenuItem>
-	// 		<MenuItem component={Link} to="/play" onClick={handleClose}>Play</MenuItem>
-	// 		<MenuItem component={Link} to="/watch" onClick={handleClose}>Watch</MenuItem>
-	// 		<MenuItem component={Link} to="/leaderboard" onClick={handleClose}>Board</MenuItem>
-	// 	</Menu>
-	// 	</div>
-	// )
 
 	const buttons = (
 		<Stack spacing={2} direction="row">
@@ -174,6 +118,7 @@ export function Header (props: IHeaderProps) {
 				{transcendenceLogo}
 				{/* {homeButton} */}
 				<div>{buttons}</div>
+				<div style={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}><SearchBar /></div>
 				<div>{loginButton}</div>
 			</StyledToolbar>
 		)
