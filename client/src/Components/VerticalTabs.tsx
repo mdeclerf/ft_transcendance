@@ -1,7 +1,6 @@
-import { Box, CircularProgress, FormGroup, Button, Tab, Tabs, TextField, Typography } from '@mui/material';
+import { Box, Button, Tab, Tabs, TextField, Typography, Divider } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import * as React from 'react';
-import { CenteredDiv } from '../utils/styles';
 import { Message, MessageGroup, Room, User } from '../utils/types';
 import { ChatMsg } from './ChatMsg';
 
@@ -12,12 +11,25 @@ interface ITabPanelProps {
 	index: number;
 	value: number;
 	messageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-	messageSend: (event: React.FormEvent) => void;
+	messageSend: () => void;
 }
 
 const TabPanel = (props: ITabPanelProps) => {
 	const { title, message, children, value, index, messageChange, messageSend } = props;
-	const formRef = React.useRef<HTMLFormElement>(null);
+	const divRef = React.useRef<HTMLDivElement>(null);
+
+	const handleInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
+		if (event.key === "Enter") {
+			event.preventDefault();
+			messageSend();
+		}
+	};
+
+	React.useEffect(() => {
+		if (divRef && divRef.current) {
+			divRef.current.scrollTo(0, divRef.current.scrollHeight);
+		}
+	}, [children])
 
 	return (
 		<div
@@ -29,17 +41,16 @@ const TabPanel = (props: ITabPanelProps) => {
 		>
 			{value === index && (
 				<Box sx={{ p: 3, minWidth: '80vw', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
-					<Typography sx={{ flexGrow: 0 }}>{title}</Typography>
-					<div style={{ flexGrow: 1, maxHeight: '80vh', overflowY: 'auto' }}>
+					<Typography sx={{ flexGrow: 0 }} variant="h4">{title}</Typography>
+					<Divider />
+					<div style={{ flexGrow: 1, maxHeight: '80vh', overflowY: 'auto' }} ref={divRef}>
 						{children}
 					</div>
-					<form ref={formRef} onSubmit={messageSend} style={{ flexGrow: 0 }}>
-						<FormGroup sx={{ display: 'flex', flexDirection: 'row'}}>
-							<TextField sx={{ flexGrow: 1 }} onChange={messageChange} value={message}/>
-							<Button type="submit" variant="outlined" >
+					<form style={{ flexGrow: 0, display: 'flex', flexDirection: 'row' }}>
+							<TextField sx={{ flexGrow: 1 }} onChange={messageChange} value={message} onKeyDown={handleInput} autoComplete="off"/>
+							<Button variant="outlined" onClick={messageSend}>
 								<SendIcon />
 							</Button>
-						</FormGroup>
 					</form>
 				</Box>
 			)}
@@ -62,16 +73,15 @@ export interface IVerticalTabsProps {
 	switchRooms: (room: Room) => void;
 	messagesLoading: boolean;
 	messageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
-	messageSend: (event: React.FormEvent) => void;
+	messageSend: () => void;
 };
 
 export const VerticalTabs = (props: IVerticalTabsProps) => {
 	const { rooms, message, messages, currentUser, switchRooms, messagesLoading, messageChange, messageSend } = props;
 	const [value, setValue] = React.useState(0);
+	const [formattedMessages, setFormattedMessages] = React.useState<MessageGroup[]>([]);
 
-	const mapChatBubbles = () => {
-		if (messagesLoading) return <CenteredDiv><CircularProgress /></CenteredDiv>;
-
+	React.useEffect(() => {
 		const msgGrp: MessageGroup[] = [];
 		for (let i = 0; i < messages.length; i++) {
 			if (i === 0 || messages[i - 1].user.id !== messages[i].user.id) {
@@ -85,7 +95,12 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 			}
 		}
 
-		return msgGrp.map((msg, i) => {
+		setFormattedMessages([]);
+		setFormattedMessages(msgGrp);
+	}, [messages]);
+
+	const mapChatBubbles = () => {
+		return formattedMessages.map((msg, i) => {
 			return (
 				<ChatMsg
 					avatar={msg.side === 'left' ? msg.user.photoURL : ''}

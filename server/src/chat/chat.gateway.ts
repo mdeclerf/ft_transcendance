@@ -3,7 +3,7 @@ import { WebSocketGateway, SubscribeMessage } from '@nestjs/websockets';
 import { Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 import { RoomInfo } from '../utils/types';
-import { CreateChatDto, Room } from '../typeorm/';
+import { CreateChatDto, Room, User } from '../typeorm/';
 
 @WebSocketGateway({
 	cors: {
@@ -23,6 +23,7 @@ export class ChatGateway
 	@SubscribeMessage('room_join')
 	connect(client: Socket, room: string) {
 		client.join(room);
+		console.log(client.rooms);
 	}
 
 	@SubscribeMessage('room_switch')

@@ -17,7 +17,6 @@ import { Fab } from '@mui/material';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
 import { Avatar, Button, CircularProgress } from '@mui/material/';
 import { CenteredDiv } from './utils/styles';
-import { Profile } from './Pages/Profile';
 import { MyAccount } from './Pages/MyAccount';
 import { WelcomePage } from './Pages/WelcomePage';
 import { UserPage } from './Pages/UserPage';
@@ -25,7 +24,6 @@ import { TwoFactor } from './Pages/TwoFactor';
 import AuthCode, { AuthCodeRef } from 'react-auth-code-input';
 import axios from 'axios/';
 import { PlayGame } from './Game/Leave';
-import { useFetchUser } from './utils/hooks/useFetchUser';
 import { Chat } from './Chat/Chat';
 
 const fabStyle = {

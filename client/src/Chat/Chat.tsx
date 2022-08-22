@@ -33,7 +33,8 @@ export function Chat (props: IChatProps) {
 		} else if (room) {
 			initiateSocket(room.name);
 		}
-	}, [room, prevRoom]);
+	// eslint-disable-next-line
+	}, [room]);
 
 	// get available rooms
 	useEffect(() => {
@@ -63,10 +64,9 @@ export function Chat (props: IChatProps) {
 		setMessage(event.target.value);
 	}
 
-	const handleMessageSend = (event: React.FormEvent) => {
+	const handleMessageSend = () => {
 		if (!message || !user) return;
 
-		event.preventDefault();
 		const data: Message = { room: room, body: message, user };
 		setMessages((messages) => [...messages, data]);
 		sendMessage(data);
@@ -77,11 +77,11 @@ export function Chat (props: IChatProps) {
 		setMessages([]);
 		setMessagesLoading(true);
 
-		setRoom(targetRoom);
-		fetchRoomMessages(room.name).then((res: Message[]) => {
+		fetchRoomMessages(targetRoom.name).then((res: Message[]) => {
 			setMessages(res);
 			setMessagesLoading(false);
 		});
+		setRoom(targetRoom);
 	}
 
 	if (roomsLoading) return <CenteredDiv><CircularProgress /></CenteredDiv>
