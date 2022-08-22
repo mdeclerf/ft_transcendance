@@ -88,7 +88,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 		return msgGrp.map((msg, i) => {
 			return (
 				<ChatMsg
-					avatar={msg.side === 'left' ? msg.user.photoURL : ''}
+					user={msg.side === 'left' ? msg.user : undefined}
 					messages={msg.messages}
 					side={msg.side}
 					key={i}
