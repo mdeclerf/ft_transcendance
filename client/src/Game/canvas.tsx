@@ -42,7 +42,6 @@ function Canvas() {
 	const [room, setRoom] = useState<string>("");
 	const [disconnection, setDisconnection] = useState<boolean>(false);
 	const [isRunning, setIsRunning] = useState<boolean>(false);
-	const [replay, setReplay] = useState<boolean>(false);
 	const [disabled, setDisabled] = useState<boolean>(false);
 	const [firstPScore, setFirstPScore] = useState<string>("0");
 	const [opponent, setOpponent] = useState<string>("");
@@ -57,10 +56,6 @@ function Canvas() {
 		setDisabled(true);
 	};
 
-	const handlePlayClick = () => {
-		socket.emit('play_again', room_number, {player_status});
-	};
-
 	const handleDialogClose = () => {
 		setDialogOpen(false);
 	};
@@ -68,7 +63,7 @@ function Canvas() {
 
 	const joinRoom = () => {
 		if (room !== "") {
-			socket.emit("join_room", room, user?.username);
+			socket.emit("join_room", room, user);
 			room_number = room;
 		}
 	};
@@ -106,10 +101,6 @@ function Canvas() {
 		setDisconnection(true);
 		setIsRunning(false);
 		socket.emit("kill_game", room_number);
-	});
-
-	socket.on('replay', (message:string) => {
-		setReplay(true);
 	});
 
 	const draw_players = (context:any, player1_y: number, player2_y: number, ball_x: number, ball_y: number) => {
@@ -157,7 +148,6 @@ function Canvas() {
 		socket.on('getPosition', (message: string) => {
 			setDisabled(false);
 			setDisconnection(false);
-			setReplay(false);
 			let data = message.split(" ");
 			draw_players(context, parseInt(data[0]), parseInt(data[1]), parseInt(data[2]), parseInt(data[3]));
 			setFirstPScore(data[4]);
@@ -210,10 +200,6 @@ function Canvas() {
 
 		{( location.pathname === "/play" && !isRunning && disabled) && 
 			<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif' }} disabled>I want to play, add me to queue !</Button>
-		}
-
-		{((location.pathname === "/chatmode" && replay && player_status !== "Watching"))&&
-			<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif'}} onClick={handlePlayClick}>Play again !</Button>
 		}
 
 		{/* **************************** Scores *****************************/}

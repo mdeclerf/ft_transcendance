@@ -12,6 +12,9 @@ export interface IProfileProps {
 export const Profile = (props: IProfileProps) => {
 	const { user, games } = props;
 
+	console.log(games);
+	console.log(games?.length);
+
 	let backHeight: number;
 	if (games)
 		backHeight = games.length * 80;
@@ -125,7 +128,7 @@ export const Profile = (props: IProfileProps) => {
 				</Box>
 
 				{getTypography('Wins and losses')}
-				<Box sx={{
+				{ (games?.length !== 0) && <Box sx={{
 						width: 600,
 						height: 300,
 						backgroundColor: 'primary.main',
@@ -137,7 +140,14 @@ export const Profile = (props: IProfileProps) => {
 					innerRadius={50}
 					data={create_game_pie()}
 					/>
-				</Box>
+				</Box> }
+				{ (games?.length === 0) && <Box sx={{
+						width: 600,
+						height: 50,
+						backgroundColor: 'primary.main',
+						borderRadius: '20px',
+					}}>
+				</Box> }
 			</div>
 		</ProfileDiv>
 	)

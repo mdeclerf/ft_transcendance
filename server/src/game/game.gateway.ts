@@ -153,13 +153,7 @@ class Pong{
 				this.second_player.socket.emit("getPosition", `${this.second_player.y_pos} ${this.first_player.y_pos} ${CANVAS_WIDTH - this.ball_x} ${this.ball_y} ${this.first_player.score} ${this.second_player.score} `);
 				this.database_create(this.first_player.id, this.second_player.id);
 
-				if (this.mode === "chat")
-				{
-					this.first_player.socket.emit("replay", "");
-					this.second_player.socket.emit("replay", "");
-				}
-				else
-					this.is_over = true;
+				this.is_over = true;
 			}
 			await sleep(50);
 		}
@@ -263,8 +257,8 @@ export class GameGateway implements OnGatewayDisconnect {
 	Game: Map<string, Pong> = new Map();
 	queue: Player[] = [];
 
-	@SubscribeMessage("join_room") // NOT TESTED
-	handleRoom(client: Socket, message: any) : void {
+	@SubscribeMessage("join_room")
+	handleRoom(client: Socket, message: UserDetails) : void {
 		client.join(message[0]);
 
 		if (!this.Game.has(message[0]))
@@ -314,17 +308,6 @@ export class GameGateway implements OnGatewayDisconnect {
 			} else if (message[1] == 'o' && this.Game.get(message[0]).first_player && this.Game.get(message[0]).second_player) {
 				this.Game.get(message[0]).set_delta(0, client.id);
 			}
-		}
-	}
-
-	@SubscribeMessage('play_again')
-	handleReplay(client: Socket, message: string) : void {
-		if (!JSON.stringify(message[1]).includes("Watching") && !this.Game.get(message[0]).is_running)
-		{
-			this.Game.get(message[0]).is_running = true;
-			this.Game.get(message[0]).first_player.score = 0;
-			this.Game.get(message[0]).second_player.score = 0;
-			this.Game.get(message[0]).run_game();
 		}
 	}
 
