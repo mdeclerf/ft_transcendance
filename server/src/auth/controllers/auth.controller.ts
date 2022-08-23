@@ -7,7 +7,7 @@ import { AuthenticatedGuard, IntraAuthGuard } from '../guards/intra-oauth.guard'
 @Controller('auth')
 export class AuthController {
 	
-	constructor(@Inject('USER_SERVICE') private readonly userService: UserService) {}
+	constructor(@Inject(UserService) private readonly userService: UserService) {}
 
 	@Get('login')
 	@UseGuards(IntraAuthGuard)

@@ -14,7 +14,7 @@ export class User {
 	@Column ({type: 'text'})
 	public username: string;
 
-	@Column({ default: 'offline' })
+	@Column({ default: 'online' })
 	status: 'online' | 'offline' | 'in_game';
 
 	@Column ({type: 'text', name: 'display_name'})
@@ -23,13 +23,13 @@ export class User {
 	@Column ({type: 'text', name: 'photo_url', nullable: true})
 	public photoURL: string;
 
-	@Column ({type: 'text', nullable: true})
+	@Column ({type: 'text', nullable: true, name: "two_factor_secret"})
 	public twoFactorAuthenticationSecret: string;
 
-	@Column ({default: false})
+	@Column ({default: false, name: "two_factor_enabled"})
 	public isTwoFactorAuthenticationEnabled: boolean;
 
-	@Column({ name: '2fa_authed', default: false })
+	@Column({ name: 'two_factor_authed', default: false })
 	isSecondFactorAuthenticated: boolean;
 
 	@OneToMany(() => Chat, (chat) => chat.user)

@@ -12,14 +12,8 @@ import { SessionSerializer } from './utils/Serializer';
 	providers: [
 		IntraStrategy,
 		SessionSerializer,
-		{
-			provide: 'AUTH_SERVICE',
-			useClass: AuthService,
-		},
-		{
-			provide: 'USER_SERVICE',
-			useClass: UserService,
-		}
+		AuthService,
+		UserService
 	],
 	imports: [
 		TypeOrmModule.forFeature([User, Session, Game, Subscription])

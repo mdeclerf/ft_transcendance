@@ -21,7 +21,7 @@ export function ChatMsg (props: IChatMsgProps) {
 		AvatarProps
 	} = props;
 
-	let currentUser: User = useFetchCurrentUser().user;
+	const { user: currentUser } = useFetchCurrentUser();
 
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const open = Boolean(anchorEl);
@@ -108,7 +108,7 @@ export function ChatMsg (props: IChatMsgProps) {
 									side === 'right' && {
 										borderTopLeftRadius: '20px',
 										borderBottomLeftRadius: '20px',
-										backgroundColor: '#4251af',
+										backgroundColor: 'primary',
 										color: 'white',
 									},
 									(i === 0 && side === 'left') && {

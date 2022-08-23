@@ -3,22 +3,17 @@ import { getAuthStatus } from "../api";
 import { User } from "../types";
 
 export function useFetchCurrentUser() {
-	const [ user, setUser ] = useState<User>({ id: '0', intraId: '0', status: 'offline', photoURL: '', username: '', displayName: '', isSecondFactorAuthenticated: false, isTwoFactorAuthenticationEnabled: false });
-	const [ error, setError ] = useState();
-	const [ loading, setLoading ] = useState(false);
+	const [ user, setUser ] = useState<User>();
 
 	useEffect(() => {
-		setLoading(true);
 		getAuthStatus()
 			.then(({ data }) => {
-				setLoading(false);
 				setUser(data);
 			})
 			.catch((err) => {
-				setLoading(false);
-				setError(err);
+				if (err) throw err;
 			});
 	}, [])
 
-	return { user, error, loading, setUser };
+	return { user, setUser };
 }

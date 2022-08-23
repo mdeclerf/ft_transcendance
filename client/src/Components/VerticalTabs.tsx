@@ -69,7 +69,7 @@ export interface IVerticalTabsProps {
 	rooms: Room[];
 	message: string;
 	messages: Message[];
-	currentUser: User;
+	currentUser: User | undefined;
 	switchRooms: (room: Room) => void;
 	messagesLoading: boolean;
 	messageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
@@ -86,7 +86,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 		for (let i = 0; i < messages.length; i++) {
 			if (i === 0 || messages[i - 1].user.id !== messages[i].user.id) {
 				msgGrp.push({ 
-					side: (messages[i].user.id === currentUser.id) ? 'right' : 'left', 
+					side: (messages[i].user.id === currentUser?.id) ? 'right' : 'left', 
 					messages: [messages[i].body], 
 					user: messages[i].user
 				});
@@ -97,7 +97,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 
 		setFormattedMessages([]);
 		setFormattedMessages(msgGrp);
-	}, [messages, currentUser.id]);
+	}, [messages, currentUser?.id]);
 
 	const mapChatBubbles = () => {
 		return formattedMessages.map((msg, i) => {

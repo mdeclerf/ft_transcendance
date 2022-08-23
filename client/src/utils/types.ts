@@ -1,3 +1,5 @@
+import { AxiosError } from "axios";
+
 export type User = {
 	id: string;
 	intraId: string;
@@ -33,7 +35,7 @@ export type Result = {
 	y : number
 }
 
-export type UserResponse = {
+export type UserQueryResponse = {
 	found: boolean;
 	user: User;
 	games: Game[];

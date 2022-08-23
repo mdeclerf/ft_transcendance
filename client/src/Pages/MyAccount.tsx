@@ -7,7 +7,7 @@ import { NameChangeResponse, User } from "../utils/types"
 
 export interface IMyAccountProps {
 	user: User;
-	setUser: React.Dispatch<React.SetStateAction<User>>
+	setUser: React.Dispatch<React.SetStateAction<User | undefined>>;
 }
 
 export const MyAccount = (props: IMyAccountProps) => {
@@ -20,7 +20,7 @@ export const MyAccount = (props: IMyAccountProps) => {
 			axios.get<NameChangeResponse>(`http://localhost:3001/api/user/name_change?username=${event.target.value}`, { withCredentials: true })
 				.then(res => {
 					setTaken(res.data.taken);
-					setUser(res.data.user);
+					if (setUser) setUser(res.data.user);
 				})
 		}
 	}

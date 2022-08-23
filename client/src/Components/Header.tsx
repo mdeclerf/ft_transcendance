@@ -15,17 +15,16 @@ const StyledToolbar = styled(Toolbar)`
 
 export interface IHeaderProps {
 	user: User | undefined;
-	error: undefined;
 }
 
 export function Header (props: IHeaderProps) {
-	const { user, error } = props;
+	const { user } = props;
 
 	const redirect = () => {
 		window.location.href = "http://localhost:3001/api/auth/login";
 	}
 
-	const loginButton = (user && !error) ? (
+	const loginButton = (user) ? (
 		<Account user={user} />
 	) : (
 		<Button

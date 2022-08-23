@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Routes, Route} from 'react-router-dom/';
 import { LoginPage } from './Pages/LoginPage';
 import { useFetchCurrentUser } from './utils/hooks/useFetchCurrentUser';
-//import Chat from "./Chat/Chat";
 import { Logout } from './Pages/Logout';
 import Mode from './Game/Mode';
 import theme_2 from './themes/2';
@@ -38,7 +37,7 @@ const fabStyle = {
 };
 
 function App() {
-	let { user, error, loading, setUser } = useFetchCurrentUser();
+	const { user, setUser } = useFetchCurrentUser();
 	const [twoFactorCode, setTwoFactorCode] = useState('');
 	const AuthInputRef = useRef<AuthCodeRef>(null);
 	const AuthInputDivRef = useRef<HTMLDivElement>(null);
@@ -57,13 +56,13 @@ function App() {
 		document.addEventListener("keydown", keyDownHandler);
 		return () => {
 			document.removeEventListener("keydown", keyDownHandler);
+			socket.close();
 		};
 	}, []);
 
 	useEffect(() => {
-		socket.emit('identity', user.id);
-
-	}, [user.id]);
+		if (user) socket.emit('identity', user?.id);
+	}, [user]);
 	
 	useEffect(() => {
 		socket.on('invited', (message:User) => {
@@ -90,18 +89,16 @@ function App() {
 			})
 	}
 
-	if (loading) return <CenteredDiv><CircularProgress /></CenteredDiv>
-
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
 			<ThemeProvider theme={colors ? theme_1 : theme_2}>
-				<Header user={user} error={error}/>
+				<Header user={user}/>
 				<CssBaseline/>
 				<Fab sx={fabStyle} color="primary" onClick={() => setColors((prev: any) => !prev)}>
 					<ColorLensIcon />
 				</Fab>
 
-				{((user && !user.isTwoFactorAuthenticationEnabled) || (user && user.isTwoFactorAuthenticationEnabled && user.isSecondFactorAuthenticated)) && !error ?
+				{((user && !user.isTwoFactorAuthenticationEnabled) || (user && user.isTwoFactorAuthenticationEnabled && user.isSecondFactorAuthenticated)) ?
 					<Routes>
 						<Route path="/" element={<WelcomePage/>} />
 						<Route path="/chat" element={<Chat/>}/>
@@ -142,7 +139,7 @@ function App() {
 								path="*" 
 								element={
 									<CenteredDiv>
-										<h1>Welcome{user.username}</h1>
+										<h1>Welcome {user.username}</h1>
 										<Avatar
 											alt={user?.username}
 											src={user?.photoURL}
