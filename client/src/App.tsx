@@ -65,12 +65,6 @@ function App() {
 	}, [user]);
 	
 	useEffect(() => {
-		socket.on('invited', (message: User) => {
-			console.log("HERERERERE");
-			setInvitation(true);
-			setInvitingUser(message);
-		});
-
 		socket.on('invitation_alert', (message:User) => {
 			setInvitation(true);
 			setInvitingUser(message);
@@ -120,7 +114,7 @@ function App() {
 
 						<Route path='/chatmode' element={
 							<Grid container justifyContent='center'>
-								<Canvas/>
+								<Canvas user={user}/>
 							</Grid> }>
 						</Route>
 

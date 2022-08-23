@@ -1,25 +1,22 @@
 
-import React, { useEffect, useRef, useState} from 'react';
-import { socket } from "../socket";
+import { Alert, Box, Table } from '@mui/material';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import { useLocation } from 'react-router-dom';
-import { Alert } from '@mui/material';
-import { Box } from '@mui/material';
-import { Table } from '@mui/material';
-import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
-import { useFetchCurrentUser } from "../utils/hooks/useFetchCurrentUser";
+import TableRow from '@mui/material/TableRow';
+import React, { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { socket } from "../socket";
+// import { useFetchCurrentUser } from "../utils/hooks/useFetchCurrentUser";
+import { CircularProgress, Dialog, DialogContentText } from '@mui/material';
+import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormLabel from '@mui/material/FormLabel';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
-import { Dialog } from '@mui/material';
-import { DialogContentText } from '@mui/material';
+import { User } from '../utils/types';
 import './canvas.css';
 import { Help } from './Help';
-import { CircularProgress } from '@mui/material';
 
 const up_key: string = "w";
 const down_key: string = "s";
@@ -35,9 +32,13 @@ const PADDLE_MARGIN = 10;
 const PADDLE_WIDTH = 10;
 const BALL_SIDE = 10;
 
-function Canvas() {
+export interface ICanvasProps {
+	user: User | undefined;
+}
 
-	const { user } = useFetchCurrentUser();
+function Canvas(props: ICanvasProps) {
+
+	const { user } = props;
 	console.log(`in component ${user?.username}`);
 	const location = useLocation();
 	const canvasRef = useRef(null);
@@ -62,10 +63,11 @@ function Canvas() {
 	};
 	///////////////
 	useEffect(() => {
-		socket.on('make_game_room', (room:string) => {
+		socket.on('make_game_room', ( room: string ) => {
 			console.log(`in make game room ${user?.username}`)
-			room_number = room;
-			socket.emit("join_room", room, user);
+			if (user) {
+				socket.emit("join_room", { room: room, user: user });
+			}
 		});
 
 		socket.on("running", (message:string) => {
@@ -73,8 +75,7 @@ function Canvas() {
 				setIsRunning(true);
 			}
 
-			if (message === 'false')
-			{
+			if (message === 'false') {
 				setIsRunning(false);
 				setDialogOpen(true);
 				socket.emit("kill_game", room_number);

@@ -3,11 +3,12 @@ import {
 	WebSocketGateway,
 	WebSocketServer,
 	OnGatewayDisconnect,
+	MessageBody,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { Logger } from '@nestjs/common';
 import { GameService } from './game.service';
-import { GameDetails } from '../utils/types';
+import { GameDetails, GameJoinRoomData } from '../utils/types';
 import { v4 as uuidv4 } from 'uuid';
 import { UserDetails } from "../utils/types";
 import { User } from 'src/typeorm';
@@ -259,12 +260,11 @@ export class GameGateway implements OnGatewayDisconnect {
 	queue: Player[] = [];
 
 	@SubscribeMessage("join_room")
-	handleRoom(client: Socket, room: string, user: UserDetails) : void {
-		console.log(`in join room ${user.username}`);
-		client.join(room);
-		if (!this.Game.has(room))
-			this.Game.set(room, new Pong(this.gameService, room, "chat"));
-		this.Game.get(room).add_player(new Player(client.id, client, user));
+	handleRoom(client: Socket, data: GameJoinRoomData) : void {
+		client.join(data.room);
+		if (!this.Game.has(data.room))
+			this.Game.set(data.room, new Pong(this.gameService, data.room, "chat"));
+		this.Game.get(data.room).add_player(new Player(client.id, client, data.user));
 	}
 
 	@SubscribeMessage("kill_game")

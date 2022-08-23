@@ -108,7 +108,7 @@ export function ChatMsg (props: IChatMsgProps) {
 									side === 'right' && {
 										borderTopLeftRadius: '20px',
 										borderBottomLeftRadius: '20px',
-										backgroundColor: 'primary',
+										backgroundColor: 'primary.main',
 										color: 'white',
 									},
 									(i === 0 && side === 'left') && {

@@ -1,5 +1,3 @@
-import { AxiosError } from "axios";
-
 export type User = {
 	id: string;
 	intraId: string;
@@ -71,4 +69,9 @@ export type CurrentMatch = {
 export type Ranking = {
 	user : User;
 	victories : number;
+}
+
+export type GameJoinRoomData = {
+	room: string;
+	user: User;
 }

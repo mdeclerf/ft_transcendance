@@ -63,7 +63,6 @@ export class ChatGateway
 		const invitingUser: User = await this.userService.findUserById(message[0]);
 		const invitedUser: User = await this.userService.findUserById(message[1]);
 		const unique_id = uuidv4();
-		console.log(` 1--> ${invitedUser.socketId} 2--> ${invitingUser.socketId}`)
 		this.server.to(invitedUser.socketId).emit("make_game_room", unique_id);
 		this.server.to(invitingUser.socketId).emit("make_game_room", unique_id);
 	}
