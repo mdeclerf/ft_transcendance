@@ -33,6 +33,10 @@ export class UserService {
 		});
 	}
 
+	findUserById(id: number): Promise<User | undefined> {
+		return this.userRepo.findOneBy({ id: id });
+	}
+
 	async findMatches(id : number) {
 		const player_1_games = await this.gameRepo.createQueryBuilder('game')
 			.leftJoinAndSelect('game.player_1', 'player_1')

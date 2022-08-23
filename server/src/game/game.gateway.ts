@@ -10,6 +10,7 @@ import { GameService } from './game.service';
 import { GameDetails } from '../utils/types';
 import { v4 as uuidv4 } from 'uuid';
 import { UserDetails } from "../utils/types";
+import { User } from 'src/typeorm';
 
 let details: GameDetails = new GameDetails;
 const CANVAS_HEIGHT = 500;
@@ -258,12 +259,12 @@ export class GameGateway implements OnGatewayDisconnect {
 	queue: Player[] = [];
 
 	@SubscribeMessage("join_room")
-	handleRoom(client: Socket, message: UserDetails) : void {
-		client.join(message[0]);
-
-		if (!this.Game.has(message[0]))
-			this.Game.set(message[0], new Pong(this.gameService, message[0], "chat"));
-		this.Game.get(message[0]).add_player(new Player(client.id, client, message[1]));
+	handleRoom(client: Socket, room: string, user: UserDetails) : void {
+		console.log(`in join room ${user.username}`);
+		client.join(room);
+		if (!this.Game.has(room))
+			this.Game.set(room, new Pong(this.gameService, room, "chat"));
+		this.Game.get(room).add_player(new Player(client.id, client, user));
 	}
 
 	@SubscribeMessage("kill_game")

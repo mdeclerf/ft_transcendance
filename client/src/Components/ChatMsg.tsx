@@ -70,7 +70,7 @@ export function ChatMsg (props: IChatMsgProps) {
 							<MenuItem component={Link} to={`/user/${user?.username}`} onClick={handleClose}>Profile</MenuItem>
 							<MenuItem component={Link} to="/chatmode" onClick={() => 
 							{
-								socket.emit("invited", [currentUser, user])
+								socket.emit("invited", [currentUser.id, user?.id])
 								setAnchorEl(null);
 							}}
 								>Invite to game</MenuItem>
