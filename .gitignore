@@ -37,3 +37,4 @@ lerna-debug.log*
 ./server/.env
 
 .env
+.prettierrc
