@@ -17,6 +17,7 @@ import RadioGroup from '@mui/material/RadioGroup';
 import { User } from '../utils/types';
 import './canvas.css';
 import { Help } from './Help';
+import { Link } from 'react-router-dom';
 
 const up_key: string = "w";
 const down_key: string = "s";
@@ -39,7 +40,6 @@ export interface ICanvasProps {
 function Canvas(props: ICanvasProps) {
 
 	const { user } = props;
-	console.log(`in component ${user?.username}`);
 	const location = useLocation();
 	const canvasRef = useRef(null);
 	const [disconnection, setDisconnection] = useState<boolean>(false);
@@ -53,7 +53,6 @@ function Canvas(props: ICanvasProps) {
 
 	//////////////
 	const handleMatchmakingClick = () => {
-		console.log(`in add to queue ${user?.username}`)
 		socket.emit('add_to_queue', user);
 		setDisabled(true);
 	};
@@ -62,9 +61,10 @@ function Canvas(props: ICanvasProps) {
 		setDialogOpen(false);
 	};
 	///////////////
+
 	useEffect(() => {
 		socket.on('make_game_room', ( room: string ) => {
-			console.log(`in make game room ${user?.username}`)
+			room_number = room;
 			if (user) {
 				socket.emit("join_room", { room: room, user: user });
 			}
@@ -161,10 +161,16 @@ function Canvas(props: ICanvasProps) {
 		<Stack spacing={2}>
 		<br></br>
 
-		{(location.pathname === "/chatmode" && !isRunning) &&
+		{(location.pathname === "/chatmode" && !isRunning && firstPScore === "0" && secondPScore === "0") &&
 			<Box justifyContent='center' sx={{ display: 'flex', }}>
 				<CircularProgress />
 			</Box>
+		}
+
+		{(location.pathname === "/chatmode" && !isRunning && (firstPScore === winning_score || secondPScore === winning_score || disconnection)) &&
+			<Button component={Link} to="/" variant="contained" >
+			Come back to the home page
+			</Button>
 		}
 
 		{/* **************************** Dialog box who has won *****************************/}

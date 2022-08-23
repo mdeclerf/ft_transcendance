@@ -80,11 +80,7 @@ export class UserService {
 		leaderBoard.forEach((value) => {
 			let tmp : Ranking = {user : value.user, victories : value.victories};
 			ret.push(tmp);
-			// console.log(`${key} | ${value}`);
 		});
-
-		// for (let i = 0; i < ret.length; i ++)
-		// 	console.log(ret[i]);
 
 		return ret;
 	}

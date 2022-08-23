@@ -19,7 +19,7 @@ export const subscribeToMessages = (callback: (data: Message) => void) => {
 
 	socket.on('new_message', (data) => {
 		callback(data);
-		console.log(data);
+		// console.log(data);
 	});
 };
 

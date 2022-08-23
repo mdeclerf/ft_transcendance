@@ -30,7 +30,7 @@ export class ChatGateway
 	@SubscribeMessage('room_join')
 	connect(client: Socket, room: string) {
 		client.join(room);
-		console.log(this.server.sockets.adapter.rooms.get(room));
+		// console.log(this.server.sockets.adapter.rooms.get(room));
 	}
 
 	@SubscribeMessage('room_switch')
@@ -63,6 +63,8 @@ export class ChatGateway
 		const invitingUser: User = await this.userService.findUserById(message[0]);
 		const invitedUser: User = await this.userService.findUserById(message[1]);
 		const unique_id = uuidv4();
+		// console.log(`inviting ${invitingUser.username} ${invitingUser.socketId}`);
+		// console.log(`invited ${invitedUser.username} ${invitedUser.socketId}`);
 		this.server.to(invitedUser.socketId).emit("make_game_room", unique_id);
 		this.server.to(invitingUser.socketId).emit("make_game_room", unique_id);
 	}
