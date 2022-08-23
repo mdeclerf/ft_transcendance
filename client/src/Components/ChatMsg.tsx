@@ -1,7 +1,10 @@
-import * as React from 'react';
-import { Grid, Typography, AvatarTypeMap, Box, Avatar, IconButton } from "@mui/material";
+import React, { useState } from 'react';
+import { Grid, Typography, AvatarTypeMap, Box, Avatar, IconButton, MenuItem, Menu } from "@mui/material";
 import { Link } from 'react-router-dom';
 import { User } from '../utils/types';
+import { socket } from "../socket";
+import { useFetchCurrentUser } from '../utils/hooks/useFetchCurrentUser';
+
 
 export interface IChatMsgProps {
 	user?: User;
@@ -18,6 +21,23 @@ export function ChatMsg (props: IChatMsgProps) {
 		AvatarProps
 	} = props;
 
+	let currentUser: User = useFetchCurrentUser().user;
+
+	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+	const open = Boolean(anchorEl);
+
+	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+		setAnchorEl(event.currentTarget);
+	};
+
+	const handleClose = () => {
+		setAnchorEl(null);
+	};
+
+	const handleBlock = () => {
+		setAnchorEl(null);
+	};
+
 	return (
 		<Grid
 			container
@@ -27,7 +47,7 @@ export function ChatMsg (props: IChatMsgProps) {
 			{side === 'left' && (
 				<Grid item>
 				<IconButton
-				component={Link} to={`/user/${user?.username}`}
+				onClick={handleClick}
 				color="inherit"
 				>
 					<Avatar
@@ -38,6 +58,24 @@ export function ChatMsg (props: IChatMsgProps) {
 							height: '32px'
 						}}
 					/>
+						<Menu
+								id="basic-menu"
+								anchorEl={anchorEl}
+								open={open}
+								onClose={handleClose}
+								MenuListProps={{
+								'aria-labelledby': 'basic-button',
+								}}
+							>
+							<MenuItem component={Link} to={`/user/${user?.username}`} onClick={handleClose}>Profile</MenuItem>
+							<MenuItem component={Link} to="/chatmode" onClick={() => 
+							{
+								socket.emit("invited", [currentUser, user])
+								setAnchorEl(null);
+							}}
+								>Invite to game</MenuItem>
+							<MenuItem onClick={handleBlock}>Block</MenuItem>
+						</Menu>
 					</IconButton>
 				</Grid>
 			)}
