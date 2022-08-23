@@ -5,7 +5,7 @@ import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
 import { useLocation } from 'react-router-dom';
 import { Alert } from '@mui/material';
-import { TextField } from '@mui/material';
+import { Box } from '@mui/material';
 import { Table } from '@mui/material';
 import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
@@ -19,6 +19,7 @@ import { Dialog } from '@mui/material';
 import { DialogContentText } from '@mui/material';
 import './canvas.css';
 import { Help } from './Help';
+import { CircularProgress } from '@mui/material';
 
 const up_key: string = "w";
 const down_key: string = "s";
@@ -37,9 +38,9 @@ const BALL_SIDE = 10;
 function Canvas() {
 
 	const { user } = useFetchCurrentUser();
+	console.log(`in component ${user?.username}`);
 	const location = useLocation();
 	const canvasRef = useRef(null);
-	const [room, setRoom] = useState<string>("");
 	const [disconnection, setDisconnection] = useState<boolean>(false);
 	const [isRunning, setIsRunning] = useState<boolean>(false);
 	const [disabled, setDisabled] = useState<boolean>(false);
@@ -51,6 +52,7 @@ function Canvas() {
 
 	//////////////
 	const handleMatchmakingClick = () => {
+		console.log(`in add to queue ${user?.username}`)
 		socket.emit('add_to_queue', user);
 		setDisabled(true);
 	};
@@ -59,48 +61,48 @@ function Canvas() {
 		setDialogOpen(false);
 	};
 	///////////////
-
-	const joinRoom = () => {
-		if (room !== "") {
-			socket.emit("join_room", room, user);
+	useEffect(() => {
+		socket.on('make_game_room', (room:string) => {
+			console.log(`in make game room ${user?.username}`)
 			room_number = room;
-		}
-	};
+			socket.emit("join_room", room, user);
+		});
 
-	socket.on("running", (message:string) => {
-		if (message === 'true'){
-			setIsRunning(true);
-		}
+		socket.on("running", (message:string) => {
+			if (message === 'true'){
+				setIsRunning(true);
+			}
 
-		if (message === 'false')
-		{
+			if (message === 'false')
+			{
+				setIsRunning(false);
+				setDialogOpen(true);
+				socket.emit("kill_game", room_number);
+			}
+		});
+
+		socket.on('assigned_room', (message:string) => {
+			room_number = message;
+		});
+
+		socket.on('winning_score', (message:string) => {
+			winning_score = message;
+		});
+
+		socket.on('players', (message:string) => {
+			player_status = message;
+		});
+
+		socket.on('opponent_login', (message:string) => {
+			setOpponent(message);
+		});
+
+		socket.on('disconnection', (message:string) => {
+			setDisconnection(true);
 			setIsRunning(false);
-			setDialogOpen(true);
 			socket.emit("kill_game", room_number);
-		}
-	});
-
-	socket.on('assigned_room', (message:string) => {
-		room_number = message;
-	});
-
-	socket.on('winning_score', (message:string) => {
-		winning_score = message;
-	});
-
-	socket.on('players', (message:string) => {
-		player_status = message;
-	});
-
-	socket.on('opponent_login', (message:string) => {
-		setOpponent(message);
-	});
-
-	socket.on('disconnection', (message:string) => {
-		setDisconnection(true);
-		setIsRunning(false);
-		socket.emit("kill_game", room_number);
-	});
+		});
+	}, [user]);
 
 	const draw_players = (context:any, player1_y: number, player2_y: number, ball_x: number, ball_y: number) => {
 		context.clearRect(-100, -100, context.canvas.width + 100, context.canvas.height + 100);
@@ -152,23 +154,16 @@ function Canvas() {
 			setFirstPScore(data[4]);
 			setSecondPScore(data[5]);
 		});
-
-	// eslint-disable-next-line
 	}, []);
 
 	return (
 		<Stack spacing={2}>
 		<br></br>
 
-		{(location.pathname === "/chatmode") &&
-			<div>
-				<TextField variant="standard" placeholder="Room Number..."
-				onChange={(event: any) => {
-					setRoom(event.target.value);
-				}}
-				/>
-				<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif'}} onClick={joinRoom}> Create Room</Button>
-			</div>
+		{(location.pathname === "/chatmode" && !isRunning) &&
+			<Box justifyContent='center' sx={{ display: 'flex', }}>
+				<CircularProgress />
+			</Box>
 		}
 
 		{/* **************************** Dialog box who has won *****************************/}
@@ -246,26 +241,6 @@ function Canvas() {
 				<canvas ref={canvasRef}></canvas>
 			</div>
 		</div>
-
-		{/* src={require({back})} Would have loved to do something like this but it's not working error : Argument of type '{ back: string; }' is not assignable to parameter of type 'string'. */}
-		{/* <FormControl>
-			<FormLabel>Map background</FormLabel>
-			<RadioGroup row value={back} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBack(e.target.value)}>
-				<FormControlLabel value="../Images/paper.webp" 
-				control={<Radio />} label="Plain" />
-				<FormControlLabel 
-				value="../Images/glitter.webp" 
-				control={<Radio />} label="Glitter" />
-				<FormControlLabel value="../Images/sand.jpeg"
-				control={<Radio />} label="Sand" />
-		
-				<FormControlLabel value="../Images/metal.webp"
-				control={<Radio />} label="Metal" />
-		
-				<FormControlLabel value="../Images/plastic.webp"
-				control={<Radio />} label="Plastic" />
-			</RadioGroup>
-		</FormControl> */}
 
 		<FormControl>
 				<FormLabel>Map background</FormLabel>

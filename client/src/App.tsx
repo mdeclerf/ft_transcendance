@@ -3,12 +3,11 @@ import { Routes, Route} from 'react-router-dom/';
 import { LoginPage } from './Pages/LoginPage';
 import { useFetchCurrentUser } from './utils/hooks/useFetchCurrentUser';
 import { Logout } from './Pages/Logout';
-import Mode from './Game/Mode';
 import theme_2 from './themes/2';
 import theme_1 from './themes/1';
 import Canvas from './Game/canvas';
 import Watch from './Game/watch';
-import { Dialog, DialogContentText, Grid } from '@mui/material';
+import { Dialog, DialogActions, DialogContentText, DialogTitle, Grid} from '@mui/material';
 import { CssBaseline } from "@mui/material";
 import { ThemeProvider } from '@mui/material/styles';
 import { Header } from './Components/Header';
@@ -28,6 +27,7 @@ import { Chat } from './Chat/Chat';
 import { Friends } from './Components/Friends';
 import { socket } from './socket';
 import { User } from './utils/types';
+import { Link } from 'react-router-dom';
 
 const fabStyle = {
 	position: 'absolute',
@@ -44,7 +44,7 @@ function App() {
 	const ButtonRef = useRef<HTMLButtonElement>(null);
 	const [colors, setColors] = React.useState(true);
 	const [invitation, setInvitation] = React.useState(false);
-	const [invitingUser, setInvitingUser] = React.useState("");
+	const [invitingUser, setInvitingUser] = React.useState<User>();
 
 	useEffect(() => {
 		const keyDownHandler = (event: KeyboardEvent) => {
@@ -65,10 +65,15 @@ function App() {
 	}, [user]);
 	
 	useEffect(() => {
-		socket.on('invited', (message:User) => {
+		socket.on('invited', (message: User) => {
 			console.log("HERERERERE");
 			setInvitation(true);
-			setInvitingUser(message.username);
+			setInvitingUser(message);
+		});
+
+		socket.on('invitation_alert', (message:User) => {
+			setInvitation(true);
+			setInvitingUser(message);
 		});
 	}, []);
 
@@ -102,13 +107,11 @@ function App() {
 					<Routes>
 						<Route path="/" element={<WelcomePage/>} />
 						<Route path="/chat" element={<Chat/>}/>
-						<Route path="/game" element={<Mode/> }/>
 						<Route path="/profile" element={<UserPage userProps={user}/>} />
 						<Route path="/user/:username" element={<UserPage/>}/>
 						<Route path="/account" element={<MyAccount user={user} setUser={setUser}/>} />
 						<Route path="/logout" element={<Logout/>}/>
 						<Route path="/2fa" element={<TwoFactor user={user} />}/>
-
 
 						<Route path="/leaderboard" element={
 							<Grid container justifyContent='center' sx={{pt: 10}}>
@@ -168,10 +171,19 @@ function App() {
 						}
 					</Routes>
 				}
+
 				<Friends user={user} />
 
-				<Dialog open={invitation} onClose={() => { setInvitation(false)}} maxWidth="md">
-					<DialogContentText sx={{ fontFamily: 'Work Sans, sans-serif', fontSize: 60, m:2}}>{invitingUser} invited you to a game !</DialogContentText>
+				<Dialog open={invitation} maxWidth="md">
+					<DialogTitle id="alert-dialog-title" sx={{mx:5, display: 'flex', justifyContent: 'center'}}>{`${invitingUser?.username} invited you to a game !`}</DialogTitle>
+					<DialogContentText id="alert-dialog-description" sx={{mx:5, display: 'flex', justifyContent: 'center'}}>Accepting the invitation will redirect you to a private game page</DialogContentText>
+					<DialogActions>
+						<Button component={Link} to="/chatmode" onClick={() => { 
+							setInvitation(false); 
+							socket.emit('invitation_accepted', [invitingUser?.id, user?.id]) }}
+						>Accept</Button>
+						<Button onClick={() => { setInvitation(false)}} autoFocus>Decline</Button>
+					</DialogActions>
 				</Dialog>
 
 			</ThemeProvider>
