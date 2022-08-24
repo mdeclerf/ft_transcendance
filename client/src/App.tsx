@@ -5,7 +5,6 @@ import { useFetchCurrentUser } from './utils/hooks/useFetchCurrentUser';
 import { Logout } from './Pages/Logout';
 import theme_2 from './themes/2';
 import theme_1 from './themes/1';
-import Canvas from './Game/canvas';
 import Watch from './Game/watch';
 import { Dialog, DialogActions, DialogContentText, DialogTitle, Grid} from '@mui/material';
 import { CssBaseline } from "@mui/material";
@@ -102,7 +101,7 @@ function App() {
 
 						<Route path='/chatmode' element={
 							<Grid container justifyContent='center'>
-								<Canvas user={user}/>
+								<PlayGame user={user}/>
 							</Grid> }>
 						</Route>
 

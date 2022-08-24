@@ -1,4 +1,4 @@
-import { Box, Button, Tab, Tabs, TextField, Typography, Divider } from '@mui/material';
+import { Box, Button, Tab, Tabs, TextField, Typography, Divider, AvatarGroup, Avatar } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import * as React from 'react';
 import { Message, MessageGroup, Room, User } from '../utils/types';
@@ -12,10 +12,12 @@ interface ITabPanelProps {
 	value: number;
 	messageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	messageSend: () => void;
+	roomUsers: User[];
+	currentUser: User | undefined;
 }
 
 const TabPanel = (props: ITabPanelProps) => {
-	const { title, message, children, value, index, messageChange, messageSend } = props;
+	const { title, message, children, value, index, messageChange, messageSend, roomUsers, currentUser } = props;
 	const divRef = React.useRef<HTMLDivElement>(null);
 
 	const handleInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -31,6 +33,18 @@ const TabPanel = (props: ITabPanelProps) => {
 		}
 	}, [children])
 
+	const getFirstFourNonSelfUsers = () => {
+		if (roomUsers.length) {
+			const tmp = roomUsers.filter(user => user.id !== currentUser?.id).slice(0, 3);
+
+			return tmp.map((user, i) => {
+				return (
+					<Avatar alt={user.username} src={user.photoURL} key={i}/>
+				)
+			})
+		}
+	}
+
 	return (
 		<div
 			role="tabpanel"
@@ -41,7 +55,12 @@ const TabPanel = (props: ITabPanelProps) => {
 		>
 			{value === index && (
 				<Box sx={{ p: 3, minWidth: '80vw', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
-					<Typography sx={{ flexGrow: 0 }} variant="h4">{title}</Typography>
+					<Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+						<Typography sx={{ flexGrow: 0 }} variant="h4">{title}</Typography>
+						<AvatarGroup total={roomUsers.length}>
+							{getFirstFourNonSelfUsers()}
+						</AvatarGroup>
+					</Box>
 					<Divider />
 					<div style={{ flexGrow: 1, maxHeight: '80vh', overflowY: 'auto' }} ref={divRef}>
 						{children}
@@ -74,10 +93,11 @@ export interface IVerticalTabsProps {
 	messagesLoading: boolean;
 	messageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	messageSend: () => void;
+	roomUsers: User[];
 };
 
 export const VerticalTabs = (props: IVerticalTabsProps) => {
-	const { rooms, message, messages, currentUser, switchRooms, messageChange, messageSend } = props;
+	const { rooms, message, messages, currentUser, switchRooms, messageChange, messageSend, roomUsers } = props;
 	const [value, setValue] = React.useState(0);
 	const [formattedMessages, setFormattedMessages] = React.useState<MessageGroup[]>([]);
 
@@ -153,6 +173,8 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 						messageChange={messageChange}
 						messageSend={messageSend}
 						message={message}
+						roomUsers={roomUsers}
+						currentUser={currentUser}
 					>
 						{mapChatBubbles()}
 					</TabPanel>

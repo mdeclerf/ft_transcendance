@@ -80,11 +80,7 @@ export class UserService {
 		leaderBoard.forEach((value) => {
 			let tmp : Ranking = {user : value.user, victories : value.victories};
 			ret.push(tmp);
-			// console.log(`${key} | ${value}`);
 		});
-
-		// for (let i = 0; i < ret.length; i ++)
-		// 	console.log(ret[i]);
 
 		return ret;
 	}
@@ -153,7 +149,11 @@ export class UserService {
 		return this.userRepo.update(userId, { isSecondFactorAuthenticated: state });
 	}
 
-	addSocketId(user_id: number, socketId: string) {
+	async addSocketId(user_id: number, socketId: string) {
 		return this.userRepo.update(user_id, { socketId });
+	}
+	
+	async findUserBySocketId(socketId: string) {
+		return this.userRepo.findOneBy({ socketId });
 	}
 }

@@ -28,13 +28,20 @@ export class ChatGateway
 	server: Server;
 
 	@SubscribeMessage('room_join')
-	connect(client: Socket, room: string) {
+	async connect(client: Socket, room: string) {
 		client.join(room);
-		console.log(this.server.sockets.adapter.rooms.get(room));
+		const sockets = Array.from(this.server.sockets.adapter.rooms.get(room));
+		const users = await Promise.all(sockets.map(async (socketId) => {
+			return await this.userService.findUserBySocketId(socketId);
+		}));
+		const currentUser = await this.userService.findUserBySocketId(client.id);
+		client.broadcast.to(room).emit('room_user_join', currentUser);
+		client.emit('room_users', users);
+		// console.log(this.server.sockets.adapter.rooms.get(room));
 	}
 
 	@SubscribeMessage('room_switch')
-	roomSwitch(client: Socket, roomInfo: RoomInfo) {
+	async roomSwitch(client: Socket, roomInfo: RoomInfo) {
 		const { prevRoom, room } = roomInfo;
 		if (prevRoom) {
 			client.leave(prevRoom);
@@ -42,6 +49,15 @@ export class ChatGateway
 		if (room) {
 			client.join(room);
 		}
+		const sockets = Array.from(this.server.sockets.adapter.rooms.get(room));
+		const users = await Promise.all(sockets.map(async (socketId) => {
+			return await this.userService.findUserBySocketId(socketId);
+		}));
+		const currentUser = await this.userService.findUserBySocketId(client.id);
+		client.broadcast.to(room).emit('room_user_join', currentUser);
+		client.broadcast.to(prevRoom).emit('room_user_leave', currentUser);
+		client.emit('room_users', users);
+
 	}
 
 	@SubscribeMessage('message_send')
@@ -63,6 +79,8 @@ export class ChatGateway
 		const invitingUser: User = await this.userService.findUserById(message[0]);
 		const invitedUser: User = await this.userService.findUserById(message[1]);
 		const unique_id = uuidv4();
+		// console.log(`inviting ${invitingUser.username} ${invitingUser.socketId}`);
+		// console.log(`invited ${invitedUser.username} ${invitedUser.socketId}`);
 		this.server.to(invitedUser.socketId).emit("make_game_room", unique_id);
 		this.server.to(invitingUser.socketId).emit("make_game_room", unique_id);
 	}

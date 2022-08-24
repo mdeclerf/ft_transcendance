@@ -1,6 +1,6 @@
 import axios from "axios";
 import { socket } from "../socket";
-import { Message, Room } from "./types";
+import { Message, Room, User } from "./types";
 
 export const initiateSocket = (room: string) => {
 	if (socket && room) {
@@ -19,8 +19,32 @@ export const subscribeToMessages = (callback: (data: Message) => void) => {
 
 	socket.on('new_message', (data) => {
 		callback(data);
-		console.log(data);
+		// console.log(data);
 	});
+};
+
+export const subscribeToRoomUserList = (callback: (data: User[]) => void) => {
+	if (!socket) return;
+
+	socket.on('room_users', (data) => {
+		callback(data);
+	});
+}
+
+export const subscribeToRoomUserJoin = (callback: (data: User) => void) => {
+	if (!socket) return;
+
+	socket.on('room_user_join', (data) => {
+		callback(data);
+	})
+};
+
+export const subscribeToRoomUserLeave = (callback: (data: User) => void) => {
+	if (!socket) return;
+
+	socket.on('room_user_leave', (data) => {
+		callback(data);
+	})
 };
 
 export const sendMessage = (data: Message) => {

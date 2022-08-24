@@ -3,9 +3,9 @@ import React, { useEffect, useRef } from 'react';
 import { useState } from 'react';
 import { VerticalTabs } from '../Components/VerticalTabs';
 import { useFetchCurrentUser } from '../utils/hooks/useFetchCurrentUser';
-import { fetchRoomMessages, fetchRooms, initiateSocket, sendMessage, subscribeToMessages, switchRoom } from '../utils/socket_helpers';
+import { fetchRoomMessages, fetchRooms, initiateSocket, sendMessage, subscribeToMessages, subscribeToRoomUserJoin, subscribeToRoomUserLeave, subscribeToRoomUserList, switchRoom } from '../utils/socket_helpers';
 import { CenteredDiv } from '../utils/styles';
-import { Message, Room } from '../utils/types';
+import { Message, Room, User } from '../utils/types';
 
 export interface IChatProps {
 }
@@ -18,6 +18,7 @@ export function Chat (props: IChatProps) {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [messagesLoading, setMessagesLoading] = useState(true);
 	const [roomsLoading, setRoomsLoading] = useState(true);
+	const [connectedUsers, setConnectedUsers] = useState<User[]>([]);
 
 	const prevRoomRef = useRef<Room>();
 	useEffect(() => {
@@ -45,6 +46,19 @@ export function Chat (props: IChatProps) {
 
 		subscribeToMessages((data) => {
 			setMessages((messages) => [...messages, data]);
+		});
+
+		subscribeToRoomUserList((data) => {
+			setConnectedUsers([]);
+			setConnectedUsers(data);
+		});
+		
+		subscribeToRoomUserJoin((data) => {
+			setConnectedUsers((users) => [...users, data]);
+		});
+		
+		subscribeToRoomUserLeave((data) => {
+			setConnectedUsers((users) => users.filter(user => user.id !== data.id));
 		});
 	}, []);
 
@@ -96,6 +110,7 @@ export function Chat (props: IChatProps) {
 			messagesLoading={messagesLoading}
 			messageChange={handleMessageChange}
 			messageSend={handleMessageSend}
+			roomUsers={connectedUsers}
 		/>
 	);
 }
