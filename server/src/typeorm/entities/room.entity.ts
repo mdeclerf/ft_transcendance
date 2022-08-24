@@ -1,5 +1,6 @@
 import { Column, CreateDateColumn, Entity, OneToMany, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Chat } from "../";
+import { ChatUser } from "../";
 
 @Entity()
 export class Room {
@@ -29,4 +30,7 @@ export class Room {
 
 	@OneToMany(() => Chat, (chat) => chat.room)
 	chat: Chat[];
+
+	@OneToMany(() => ChatUser, (chat_user) => chat_user.room)
+	chat_user : ChatUser[];
 }

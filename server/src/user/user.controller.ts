@@ -101,6 +101,12 @@ export class UserController {
 		return this.userService.isFriend(req.user.id, friendId);
 	}
 
+	@Get('block_user')
+	@UseGuards(AuthenticatedGuard)
+	blockUser(@Query('id') blockeeId: number, @Req() req: RequestWithUser) {
+		this.userService.blockUser(req.user.id, blockeeId);
+	}
+
 	@Get('complete')
 	@UseGuards(AuthenticatedGuard)
 	complete(@Query('q') query: string) {
