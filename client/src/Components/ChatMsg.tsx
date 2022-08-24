@@ -74,7 +74,6 @@ export function ChatMsg (props: IChatMsgProps) {
 							setAnchorEl(null);
 						}}
 							>Invite to game</MenuItem>
-						<MenuItem onClick={handleClose}>Block</MenuItem>
 					</Menu>
 				</Grid>
 			)}

@@ -65,7 +65,7 @@ export const LeaderBoard = (props: IBoardProps) => {
           <Box
                sx={{
                     
-                    width: 800,
+                    width: 600,
                     height: {backHeight},
                     padding: '2%',
                     backgroundColor: 'primary.main',

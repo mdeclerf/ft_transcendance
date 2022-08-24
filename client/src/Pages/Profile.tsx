@@ -6,6 +6,7 @@ import { VictoryPie } from "victory-pie";
 import { CustomAvatar } from "../Components/CustomAvatar";
 import { useFetchCurrentUser } from "../utils/hooks/useFetchCurrentUser";
 import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import BlockIcon from '@mui/icons-material/Block';
 import { useFetchIsFriend } from "../utils/hooks/useFetchIsFriend";
 import axios from "axios";
 
@@ -118,13 +119,13 @@ export const Profile = (props: IProfileProps) => {
 				</Tooltip>
 				<br/>
 				{((user?.id !== currentUser?.id) && !isFriend) &&
-					<Button variant="contained" startIcon={<PersonAddIcon />} onClick={handleFriend}>
+					<Button variant="contained" startIcon={<PersonAddIcon />} onClick={handleFriend} sx={{m:1}}>
 						Add Friend
 					</Button>
 				}
 				{
 					(user?.id !== currentUser?.id) &&
-					<Button variant="contained" startIcon={<PersonAddIcon />} onClick={handleBlock}>
+					<Button variant="contained" startIcon={<BlockIcon />} onClick={handleBlock} sx={{m:1}}>
 						Block User
 					</Button>
 				}
