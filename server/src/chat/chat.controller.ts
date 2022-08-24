@@ -22,8 +22,11 @@ export class ChatController {
 		return this.chatService.getRoomMessages(room.id);
 	}
 
-	@Post('create_room')
-	createRoom(@Body() room: CreateRoomDto) {
-		this.chatService.createRoom(room)
+	@Post('create_channel')
+	async createChannel(@Body() roomDto: CreateRoomDto) {
+		const room = await this.chatService.getRoomByName(roomDto.name);
+		if (room)
+			return ;
+		return this.chatService.createRoom(roomDto);
 	}
 }

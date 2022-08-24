@@ -3,6 +3,7 @@ import SendIcon from '@mui/icons-material/Send';
 import * as React from 'react';
 import { Message, MessageGroup, Room, User } from '../utils/types';
 import { ChatMsg } from './ChatMsg';
+import { ButtonCreateChannels } from './ButtonCreateChannels';
 
 interface ITabPanelProps {
 	title: string;
@@ -56,6 +57,11 @@ const TabPanel = (props: ITabPanelProps) => {
 			style={{ flexGrow: 1 }}
 		>
 			{value === index && (
+				// <Box sx={{ p: 3, minWidth: '80vw', display: 'flex', flexDirection: 'column', height: '100%', justifyContent:'space-between' }}>
+				// 	<Typography sx={{ flexGrow: 0 }}>{title}</Typography>
+				// 	<div style={{ flexGrow: 1, maxHeight: '80vh', overflowY: 'auto' }}>
+
+
 				<Box sx={{ p: 3, minWidth: '80vw', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
 					<Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
 						<Typography sx={{ flexGrow: 0 }} variant="h4">{title}</Typography>
@@ -96,10 +102,17 @@ export interface IVerticalTabsProps {
 	messageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	messageSend: () => void;
 	roomUsers: User[];
+	prevRoom: Room | undefined;
 };
 
+// export const VerticalTabs = (props: IVerticalTabsProps) => {
+// 	const { rooms, message, messages, currentUser, switchRooms, messagesLoading, messageChange, messageSend, prevRoom } = props;
+// 	messageSend: () => void;
+// 	roomUsers: User[];
+// };
+
 export const VerticalTabs = (props: IVerticalTabsProps) => {
-	const { rooms, message, messages, currentUser, switchRooms, messageChange, messageSend, roomUsers } = props;
+	const { rooms, message, messages, currentUser, switchRooms, messageChange, messageSend, roomUsers, prevRoom } = props;
 	const [value, setValue] = React.useState(0);
 	const [formattedMessages, setFormattedMessages] = React.useState<MessageGroup[]>([]);
 
@@ -146,10 +159,11 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 				flexGrow: 1,
 				maxHeight: 'calc(100vh - 64px)',
 				display: 'flex',
+				overflow: 'hidden',
 			}}
 		>
 			<Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-				<Button variant="contained" sx={{ m: '2%' }}>Test</Button>
+				<ButtonCreateChannels prevRoom={prevRoom} switchRooms={switchRooms} setValue={setValue} numRooms={rooms.length}/>
 				<Tabs
 					orientation='vertical'
 					variant="scrollable"
