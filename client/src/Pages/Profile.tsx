@@ -47,13 +47,13 @@ export const Profile = (props: IProfileProps) => {
 	const getMatchHistory = (p1_score: number, p2_score: number, p1_name: string, p2_name: string, mode: string, i: number) => {
 		return (
 			<ListItem
-			key={i}
-			sx={{
-				alignItems: 'center',
-				borderRadius: '10px',
-				backgroundColor: (p1_score < p2_score) ? '#c84949' : '#49c860',
-				marginTop: '2px',
-			}}
+				key={i}
+				sx={{
+					alignItems: 'center',
+					borderRadius: '10px',
+					backgroundColor: (p1_score < p2_score) ? '#c84949' : '#49c860',
+					marginTop: '2px',
+				}}
 			>
 				<ListItemText
 					sx={{ fontFamily: 'Work Sans, sans-serif', fontSize: 70, color: 'white'}}
@@ -63,8 +63,18 @@ export const Profile = (props: IProfileProps) => {
 		)
 	}
 
-	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+	const handleFriend = (event: React.MouseEvent<HTMLButtonElement>) => {
 		axios.get(`http://localhost:3001/api/user/add_friend?id=${user?.id}`, { withCredentials: true })
+			.then(() => {
+				window.location.reload();
+			})
+			.catch(err => {
+				if (err) throw err;
+			});
+	}
+
+	const handleBlock = (event: React.MouseEvent<HTMLButtonElement>) => {
+		axios.get(`http://localhost:3001/api/user/block_user?id=${user?.id}`, { withCredentials: true })
 			.then(() => {
 				window.location.reload();
 			})
@@ -108,8 +118,14 @@ export const Profile = (props: IProfileProps) => {
 				</Tooltip>
 				<br/>
 				{((user?.id !== currentUser?.id) && !isFriend) &&
-					<Button variant="contained" startIcon={<PersonAddIcon />} onClick={handleClick}>
+					<Button variant="contained" startIcon={<PersonAddIcon />} onClick={handleFriend}>
 						Add Friend
+					</Button>
+				}
+				{
+					(user?.id !== currentUser?.id) &&
+					<Button variant="contained" startIcon={<PersonAddIcon />} onClick={handleBlock}>
+						Block User
 					</Button>
 				}
 			</div>

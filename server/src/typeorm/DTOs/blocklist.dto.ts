@@ -1,11 +1,11 @@
 import { IsInt, IsPositive } from "class-validator";
 
-export class CreateSubscriptionDto {
+export class CreateBlockListDto {
 	@IsInt()
 	@IsPositive()
 	public user_id: number;
 
 	@IsInt()
 	@IsPositive()
-	public friend_id: number;
+	public blocked_id: number;
 }

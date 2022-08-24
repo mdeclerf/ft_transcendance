@@ -10,10 +10,10 @@ export class CreateChatUserDto {
 	@IsPositive()
 	public user_id: number;
 
-	@IsInt()
-	@Min(0)
-	@Max(3)
-	public status: number;
+	//@IsInt()
+	//@Min(0)
+	//@Max(3)
+	public status: string;
 
 	public endStatusDate: Date;
 }

@@ -34,10 +34,6 @@ export function ChatMsg (props: IChatMsgProps) {
 		setAnchorEl(null);
 	};
 
-	const handleBlock = () => {
-		setAnchorEl(null);
-	};
-
 	return (
 		<Grid
 			container
@@ -46,37 +42,40 @@ export function ChatMsg (props: IChatMsgProps) {
 		>
 			{side === 'left' && (
 				<Grid item>
-				<IconButton
-				onClick={handleClick}
-				color="inherit"
-				>
-					<Avatar
-						src={user?.photoURL || ''}
-						{...AvatarProps}
-						sx={{
-							width: '32px',
-							height: '32px'
-						}}
-					/>
-						<Menu
-								id="basic-menu"
-								anchorEl={anchorEl}
-								open={open}
-								onClose={handleClose}
-								MenuListProps={{
-								'aria-labelledby': 'basic-button',
-								}}
-							>
-							<MenuItem component={Link} to={`/user/${user?.username}`} onClick={handleClose}>Profile</MenuItem>
-							<MenuItem component={Link} to="/chatmode" onClick={() => 
-							{
-								socket.emit("invited", [currentUser?.id, user?.id])
-								setAnchorEl(null);
+					<IconButton
+						aria-controls={open ? 'basic-menu' : undefined}
+						aria-haspopup="true"
+						aria-expanded={open ? 'true' : undefined}
+						onClick={handleClick}
+						color="inherit"
+					>
+						<Avatar
+							src={user?.photoURL || ''}
+							{...AvatarProps}
+							sx={{
+								width: '32px',
+								height: '32px'
 							}}
-								>Invite to game</MenuItem>
-							<MenuItem onClick={handleBlock}>Block</MenuItem>
-						</Menu>
+						/>
 					</IconButton>
+					<Menu
+							id="basic-menu"
+							anchorEl={anchorEl}
+							open={open}
+							onClose={handleClose}
+							MenuListProps={{
+							'aria-labelledby': 'basic-button',
+							}}
+						>
+						<MenuItem component={Link} to={`/user/${user?.username}`} onClick={handleClose}>Profile</MenuItem>
+						<MenuItem component={Link} to="/chatmode" onClick={() => 
+						{
+							socket.emit("invited", [currentUser?.id, user?.id])
+							setAnchorEl(null);
+						}}
+							>Invite to game</MenuItem>
+						<MenuItem onClick={handleClose}>Block</MenuItem>
+					</Menu>
 				</Grid>
 			)}
 			<Grid item xs={8}>
