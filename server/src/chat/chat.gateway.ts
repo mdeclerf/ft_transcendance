@@ -40,6 +40,13 @@ export class ChatGateway
 		// console.log(this.server.sockets.adapter.rooms.get(room));
 	}
 
+	@SubscribeMessage('room_leave')
+	async roomLeave(client: Socket, room: string) {
+		client.leave(room);
+		const currentUser = await this.userService.findUserBySocketId(client.id);
+		client.broadcast.to(room).emit('room_user_leave', currentUser);
+	}
+
 	@SubscribeMessage('room_switch')
 	async roomSwitch(client: Socket, roomInfo: RoomInfo) {
 		const { prevRoom, room } = roomInfo;

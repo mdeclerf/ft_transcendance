@@ -2,11 +2,15 @@ import axios from "axios";
 import { socket } from "../socket";
 import { Message, Room, User } from "./types";
 
-export const initiateSocket = (room: string) => {
+export const joinChat = (room: string) => {
 	if (socket && room) {
 		socket.emit('room_join', room);
 	}
 };
+
+export const leaveChat = (room: string) => {
+	if (socket) socket.emit('room_leave', room);
+}
 
 export const switchRoom = (prevRoom: string, room: string) => {
 	if (socket) {

@@ -3,7 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { useState } from 'react';
 import { VerticalTabs } from '../Components/VerticalTabs';
 import { useFetchCurrentUser } from '../utils/hooks/useFetchCurrentUser';
-import { fetchRoomMessages, fetchRooms, initiateSocket, sendMessage, subscribeToMessages, subscribeToRoomUserJoin, subscribeToRoomUserLeave, subscribeToRoomUserList, switchRoom } from '../utils/socket_helpers';
+import { fetchRoomMessages, fetchRooms, joinChat, leaveChat, sendMessage, subscribeToMessages, subscribeToRoomUserJoin, subscribeToRoomUserLeave, subscribeToRoomUserList, switchRoom } from '../utils/socket_helpers';
 import { CenteredDiv } from '../utils/styles';
 import { Message, Room, User } from '../utils/types';
 
@@ -26,13 +26,20 @@ export function Chat (props: IChatProps) {
 	});
 	const prevRoom = prevRoomRef.current;
 
+	useEffect(() => {
+		return (() => {
+			leaveChat(room.name);
+		})
+	// eslint-disable-next-line
+	}, [])
+
 	// switch switch room in the backend when it changes in the frontend
 	useEffect(() => {
 		if (prevRoom && room) {
 			switchRoom(prevRoom.name, room.name);
 			setRoom(room);
 		} else if (room) {
-			initiateSocket(room.name);
+			joinChat(room.name);
 		}
 	// eslint-disable-next-line
 	}, [room]);

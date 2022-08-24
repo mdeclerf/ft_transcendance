@@ -1,4 +1,4 @@
-import { Box, Button, Tab, Tabs, TextField, Typography, Divider, AvatarGroup, Avatar } from '@mui/material';
+import { Box, Button, Tab, Tabs, TextField, Typography, Divider, AvatarGroup, Avatar, Tooltip } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
 import * as React from 'react';
 import { Message, MessageGroup, Room, User } from '../utils/types';
@@ -35,11 +35,13 @@ const TabPanel = (props: ITabPanelProps) => {
 
 	const getFirstFourNonSelfUsers = () => {
 		if (roomUsers.length) {
-			const tmp = roomUsers.filter(user => user.id !== currentUser?.id).slice(0, 3);
+			const tmp = roomUsers.filter(user => user && currentUser && user.id !== currentUser.id).slice(0, 3);
 
 			return tmp.map((user, i) => {
 				return (
-					<Avatar alt={user.username} src={user.photoURL} key={i}/>
+					<Tooltip title={user.username} key={i}>
+						<Avatar alt={user.username} src={user.photoURL} key={i}/>
+					</Tooltip>
 				)
 			})
 		}
@@ -154,7 +156,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 					value={value}
 					onChange={handleChange}
 					aria-label="Chat channels"
-					sx={{ borderRight: 1, borderColor: 'divider', maxWidth: '20vw' }}
+					sx={{ borderRight: 1, borderColor: 'divider', maxWidth: '20vw', flexGrow: 1 }}
 				>
 					{rooms.map((room, i) => {
 						return (

@@ -21,6 +21,7 @@
     "recharts": "^2.1.13",
     "socket.io-client": "^4.5.1",
     "victory": "^36.6.0",
+    "victory-pie": "^36.6.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
