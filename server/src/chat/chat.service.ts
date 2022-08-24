@@ -10,7 +10,7 @@ export class ChatService {
 		@InjectRepository(Chat) private readonly chatRepo: Repository<Chat>,
 		@InjectRepository(Room) private readonly roomRepo: Repository<Room>,
 	) {
-		this.roomRepo.upsert({ name: 'General', type: 0 }, ["name"]);
+		this.roomRepo.upsert({ name: 'general', type: 0 }, ["name"]);
 	}
 
 	//get all the table

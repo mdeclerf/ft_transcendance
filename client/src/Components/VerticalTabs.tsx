@@ -1,9 +1,10 @@
-import { Box, Button, Tab, Tabs, TextField, Typography, Divider, AvatarGroup, Avatar, Tooltip } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import { Avatar, AvatarGroup, Box, Button, Divider, Tab, Tabs, TextField, Tooltip, Typography } from '@mui/material';
 import * as React from 'react';
+import { subscribeToAutoSwitchRoom } from '../utils/socket_helpers';
 import { Message, MessageGroup, Room, User } from '../utils/types';
-import { ChatMsg } from './ChatMsg';
 import { ButtonCreateChannels } from './ButtonCreateChannels';
+import { ChatMsg } from './ChatMsg';
 
 interface ITabPanelProps {
 	title: string;
@@ -134,6 +135,17 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 		setFormattedMessages(msgGrp);
 	}, [messages, currentUser?.id]);
 
+	React.useEffect(() => {
+		subscribeToAutoSwitchRoom((data) => {
+			let index = 0;
+			rooms.map((room, i) => {
+				if (room.name === data.name) index = i;
+			});
+			console.log("index: ", index);
+			setValue(index);
+		})
+	}, [])
+
 	const mapChatBubbles = () => {
 		return formattedMessages.map((msg, i) => {
 			return (
@@ -163,7 +175,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 			}}
 		>
 			<Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-				<ButtonCreateChannels prevRoom={prevRoom} switchRooms={switchRooms} setValue={setValue} numRooms={rooms.length}/>
+				<ButtonCreateChannels prevRoom={prevRoom} switchRooms={switchRooms}/>
 				<Tabs
 					orientation='vertical'
 					variant="scrollable"

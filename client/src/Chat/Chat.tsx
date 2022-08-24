@@ -2,19 +2,20 @@ import { CircularProgress } from '@mui/material';
 import React, { useEffect, useRef } from 'react';
 import { useState } from 'react';
 import { VerticalTabs } from '../Components/VerticalTabs';
-import { socket } from '../socket';
 import { useFetchCurrentUser } from '../utils/hooks/useFetchCurrentUser';
-import { fetchRoomMessages, fetchRooms, joinChat, leaveChat, sendMessage, subscribeToMessages, subscribeToRoomUserJoin, subscribeToRoomUserLeave, subscribeToRoomUserList, switchRoom } from '../utils/socket_helpers';
+import { fetchRoomMessages, fetchRooms, joinChat, leaveChat, sendMessage, subscribeToMessages, subscribeToNewRoom, subscribeToRoomUserJoin, subscribeToRoomUserLeave, subscribeToRoomUserList, switchRoom } from '../utils/socket_helpers';
 import { CenteredDiv } from '../utils/styles';
 import { Message, Room, User } from '../utils/types';
 
 export interface IChatProps {
+	socketLoading: boolean;
 }
 
 export function Chat (props: IChatProps) {
+	const { socketLoading } = props;
 	const { user } = useFetchCurrentUser();
 	const [message, setMessage] = useState("");
-	const [room, setRoom] = useState<Room>({ name: "General" });
+	const [room, setRoom] = useState<Room>({ name: "general" });
 	const [rooms, setRooms] = useState<Room[]>([]);
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [messagesLoading, setMessagesLoading] = useState(true);
@@ -36,14 +37,16 @@ export function Chat (props: IChatProps) {
 
 	// switch switch room in the backend when it changes in the frontend
 	useEffect(() => {
-		if (prevRoom && room) {
-			switchRoom(prevRoom.name, room.name);
-			setRoom(room);
-		} else if (room) {
-			joinChat(room.name);
+		if (!socketLoading) {
+			if (prevRoom && room) {
+				switchRoom(prevRoom.name, room.name);
+				setRoom(room);
+			} else if (room) {
+				joinChat(room.name);
+			}
 		}
 	// eslint-disable-next-line
-	}, [room]);
+	}, [room, socketLoading]);
 
 	// get available rooms
 	useEffect(() => {
@@ -68,6 +71,10 @@ export function Chat (props: IChatProps) {
 		subscribeToRoomUserLeave((data) => {
 			setConnectedUsers((users) => users.filter(user => user.id !== data.id));
 		});
+
+		subscribeToNewRoom((data) => {
+			setRooms((oldRooms) => [...oldRooms, data]);
+		})
 	}, []);
 
 	// get messages for currently set room
@@ -83,13 +90,8 @@ export function Chat (props: IChatProps) {
 	}, []);
 
 	useEffect(() => {
-		socket.on("room_switched", (data: any) => {
-			fetchRooms().then((res: Room[]) => {
-				setRooms(res);
-				setRoomsLoading(false);
-			});
-		});
-	}, []);
+		console.log(rooms);
+	}, [rooms]);
 
 	const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setMessage(event.target.value);

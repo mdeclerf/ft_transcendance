@@ -10,7 +10,7 @@ export const joinChat = (room: string) => {
 
 export const leaveChat = (room: string) => {
 	if (socket) socket.emit('room_leave', room);
-}
+};
 
 export const switchRoom = (prevRoom: string, room: string) => {
 	if (socket) {
@@ -18,12 +18,28 @@ export const switchRoom = (prevRoom: string, room: string) => {
 	}
 };
 
+export const subscribeToAutoSwitchRoom = (callback: (data: Room) => void) => {
+	if (!socket) return;
+
+	socket.on('autoswitch_room', (data) => {
+		console.log('autoswitch_room: ', data.name);
+		callback(data);
+	});
+};
+
 export const subscribeToMessages = (callback: (data: Message) => void) => {
 	if (!socket) return;
 
 	socket.on('new_message', (data) => {
 		callback(data);
-		// console.log(data);
+	});
+};
+
+export const subscribeToNewRoom = (callback: (data: Room) => void) => {
+	if (!socket) return;
+	
+	socket.on('new_room', (data) => {
+		callback(data);
 	});
 };
 
@@ -33,14 +49,14 @@ export const subscribeToRoomUserList = (callback: (data: User[]) => void) => {
 	socket.on('room_users', (data) => {
 		callback(data);
 	});
-}
+};
 
 export const subscribeToRoomUserJoin = (callback: (data: User) => void) => {
 	if (!socket) return;
 
 	socket.on('room_user_join', (data) => {
 		callback(data);
-	})
+	});
 };
 
 export const subscribeToRoomUserLeave = (callback: (data: User) => void) => {
@@ -48,7 +64,7 @@ export const subscribeToRoomUserLeave = (callback: (data: User) => void) => {
 
 	socket.on('room_user_leave', (data) => {
 		callback(data);
-	})
+	});
 };
 
 export const sendMessage = (data: Message) => {
@@ -67,4 +83,4 @@ export const fetchRoomMessages = async (room: string) => {
 	const response = await axios.get<Message[]>(`http://localhost:3001/api/chat/rooms/${room}/messages`, { withCredentials: true });
 
 	return response.data;
-}
+};
