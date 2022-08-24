@@ -3,16 +3,19 @@ import AddIcon from '@mui/icons-material/Add';
 import * as React from 'react';
 import axios from 'axios';
 import { Room } from '../utils/types';
-import { switchRoom } from '../utils/socket_helpers';
+// import { switchRoom } from '../utils/socket_helpers';
 
 export interface SimpleDialogProps {
     open: boolean;
     setOpen: (value: boolean) => void;
     prevRoom: Room | undefined;
+    switchRooms: (room: Room) => void;
+    setValue: React.Dispatch<React.SetStateAction<number>>;
+    numRooms: number;
   }
   
 function SimpleDialog(props: SimpleDialogProps) {
-    const { setOpen, open, prevRoom } = props;
+    const { setOpen, open, prevRoom, switchRooms, setValue, numRooms } = props;
 
     const [privacy, setPrivacy] = React.useState('');
     const [name, setName] = React.useState<string>('');
@@ -29,9 +32,10 @@ function SimpleDialog(props: SimpleDialogProps) {
 		  axios.post("http://localhost:3001/api/chat/create_channel", {name: name.toLowerCase(), type: 0, hash: ""})
 		    .then(() => {
           if (prevRoom)
-            switchRoom(prevRoom.name, name);
+            switchRooms({ name });
           else
-            switchRoom('', name);
+            switchRooms({ name });
+          setValue(numRooms);
 		    })
 		    .catch(err => {
           ;
@@ -79,10 +83,13 @@ function SimpleDialog(props: SimpleDialogProps) {
 
 export interface IButtonCreateChannelsProps {
 	prevRoom: Room | undefined;
+  switchRooms: (room: Room) => void;
+  setValue: React.Dispatch<React.SetStateAction<number>>;
+  numRooms: number;
 };
 
 export const ButtonCreateChannels = (props: IButtonCreateChannelsProps) => {
-  const { prevRoom } = props;
+  const { prevRoom, switchRooms, setValue, numRooms } = props;
     const [open, setOpen] = React.useState(false);
 
     const handleClickOpen = () => {
@@ -91,13 +98,16 @@ export const ButtonCreateChannels = (props: IButtonCreateChannelsProps) => {
     
     return (
         <div>
-            <Button variant="outlined" startIcon={<AddIcon />} onClick={handleClickOpen} fullWidth>
+            <Button sx={{marginTop:"2%"}}variant="outlined" startIcon={<AddIcon />} onClick={handleClickOpen} fullWidth>
                 Create channel
             </Button>
             <SimpleDialog
                 open={open}
                 setOpen={setOpen}
                 prevRoom={prevRoom}
+                switchRooms={switchRooms}
+                setValue={setValue}
+                numRooms={numRooms}
             />
         </div>
     )

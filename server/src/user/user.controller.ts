@@ -6,7 +6,7 @@ import { join } from 'path';
 import path = require('path');
 import { AuthenticatedGuard } from '../auth/guards/intra-oauth.guard';
 import { UserService } from './user.service';
-import { UserDetails } from '../utils/types';
+import { RequestWithUser, UserDetails } from '../utils/types';
 import { v4 as uuidv4 } from 'uuid';
 
 const storage = {
@@ -64,7 +64,7 @@ export class UserController {
 		return leader;
 	}
 
-	@Get(':username')
+	@Get('get_user/:username')
 	@UseGuards(AuthenticatedGuard)
 	async getUser(@Param('username') username: string, @Res() res: Response) {
 		const user = await this.userService.findUserByUsername(username);
@@ -75,5 +75,35 @@ export class UserController {
 		} else {
 			return res.json({ found: false, user: null, games: null });
 		}
+	}
+
+	@Get('add_friend')
+	@UseGuards(AuthenticatedGuard)
+	addFriend(@Query('id') friendId: number, @Req() req: RequestWithUser) {
+		this.userService.addFriend(req.user.id, friendId);
+	}
+
+	@Get('get_friends')
+	@UseGuards(AuthenticatedGuard)
+	async getFriends(@Req() req: RequestWithUser) {
+		const subscriptions = await this.userService.getFriends(req.user.id);
+
+		const userList = subscriptions.map((subscription) => {
+			return subscription.subscribedTo;
+		})
+
+		return userList;
+	}
+
+	@Get('is_friend')
+	@UseGuards(AuthenticatedGuard)
+	isFriend(@Query('id') friendId: number, @Req() req: RequestWithUser): Promise<boolean> {
+		return this.userService.isFriend(req.user.id, friendId);
+	}
+
+	@Get('complete')
+	@UseGuards(AuthenticatedGuard)
+	complete(@Query('q') query: string) {
+		return this.userService.complete(query);
 	}
 }

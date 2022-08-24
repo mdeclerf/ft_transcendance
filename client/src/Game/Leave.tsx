@@ -20,7 +20,7 @@ export function PlayGame (props: IProfileProps) {
 
   return (
     <Grid container justifyContent='center'>
-        <Canvas/>
+        <Canvas user={user}/>
     </Grid>
   );
 }

@@ -1,5 +1,4 @@
 import { Body, Controller, Get, Inject, Param, Post, UseGuards } from '@nestjs/common';
-import { retry } from 'rxjs';
 import { CreateRoomDto } from 'src/typeorm';
 import { AuthenticatedGuard } from '../auth/guards/intra-oauth.guard';
 import { ChatService } from './chat.service';

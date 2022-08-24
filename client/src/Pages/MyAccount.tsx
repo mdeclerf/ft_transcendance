@@ -1,16 +1,17 @@
-import { Avatar, IconButton, TextField, Tooltip, Typography } from "@mui/material/"
+import { Button, IconButton, TextField, Tooltip, Typography } from "@mui/material/"
 import axios from "axios/";
 import React, { ChangeEvent, useState } from 'react';
-import { CenteredDiv, StyledBadge } from "../utils/styles"
+import { CustomAvatar } from "../Components/CustomAvatar";
+import { CenteredDiv } from "../utils/styles"
 import { NameChangeResponse, User } from "../utils/types"
 
 export interface IMyAccountProps {
 	user: User;
-	setUser: React.Dispatch<React.SetStateAction<User>>
+	setUser: React.Dispatch<React.SetStateAction<User | undefined>>;
 }
 
 export const MyAccount = (props: IMyAccountProps) => {
-	const {user, setUser} = props;
+	const { user, setUser } = props;
 
 	const [taken, setTaken] = useState(false);
 
@@ -19,7 +20,7 @@ export const MyAccount = (props: IMyAccountProps) => {
 			axios.get<NameChangeResponse>(`http://localhost:3001/api/user/name_change?username=${event.target.value}`, { withCredentials: true })
 				.then(res => {
 					setTaken(res.data.taken);
-					setUser(res.data.user);
+					if (setUser) setUser(res.data.user);
 				})
 		}
 	}
@@ -55,20 +56,7 @@ export const MyAccount = (props: IMyAccountProps) => {
 		<CenteredDiv>
 			<div>
 				<IconButton component="label">
-					<StyledBadge
-						overlap="circular"
-						anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-						variant="dot"
-					>
-						<Avatar
-							alt={user?.username}
-							src={user?.photoURL}
-							sx={{
-								minWidth: { xs: 255 },
-								minHeight: { xs: 255 }
-							}}
-						/>
-					</StyledBadge>
+					<CustomAvatar user={user} minSize={255} />
 					<input 
 						accept="image/*"
 						hidden
@@ -82,13 +70,12 @@ export const MyAccount = (props: IMyAccountProps) => {
 			<div>
 				<Tooltip title={user?.displayName ? user.displayName : ""} placement="right">
 					<Typography 
-						variant="h4" 
+						variant="h4"
+						component="div"
 						sx={{
-							mr: 2,
 							fontFamily: 'Work Sans, sans-serif',
 							fontWeight: 700,
 							color: 'inherit',
-							textDecoration: 'none',
 							marginBottom: '20px',
 						}}
 					>
@@ -104,6 +91,8 @@ export const MyAccount = (props: IMyAccountProps) => {
 					helperText={taken ? "Username already exists" : ""}
 				/>
 			</div>
+			<br/>
+			<Button href="/2fa" variant="contained">{`${user.isTwoFactorAuthenticationEnabled ? "Disable" : "Enable"} Two Factor Authentication`}</Button>
 		</CenteredDiv>
 	)
 }

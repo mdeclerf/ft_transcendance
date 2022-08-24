@@ -5,6 +5,7 @@ import { AuthService } from "../auth/services/auth.service";
 import { TwoFactorAuthenticationService } from "./2fa.service";
 import { UserService } from "./user.service";
 import { RequestWithUser } from "../utils/types";
+import { TwoFactorAuthCodeDto } from "src/utils/twoFactorAuthCode.dto";
 
 @Controller('2fa')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -18,15 +19,18 @@ export class TwoFactorAuthenticationController {
 	@Post('generate')
 	@UseGuards(AuthenticatedGuard)
 	async register(@Res() res: Response, @Req() req: RequestWithUser) {
-		const { otpauthURL } = await this.twoFactorAuthenticationService.generateTwoFactorAuthenticationSecret(req.user);
+		if (!req.user.isTwoFactorAuthenticationEnabled) {
+			const { otpauthURL } = await this.twoFactorAuthenticationService.generateTwoFactorAuthenticationSecret(req.user);
 
-		return this.twoFactorAuthenticationService.pipeQrCodeStream(res, otpauthURL);
+			return this.twoFactorAuthenticationService.pipeQrCodeStream(res, otpauthURL);
+		}
+		return null;
 	}
 
-	@Post('on')
+	@Post('turn_on')
 	@HttpCode(200)
 	@UseGuards(AuthenticatedGuard)
-	async turnOnTwoFactorAuthentication(@Req() req: RequestWithUser, @Body() twoFactorAuthCode: string) {
+	async turnOnTwoFactorAuthentication(@Req() req: RequestWithUser, @Body() { twoFactorAuthCode }: TwoFactorAuthCodeDto) {
 		const isValid = this.twoFactorAuthenticationService.isTwoFactorAuthCodeValid(twoFactorAuthCode, req.user);
 
 		if (!isValid) throw new UnauthorizedException('Wrong authentication code');
@@ -34,21 +38,34 @@ export class TwoFactorAuthenticationController {
 		await this.userService.enableTwoFactorAuthentication(req.user.id);
 	}
 
+	@Post('turn_off')
+	@HttpCode(200)
+	@UseGuards(AuthenticatedGuard)
+	async turnOffTwoFactorAuthentication(@Req() req: RequestWithUser, @Body() { twoFactorAuthCode }: TwoFactorAuthCodeDto) {
+		const isValid = this.twoFactorAuthenticationService.isTwoFactorAuthCodeValid(twoFactorAuthCode, req.user);
+
+		if (!isValid) throw new UnauthorizedException('Wrong authentication code');
+
+		await this.userService.disableTwoFactorAuthentication(req.user.id);
+	}
+
+
 	@Post('authenticate')
 	@HttpCode(200)
 	@UseGuards(AuthenticatedGuard)
 	async authenticate(
 		@Req() req: RequestWithUser,
-		@Body() twoFactorAuthCode: string,
+		@Body() { twoFactorAuthCode }: TwoFactorAuthCodeDto,
 	) {
-		console.log('auth code', twoFactorAuthCode);
 		const isCodeValid = this.twoFactorAuthenticationService.isTwoFactorAuthCodeValid(
 			twoFactorAuthCode, req.user
 		);
-		console.log('code', isCodeValid);
+
 		if (!isCodeValid) throw new UnauthorizedException('Wrong authentication code');
 
 		this.authService.validateUser(req.user);
+
+		this.userService.secondFactorAuthenticate(req.user.id, true);
 
 		return req.user;
 	}

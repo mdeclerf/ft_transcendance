@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Game, User} from '../typeorm/';
+import { Game, Subscription, User} from '../typeorm/';
 import { UserDetails, Ranking } from '../utils/types';
 import { Repository } from 'typeorm';
 
@@ -8,7 +8,8 @@ import { Repository } from 'typeorm';
 export class UserService {
 	constructor(
 		@InjectRepository(User) private readonly userRepo: Repository<User>,
-		@InjectRepository(Game) private readonly gameRepo: Repository<Game> ///
+		@InjectRepository(Game) private readonly gameRepo: Repository<Game>,
+		@InjectRepository(Subscription) private readonly subRepo: Repository<Subscription>,
 	) {}
 
 	async updateOne(details: UserDetails) {
@@ -32,22 +33,17 @@ export class UserService {
 		});
 	}
 
+	findUserById(id: number): Promise<User | undefined> {
+		return this.userRepo.findOneBy({ id: id });
+	}
+
 	async findMatches(id : number) {
 		const player_1_games = await this.gameRepo.createQueryBuilder('game')
 			.leftJoinAndSelect('game.player_1', 'player_1')
 			.leftJoinAndSelect('game.player_2', 'player_2')
 			.where('game.player_1 = :id OR game.player_2 = :id', { id: id })
 			.getMany()
-		// console.log(player_1_games);
 		return player_1_games;
-	}
-
-	async setTwoFactorAuthenticationSecret(secret: string, userId: number) {
-		return this.userRepo.update(userId, { twoFactorAuthenticationSecret: secret });
-	}
-
-	async enableTwoFactorAuthentication(userId: number) {
-		return this.userRepo.update(userId, { isTwoFactorAuthenticationEnabled: true });
 	}
 
 	async findLeader() {
@@ -84,12 +80,80 @@ export class UserService {
 		leaderBoard.forEach((value) => {
 			let tmp : Ranking = {user : value.user, victories : value.victories};
 			ret.push(tmp);
-			// console.log(`${key} | ${value}`);
 		});
 
-		// for (let i = 0; i < ret.length; i ++)
-		// 	console.log(ret[i]);
-
 		return ret;
+	}
+
+	async addFriend(userId: number, friendUserId: number) {
+		const sub = this.subRepo.create();
+		sub.subscriber = await this.userRepo.findOneBy({ id: userId });
+		sub.subscribedTo = await this.userRepo.findOneBy({ id: friendUserId });
+		await this.subRepo.save(sub);
+	}
+
+	async getFriends(userId: number) {
+		const subscriptions = await this.subRepo.createQueryBuilder('subscription')
+			.leftJoinAndSelect('subscription.subscriber', 'subscriber')
+			.leftJoinAndSelect('subscription.subscribedTo', 'subscribedTo')
+			.where('subscriber.id = :id', { id: userId })
+			.getMany()
+
+		return subscriptions;
+	}
+
+	async isFriend(userId: number, friendId: number) {
+		const result = await this.subRepo.createQueryBuilder('subscription')
+			.leftJoinAndSelect('subscription.subscriber', 'subscriber')
+			.leftJoinAndSelect('subscription.subscribedTo', 'subscribedTo')
+			.where('subscriber.id = :userId AND subscribedTo.id = :friendId', { userId, friendId})
+			.getOne();
+		
+		return result !== null;
+	}
+
+	async complete(query: string) {
+		const result = await this.userRepo.createQueryBuilder()
+			.where('username like :name', { name: `%${query}%` })
+			.orWhere('LOWER(display_name) like LOWER(:displayName)', { displayName: `%${query}%` })
+			.getMany();
+
+			
+		const usernames = result.map((user) => {
+			return { username: user.username, photoURL: user.photoURL, displayName: user.displayName };
+		});
+
+		return usernames;
+	}
+
+	async setStatus(userId: number, status: 'online' | 'offline' | 'in_game') {
+		const user = await this.userRepo.findOneBy({ id: userId });
+		user.status = status;
+
+		this.userRepo.save(user);
+	}
+
+	async setTwoFactorAuthenticationSecret(secret: string, userId: number) {
+		return this.userRepo.update(userId, { twoFactorAuthenticationSecret: secret });
+	}
+
+	async enableTwoFactorAuthentication(userId: number) {
+		return this.userRepo.update(userId, { isTwoFactorAuthenticationEnabled: true, isSecondFactorAuthenticated: true });
+	}
+
+	async disableTwoFactorAuthentication(userId: number) {
+		return this.userRepo.update(userId, { isTwoFactorAuthenticationEnabled: false, isSecondFactorAuthenticated: false, twoFactorAuthenticationSecret: null });
+	}
+
+	async secondFactorAuthenticate(userId: number, state: boolean) {
+		return this.userRepo.update(userId, { isSecondFactorAuthenticated: state });
+	}
+
+	async addSocketId(user_id: number, socketId: string) {
+		return this.userRepo.update(user_id, { socketId });
+	}
+	
+	async findUserBySocketId(socketId: string) {
+		return this.userRepo.findOneBy({ socketId });
 	}
 }
