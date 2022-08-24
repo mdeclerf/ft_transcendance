@@ -12,7 +12,6 @@ import { CreateChatDto, Room } from '../typeorm/';
 	},
 })
 
-// @UseGuards(JwtAuthGuard)
 @WebSocketGateway({ cors: true })
 export class ChatGateway
 {
@@ -34,6 +33,9 @@ export class ChatGateway
 		if (room) {
 			client.join(room);
 		}
+
+		client.broadcast.emit('room_switched');
+		client.emit('room_switched');
 	}
 
 	@SubscribeMessage('message_send')

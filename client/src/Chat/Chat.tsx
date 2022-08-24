@@ -2,6 +2,7 @@ import { CircularProgress } from '@mui/material';
 import React, { useEffect, useRef } from 'react';
 import { useState } from 'react';
 import { VerticalTabs } from '../Components/VerticalTabs';
+import { socket } from '../socket';
 import { useFetchCurrentUser } from '../utils/hooks/useFetchCurrentUser';
 import { fetchRoomMessages, fetchRooms, initiateSocket, sendMessage, subscribeToMessages, switchRoom } from '../utils/socket_helpers';
 import { CenteredDiv } from '../utils/styles';
@@ -59,6 +60,15 @@ export function Chat (props: IChatProps) {
 	// eslint-disable-next-line
 	}, []);
 
+	useEffect(() => {
+		socket.on("room_switched", (data: any) => {
+			fetchRooms().then((res: Room[]) => {
+				setRooms(res);
+				setRoomsLoading(false);
+			});
+		});
+	}, []);
+
 	const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setMessage(event.target.value);
 	}
@@ -96,6 +106,7 @@ export function Chat (props: IChatProps) {
 			messagesLoading={messagesLoading}
 			messageChange={handleMessageChange}
 			messageSend={handleMessageSend}
+			prevRoom={prevRoom}
 		/>
 	);
 }

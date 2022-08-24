@@ -1,4 +1,6 @@
-import { Controller, Get, Inject, Param, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, UseGuards } from '@nestjs/common';
+import { retry } from 'rxjs';
+import { CreateRoomDto } from 'src/typeorm';
 import { AuthenticatedGuard } from '../auth/guards/intra-oauth.guard';
 import { ChatService } from './chat.service';
 
@@ -19,5 +21,13 @@ export class ChatController {
 	async getRoomMessages(@Param('room_name') room_name: string) {
 		const room = await this.chatService.getRoomByName(room_name);
 		return this.chatService.getRoomMessages(room.id);
+	}
+
+	@Post('create_channel')
+	async createChannel(@Body() roomDto: CreateRoomDto) {
+		const room = await this.chatService.getRoomByName(roomDto.name);
+		if (room)
+			return ;
+		return this.chatService.createRoom(roomDto);
 	}
 }

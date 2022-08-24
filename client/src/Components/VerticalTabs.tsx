@@ -4,6 +4,7 @@ import * as React from 'react';
 import { CenteredDiv } from '../utils/styles';
 import { Message, MessageGroup, Room, User } from '../utils/types';
 import { ChatMsg } from './ChatMsg';
+import { ButtonCreateChannels } from './ButtonCreateChannels';
 
 interface ITabPanelProps {
 	title: string;
@@ -28,7 +29,7 @@ const TabPanel = (props: ITabPanelProps) => {
 			style={{ flexGrow: 1 }}
 		>
 			{value === index && (
-				<Box sx={{ p: 3, minWidth: '80vw', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+				<Box sx={{ p: 3, minWidth: '80vw', display: 'flex', flexDirection: 'column', height: '100%', justifyContent:'space-between' }}>
 					<Typography sx={{ flexGrow: 0 }}>{title}</Typography>
 					<div style={{ flexGrow: 1, maxHeight: '80vh', overflowY: 'auto' }}>
 						{children}
@@ -63,10 +64,11 @@ export interface IVerticalTabsProps {
 	messagesLoading: boolean;
 	messageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	messageSend: (event: React.FormEvent) => void;
+	prevRoom: Room | undefined;
 };
 
 export const VerticalTabs = (props: IVerticalTabsProps) => {
-	const { rooms, message, messages, currentUser, switchRooms, messagesLoading, messageChange, messageSend } = props;
+	const { rooms, message, messages, currentUser, switchRooms, messagesLoading, messageChange, messageSend, prevRoom } = props;
 	const [value, setValue] = React.useState(0);
 
 	const mapChatBubbles = () => {
@@ -108,15 +110,18 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 				bgColor: 'background.paper',
 				flexGrow: 2,
 				display: 'flex',
+				maxHeight: "100%",
+				overflow: 'hidden',
 			}}
 		>
+			<div style={{ display: 'flex', flexDirection: 'column', flexGrow: 1, maxWidth: '20vw'  }}>
 			<Tabs
 				orientation='vertical'
 				variant="scrollable"
 				value={value}
 				onChange={handleChange}
 				aria-label="Chat channels"
-				sx={{ borderRight: 1, borderColor: 'divider', maxWidth: '20vw', flexGrow: 1 }}
+				sx={{ borderRight: 1, borderColor: 'divider' }}
 			>
 				{rooms.map((room, i) => {
 					return (
@@ -124,6 +129,8 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 					)
 				})}
 			</Tabs>
+			<ButtonCreateChannels prevRoom={prevRoom}/>
+			</div>
 			{rooms.map((room, i) => {
 				return (
 					<TabPanel

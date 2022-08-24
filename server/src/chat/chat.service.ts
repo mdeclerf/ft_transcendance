@@ -9,7 +9,9 @@ export class ChatService {
 	constructor(
 		@InjectRepository(Chat) private readonly chatRepo: Repository<Chat>,
 		@InjectRepository(Room) private readonly roomRepo: Repository<Room>,
-	) {}
+	) {
+		this.roomRepo.upsert({ name: 'General', type: 0 }, ["name"]);
+	}
 
 	//get all the table
 	public	getChat() : Promise<Chat[]> {
@@ -65,7 +67,7 @@ export class ChatService {
 		.insert()
 		.orIgnore()
 		.into(Room)
-		.values([{name, type: 0}]) //type should be 'public' be it won't compile idk why
+		.values({name, type: 0}) //type should be 'public' be it won't compile idk why
 		.execute();
 		return this.roomRepo.findOneBy({ name: name });
 	}
@@ -73,5 +75,4 @@ export class ChatService {
 	public createRoom(body: CreateRoomDto): Promise<Room> {
 		return this.roomRepo.save(body);
 	}
-
 }
