@@ -15,7 +15,6 @@ import { v4 as uuidv4 } from 'uuid';
 // 	},
 // })
 
-// @UseGuards(JwtAuthGuard)
 @WebSocketGateway({ cors: true })
 export class ChatGateway
 {
@@ -40,6 +39,13 @@ export class ChatGateway
 		// console.log(this.server.sockets.adapter.rooms.get(room));
 	}
 
+	@SubscribeMessage('room_leave')
+	async roomLeave(client: Socket, room: string) {
+		client.leave(room);
+		const currentUser = await this.userService.findUserBySocketId(client.id);
+		client.broadcast.to(room).emit('room_user_leave', currentUser);
+	}
+
 	@SubscribeMessage('room_switch')
 	async roomSwitch(client: Socket, roomInfo: RoomInfo) {
 		const { prevRoom, room } = roomInfo;
@@ -49,6 +55,7 @@ export class ChatGateway
 		if (room) {
 			client.join(room);
 		}
+
 		const sockets = Array.from(this.server.sockets.adapter.rooms.get(room));
 		const users = await Promise.all(sockets.map(async (socketId) => {
 			return await this.userService.findUserBySocketId(socketId);
@@ -57,7 +64,9 @@ export class ChatGateway
 		client.broadcast.to(room).emit('room_user_join', currentUser);
 		client.broadcast.to(prevRoom).emit('room_user_leave', currentUser);
 		client.emit('room_users', users);
-
+		
+		client.broadcast.emit('room_switched');
+		client.emit('room_switched');
 	}
 
 	@SubscribeMessage('message_send')

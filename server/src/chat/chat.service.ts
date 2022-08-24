@@ -67,7 +67,7 @@ export class ChatService {
 		.insert()
 		.orIgnore()
 		.into(Room)
-		.values([{name, type: 0}]) //type should be 'public' be it won't compile idk why
+		.values({name, type: 0}) //type should be 'public' be it won't compile idk why
 		.execute();
 		return this.roomRepo.findOneBy({ name: name });
 	}
@@ -75,5 +75,4 @@ export class ChatService {
 	public createRoom(body: CreateRoomDto): Promise<Room> {
 		return this.roomRepo.save(body);
 	}
-
 }
