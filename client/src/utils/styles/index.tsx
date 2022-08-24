@@ -23,6 +23,6 @@ export const ProfileDiv = styled.div`
 
 export const StyledSpeedDial = styled(SpeedDial)`
 	position: absolute;
-	bottom: 80px;
+	bottom: 16px;
 	left: 16px;
 `

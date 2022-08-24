@@ -52,7 +52,7 @@ export function SearchBar (props: ISearchBarProps) {
 		<div>
 			<Paper
 				component="div"
-				sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 400 }}
+				sx={{ p: '2px 4px', display: 'flex', alignItems: 'center', width: 300 }}
 			>
 				<Autocomplete
 					loading={loading}

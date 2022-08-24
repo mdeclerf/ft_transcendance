@@ -121,24 +121,28 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 		<Box
 			sx={{
 				bgColor: 'background.paper',
-				flexGrow: 2,
+				flexGrow: 1,
+				maxHeight: 'calc(100vh - 64px)',
 				display: 'flex',
 			}}
 		>
-			<Tabs
-				orientation='vertical'
-				variant="scrollable"
-				value={value}
-				onChange={handleChange}
-				aria-label="Chat channels"
-				sx={{ borderRight: 1, borderColor: 'divider', maxWidth: '20vw', flexGrow: 1 }}
-			>
-				{rooms.map((room, i) => {
-					return (
-						<Tab label={room.name} key={i} {...a11yProps(i)} />
-					)
-				})}
-			</Tabs>
+			<Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+				<Button variant="contained" sx={{ m: '2%' }}>Test</Button>
+				<Tabs
+					orientation='vertical'
+					variant="scrollable"
+					value={value}
+					onChange={handleChange}
+					aria-label="Chat channels"
+					sx={{ borderRight: 1, borderColor: 'divider', maxWidth: '20vw' }}
+				>
+					{rooms.map((room, i) => {
+						return (
+							<Tab label={room.name} key={i} {...a11yProps(i)} />
+						)
+					})}
+				</Tabs>
+			</Box>
 			{rooms.map((room, i) => {
 				return (
 					<TabPanel

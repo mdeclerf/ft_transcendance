@@ -1,11 +1,12 @@
 // import { AppBar, Button, Menu, MenuItem, Stack, SvgIcon, Toolbar, Typography } from '@mui/material';
-import { AppBar, Button, Stack, SvgIcon, Toolbar, Typography } from '@mui/material';
+import { AppBar, Button, IconButton, Stack, SvgIcon, Toolbar, Typography } from '@mui/material';
 import Svg42Logo from './Svg42Logo';
 import { styled } from '@mui/material/styles';
 import { Account } from './Account';
 import { User } from '../utils/types';
 import { Link } from 'react-router-dom';
 import { SearchBar } from './Search';
+import ColorLensIcon from '@mui/icons-material/ColorLens';
 // import React, { useState } from 'react';
 
 const StyledToolbar = styled(Toolbar)`
@@ -15,10 +16,11 @@ const StyledToolbar = styled(Toolbar)`
 
 export interface IHeaderProps {
 	user: User | undefined;
+	setColors: (value: React.SetStateAction<boolean>) => void;
 }
 
 export function Header (props: IHeaderProps) {
-	const { user } = props;
+	const { user, setColors } = props;
 
 	const redirect = () => {
 		window.location.href = "http://localhost:3001/api/auth/login";
@@ -55,7 +57,7 @@ export function Header (props: IHeaderProps) {
 	)
 
 	const buttons = (
-		<Stack spacing={2} direction="row">
+		<Stack spacing={0} direction="row">
 			<Button
 				variant="text"
 				component={Link}
@@ -118,6 +120,9 @@ export function Header (props: IHeaderProps) {
 				{/* {homeButton} */}
 				<div>{buttons}</div>
 				<div style={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}><SearchBar /></div>
+				<IconButton onClick={() => setColors((prev: any) => !prev)} sx={{ backgroundColor: '#E6EEE8', '&:hover': { backgroundColor: '#e6eee8bc'}}}>
+					<ColorLensIcon />
+				</IconButton>
 				<div>{loginButton}</div>
 			</StyledToolbar>
 		)

@@ -11,9 +11,7 @@ import { Dialog, DialogActions, DialogContentText, DialogTitle, Grid} from '@mui
 import { CssBaseline } from "@mui/material";
 import { ThemeProvider } from '@mui/material/styles';
 import { Header } from './Components/Header';
-import { Fab } from '@mui/material';
-import ColorLensIcon from '@mui/icons-material/ColorLens';
-import { Avatar, Button, CircularProgress } from '@mui/material/';
+import { Avatar, Button } from '@mui/material/';
 import { CenteredDiv } from './utils/styles';
 import { LeaderBoard } from './Pages/Leaderboard';
 import { MyAccount } from './Pages/MyAccount';
@@ -28,13 +26,6 @@ import { Friends } from './Components/Friends';
 import { socket } from './socket';
 import { User } from './utils/types';
 import { Link } from 'react-router-dom';
-
-const fabStyle = {
-	position: 'absolute',
-	bottom: 16,
-	left: 16,
-	flexGrow: 1,
-};
 
 function App() {
 	const { user, setUser } = useFetchCurrentUser();
@@ -91,11 +82,8 @@ function App() {
 	return (
 		<div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
 			<ThemeProvider theme={colors ? theme_1 : theme_2}>
-				<Header user={user}/>
+				<Header user={user} setColors={setColors}/>
 				<CssBaseline/>
-				<Fab sx={fabStyle} color="primary" onClick={() => setColors((prev: any) => !prev)}>
-					<ColorLensIcon />
-				</Fab>
 
 				{((user && !user.isTwoFactorAuthenticationEnabled) || (user && user.isTwoFactorAuthenticationEnabled && user.isSecondFactorAuthenticated)) ?
 					<Routes>
