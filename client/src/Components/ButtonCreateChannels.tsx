@@ -1,30 +1,49 @@
-import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import * as React from 'react';
+import {
+	Button,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogContentText,
+	DialogTitle,
+	TextField,
+} from '@mui/material';
 import axios from 'axios';
-import { Room } from '../utils/types';
+import * as React from 'react';
 import { socket } from '../socket';
-// import { switchRoom } from '../utils/socket_helpers';
+import { Room } from '../utils/types';
 
 export interface SimpleDialogProps {
-		open: boolean;
-		setOpen: (value: boolean) => void;
-		switchRooms: (room: Room) => void;
-	}
-	
+	open: boolean;
+	setOpen: (value: boolean) => void;
+	switchRooms: (room: Room) => void;
+}
+
 function SimpleDialog(props: SimpleDialogProps) {
 	const { setOpen, open, switchRooms } = props;
 
 	const [name, setName] = React.useState<string>('');
 	const [taken, setTaken] = React.useState<boolean>(false);
 
-	const handleChangeName = (event: any) => {
+	const handleChangeName = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setTaken(false);
-		setName(event.target.value as string);
+		setName(event.target.value);
+	};
+
+	const handleEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
+		if (event.key === 'Enter') {
+			handleClose();
+		}
 	};
 
 	const handleClose = () => {
-		axios.post("http://localhost:3001/api/chat/create_channel", {name: name.toLowerCase(), type: 'public', hash: ""})
+		setOpen(false);
+		axios
+			.post('http://localhost:3001/api/chat/create_channel', {
+				name: name.toLowerCase(),
+				type: 'public',
+				hash: '',
+			})
 			.then((res) => {
 				if (res.data)
 				{
@@ -34,18 +53,18 @@ function SimpleDialog(props: SimpleDialogProps) {
 				{
 					setOpen(false);
 					socket.emit('room_created', name);
-					switchRooms({ name });
+					switchRooms({ name, type: 'public' });
 				}
 			})
-			.catch(err => {
+			.catch((err) => {
 				if (err) throw err;
 			});
-		setName("");
+		setName('');
 	};
 
 	const handleCancel = () => {
 		setOpen(false);
-		setName("");
+		setName('');
 	};
 
 	return (
@@ -74,7 +93,7 @@ function SimpleDialog(props: SimpleDialogProps) {
 
 export interface IButtonCreateChannelsProps {
 	switchRooms: (room: Room) => void;
-};
+}
 
 export const ButtonCreateChannels = (props: IButtonCreateChannelsProps) => {
 	const { switchRooms } = props;
@@ -83,10 +102,16 @@ export const ButtonCreateChannels = (props: IButtonCreateChannelsProps) => {
 	const handleClickOpen = () => {
 		setOpen(true);
 	};
-	
+
 	return (
 		<div>
-			<Button sx={{marginTop:"2%"}} variant="outlined" startIcon={<AddIcon />} onClick={handleClickOpen} fullWidth>
+			<Button
+				sx={{ marginTop: '2%' }}
+				variant="outlined"
+				startIcon={<AddIcon />}
+				onClick={handleClickOpen}
+				fullWidth
+			>
 				Create channel
 			</Button>
 			<SimpleDialog
@@ -95,5 +120,5 @@ export const ButtonCreateChannels = (props: IButtonCreateChannelsProps) => {
 				switchRooms={switchRooms}
 			/>
 		</div>
-	)
-}
+	);
+};

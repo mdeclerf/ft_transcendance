@@ -15,7 +15,7 @@ export function Chat (props: IChatProps) {
 	const { socketLoading } = props;
 	const { user } = useFetchCurrentUser();
 	const [message, setMessage] = useState("");
-	const [room, setRoom] = useState<Room>({ name: "general" });
+	const [room, setRoom] = useState<Room>({ name: "general", type: 'public' });
 	const [rooms, setRooms] = useState<Room[]>([]);
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [messagesLoading, setMessagesLoading] = useState(true);
@@ -47,6 +47,10 @@ export function Chat (props: IChatProps) {
 		}
 	// eslint-disable-next-line
 	}, [room, socketLoading]);
+
+	// useEffect(() => {
+	// 	console.log(rooms);
+	// }, [rooms])
 
 	// get available rooms
 	useEffect(() => {

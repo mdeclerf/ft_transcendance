@@ -17,6 +17,7 @@ export class ChatUser {
 	@ManyToOne(() => User, (user) => user.chat_user)
 	user: User
 
+
 	@Column({type: 'text'})
 	public status: "user" | "owner" | "admin" | "muted" | "banned";
 }

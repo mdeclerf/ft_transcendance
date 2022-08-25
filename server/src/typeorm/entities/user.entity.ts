@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Chat, Game, ChatUser } from "../";
 import { Subscription } from "./subscription.entity";
 import { Blocklist } from "../";

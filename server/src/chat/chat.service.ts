@@ -71,7 +71,6 @@ export class ChatService {
 
 	public getActiveRooms() : Promise<Room[]> {
 		return this.roomRepo.createQueryBuilder('room')
-			.select('room.name')
 			.orderBy('room.id', 'ASC')
 			.getMany();
 	}

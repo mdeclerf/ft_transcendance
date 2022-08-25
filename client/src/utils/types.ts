@@ -52,6 +52,7 @@ export type Message = {
 
 export type Room = {
 	name: string;
+	type: 'public' | 'protected' | 'private';
 }
 
 export type MessageGroup = {
@@ -69,6 +70,8 @@ export type CurrentMatch = {
 export type Ranking = {
 	user : User;
 	victories : number;
+	losses : number;
+	ratio : number;
 }
 
 export type GameJoinRoomData = {

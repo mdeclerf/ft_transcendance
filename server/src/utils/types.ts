@@ -53,6 +53,8 @@ export type Game = {
 export type Ranking = {
 	user : UserDetails;
 	victories: number;
+	losses: number;
+	ratio: number;
 }
 
 export type GameJoinRoomData = {

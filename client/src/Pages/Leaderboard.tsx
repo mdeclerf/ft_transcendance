@@ -1,6 +1,6 @@
 import { useFetchLeader } from "../utils/hooks/useFetchLeaderBoard";
 import { Avatar, Box, Grid, List, ListItem, ListItemText, ListItemAvatar} from "@mui/material/";
-import { User } from "../utils/types";
+import { User, Ranking } from "../utils/types";
 import { Link } from 'react-router-dom';
 
 export interface IBoardProps {
@@ -10,12 +10,10 @@ export interface IBoardProps {
 export const LeaderBoard = (props: IBoardProps) => {
 
      const { user } = props;
-     let leader = useFetchLeader().Response;
+     let leader : Ranking[] | undefined = useFetchLeader().Response;
 
-     // ratio win loss trie ca;
-     
      leader?.sort((a, b) => {
-          return b.victories - a.victories;
+          return b.ratio - a.ratio;
       });
 
      let backHeight: number;
@@ -24,7 +22,7 @@ export const LeaderBoard = (props: IBoardProps) => {
 	else
 		backHeight = 80;
 
-     const getRanking = (player: User, victories : number, i: number) => {
+     const getRanking = (player: User, ratio : number, victories: number, losses: number, i: number) => {
           let path = `/user/${player.username}`;
 		return (
 			<ListItem
@@ -50,7 +48,10 @@ export const LeaderBoard = (props: IBoardProps) => {
 
 				<ListItemText
 					sx={{ fontFamily: 'Work Sans, sans-serif', fontSize: 70, color: 'black'}}
-					primary={`${player.username} | Number of matches won: ${victories}`}
+					primary={`${player.username} 
+                         | Succes ratio: ${Math.round(ratio * 100) / 100}
+                         | Number of matches won: ${victories}
+                         | Number of matches lost: ${losses}`}
 				/>
 			</ListItem>
 		)
@@ -58,7 +59,7 @@ export const LeaderBoard = (props: IBoardProps) => {
 
      const generate = () => {
           return leader?.map((item, i) => {
-			return getRanking(item.user, item.victories, i);
+			return getRanking(item.user, item.ratio, item.victories, item.losses, i);
 		})
      }
 
