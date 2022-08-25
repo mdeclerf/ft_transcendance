@@ -19,8 +19,4 @@ export class ChatUser {
 
 	@Column({type: 'text'})
 	public status: "user" | "owner" | "admin" | "muted" | "banned";
-
-	// Date when the ban or the mute is over
-	@Column()
-	public endStatusDate: Date;
 }

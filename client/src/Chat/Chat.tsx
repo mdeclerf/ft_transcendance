@@ -83,6 +83,7 @@ export function Chat (props: IChatProps) {
 		setMessagesLoading(true);
 
 		fetchRoomMessages(room.name).then((res: Message[]) => {
+			console.log(res);
 			setMessages(res);
 			setMessagesLoading(false);
 		});

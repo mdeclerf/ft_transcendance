@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Chat, CreateChatDto, CreateRoomDto, Room } from '../typeorm/';
+import { Blocklist, Chat, CreateChatDto, CreateRoomDto, Room, User } from '../typeorm/';
 import { Repository } from 'typeorm';
 import { PasswordDto } from 'src/utils/password.dto';
 
@@ -10,6 +10,8 @@ export class ChatService {
 	constructor(
 		@InjectRepository(Chat) private readonly chatRepo: Repository<Chat>,
 		@InjectRepository(Room) private readonly roomRepo: Repository<Room>,
+		@InjectRepository(User) private readonly userRepo: Repository<User>,
+		@InjectRepository(Blocklist) private readonly blockRepo: Repository<Blocklist>,
 	) {
 		this.roomRepo.upsert({ name: 'general', type: 'public' }, ["name"]);
 	}
@@ -19,8 +21,19 @@ export class ChatService {
 		return this.chatRepo.find();
 	}
 
+	//select * from users left join blocklist on blocklist.blockee_id = users.id where blocklist.blocker_id = 1;
 	//Return every message of a room
-	public getRoomMessages(room_id: number) : Promise<Chat[]> {
+	public async getRoomMessages(room_id: number, user: User) : Promise<Chat[]> {
+		//const blocklist = await this.blockRepo.createQueryBuilder('blocklist')
+		//	.leftJoinAndSelect('blocklist.blockee', 'blockee')
+		//	.where('blocklist.blocker = :id', { id: user.id })
+		//	.getMany()
+		//console.log(blocklist.map((blockEntry) => { return (blockEntry.blockee) }));
+		const blocklist = await this.userRepo.createQueryBuilder('users')
+			.leftJoinAndSelect('users.blocking', 'blocker')
+			.where('blocker.blocker = :id', { id: user.id })
+			.getMany()
+		console.log(blocklist);
 		const result = this.chatRepo.createQueryBuilder('chat')
 			.leftJoinAndSelect('chat.user', 'user')
 			.where('chat.room_id = :id', { id: room_id })
@@ -68,7 +81,7 @@ export class ChatService {
 		.insert()
 		.orIgnore()
 		.into(Room)
-		.values({name, type: 'public'}) //type should be 'public' be it won't compile idk why
+		.values({name, type: 'public'})
 		.execute();
 		return this.roomRepo.findOneBy({ name: name });
 	}
