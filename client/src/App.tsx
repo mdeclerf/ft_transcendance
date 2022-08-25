@@ -35,6 +35,7 @@ function App() {
 	const [colors, setColors] = React.useState(true);
 	const [invitation, setInvitation] = React.useState(false);
 	const [invitingUser, setInvitingUser] = React.useState<User>();
+	const [socketLoading, setSocketLoading] = useState(true);
 
 	useEffect(() => {
 		const keyDownHandler = (event: KeyboardEvent) => {
@@ -51,8 +52,18 @@ function App() {
 	}, []);
 
 	useEffect(() => {
-		if (user) socket.emit('identity', user?.id);
+		if (user && socket) {
+			socket.emit('identity', user?.id);
+		}
 	}, [user]);
+
+	useEffect(() => {
+		if (socket) {
+			socket.on('socket_saved', () => {
+				setSocketLoading(false);
+			});
+		}
+	}, [])
 	
 	useEffect(() => {
 		socket.on('invitation_alert', (message:User) => {
@@ -87,7 +98,7 @@ function App() {
 				{((user && !user.isTwoFactorAuthenticationEnabled) || (user && user.isTwoFactorAuthenticationEnabled && user.isSecondFactorAuthenticated)) ?
 					<Routes>
 						<Route path="/" element={<WelcomePage/>} />
-						<Route path="/chat" element={<Chat/>}/>
+						<Route path="/chat" element={<Chat socketLoading={socketLoading}/>}/>
 						<Route path="/profile" element={<UserPage userProps={user}/>} />
 						<Route path="/user/:username" element={<UserPage/>}/>
 						<Route path="/account" element={<MyAccount user={user} setUser={setUser}/>} />

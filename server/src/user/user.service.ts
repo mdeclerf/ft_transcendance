@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Game, Subscription, User} from '../typeorm/';
+import { BlockList, Game, Subscription, User} from '../typeorm/';
 import { UserDetails, Ranking } from '../utils/types';
 import { Repository } from 'typeorm';
 
@@ -10,6 +10,7 @@ export class UserService {
 		@InjectRepository(User) private readonly userRepo: Repository<User>,
 		@InjectRepository(Game) private readonly gameRepo: Repository<Game>,
 		@InjectRepository(Subscription) private readonly subRepo: Repository<Subscription>,
+		@InjectRepository(BlockList) private readonly blockRepo: Repository<BlockList>,
 	) {}
 
 	async updateOne(details: UserDetails) {
@@ -110,6 +111,13 @@ export class UserService {
 			.getOne();
 		
 		return result !== null;
+	}
+
+	async blockUser(userId: number, blockeeId: number) {
+		const block = this.blockRepo.create();
+		block.blocker = await this.userRepo.findOneBy({ id: userId });
+		block.blockee = await this.userRepo.findOneBy({ id: blockeeId });
+		await this.blockRepo.save(block);
 	}
 
 	async complete(query: string) {

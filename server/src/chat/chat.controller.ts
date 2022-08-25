@@ -35,12 +35,6 @@ export class ChatController {
 	@Post('send_password')
 	async sendPassword(@Body() password: PasswordDto) {
 		const hashedPassword = bcrypt.hashSync(password.password, '$2a$10$CwTycUXWue0Thq9StjUM0u')
-
 		this.chatService.updateRoom({ name: password.name, password: hashedPassword });
-		
-		// const room = await this.chatService.getRoomByName(roomDto.name);
-		// if (room)
-		// 	return ;
-		// return this.chatService.createRoom(roomDto);
 	}
 }

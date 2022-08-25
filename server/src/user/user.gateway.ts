@@ -13,5 +13,6 @@ export class UserGateway {
 	@SubscribeMessage('identity')
 	handleMessage(client: Socket, user_id: number) {
 		this.userService.addSocketId(user_id, client.id);
+		client.emit('socket_saved');
 	}
 }

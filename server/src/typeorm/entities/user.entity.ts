@@ -1,6 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Chat, Game } from "../";
+import { Chat, Game, ChatUser } from "../";
 import { Subscription } from "./subscription.entity";
+import { BlockList } from "../";
 
 @Entity({ name: 'users' })
 export class User {
@@ -38,14 +39,20 @@ export class User {
 	@Column({name: 'socket_id', nullable: true})
 	socketId: string;
 
-	// @OneToMany(() => ChatUser, (chat_user) => chat_user.user)
-	// chat_user: ChatUser[]
+	@OneToMany(() => ChatUser, (chat_user) => chat_user.user)
+	chat_user: ChatUser[]
 
 	@OneToMany(type => Subscription, subscription => subscription.subscriber)
 	subscriptions: Subscription[];
 
 	@OneToMany(type => Subscription, subscription => subscription.subscribedTo)
 	subscribers: Subscription[];
+
+	@OneToMany(type => BlockList, blocklist => blocklist.blockee)
+	blocking: BlockList[];
+
+	@OneToMany(type => BlockList, blocklist => blocklist.blocker)
+	blocked_by: BlockList[];
 
 	@OneToMany(() => Game, (game) => game.player_1)
 	p1_game: Game[]

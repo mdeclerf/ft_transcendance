@@ -1,10 +1,11 @@
-import { Box, Button, Tab, Tabs, TextField, Typography, Divider, AvatarGroup, Avatar } from '@mui/material';
 import SendIcon from '@mui/icons-material/Send';
+import { Avatar, AvatarGroup, Box, Button, Divider, Tab, Tabs, TextField, Tooltip, Typography } from '@mui/material';
 import * as React from 'react';
+import { subscribeToAutoSwitchRoom } from '../utils/socket_helpers';
 import { Message, MessageGroup, Room, User } from '../utils/types';
-import { ChatMsg } from './ChatMsg';
 import { ButtonCreateChannels } from './ButtonCreateChannels';
 import { RoomSettings } from './RoomSettings';
+import { ChatMsg } from './ChatMsg';
 
 interface ITabPanelProps {
 	title: string;
@@ -37,11 +38,13 @@ const TabPanel = (props: ITabPanelProps) => {
 
 	const getFirstFourNonSelfUsers = () => {
 		if (roomUsers.length) {
-			const tmp = roomUsers.filter(user => user.id !== currentUser?.id).slice(0, 3);
+			const tmp = roomUsers.filter(user => user && currentUser && user.id !== currentUser.id).slice(0, 3);
 
 			return tmp.map((user, i) => {
 				return (
-					<Avatar alt={user.username} src={user.photoURL} key={i}/>
+					<Tooltip title={user.username} key={i}>
+						<Avatar alt={user.username} src={user.photoURL} key={i}/>
+					</Tooltip>
 				)
 			})
 		}
@@ -97,17 +100,10 @@ export interface IVerticalTabsProps {
 	messageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
 	messageSend: () => void;
 	roomUsers: User[];
-	prevRoom: Room | undefined;
 };
 
-// export const VerticalTabs = (props: IVerticalTabsProps) => {
-// 	const { rooms, message, messages, currentUser, switchRooms, messagesLoading, messageChange, messageSend, prevRoom } = props;
-// 	messageSend: () => void;
-// 	roomUsers: User[];
-// };
-
 export const VerticalTabs = (props: IVerticalTabsProps) => {
-	const { rooms, message, messages, currentUser, switchRooms, messageChange, messageSend, roomUsers, prevRoom } = props;
+	const { rooms, message, messages, currentUser, switchRooms, messageChange, messageSend, roomUsers } = props;
 	const [value, setValue] = React.useState(0);
 	const [formattedMessages, setFormattedMessages] = React.useState<MessageGroup[]>([]);
 
@@ -128,6 +124,12 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 		setFormattedMessages([]);
 		setFormattedMessages(msgGrp);
 	}, [messages, currentUser?.id]);
+
+	React.useEffect(() => {
+		subscribeToAutoSwitchRoom((data) => {
+			setValue(data);
+		})
+	}, [])
 
 	const mapChatBubbles = () => {
 		return formattedMessages.map((msg, i) => {
@@ -158,14 +160,14 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 			}}
 		>
 			<Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-				<ButtonCreateChannels prevRoom={prevRoom} switchRooms={switchRooms} setValue={setValue} numRooms={rooms.length}/>
+				<ButtonCreateChannels switchRooms={switchRooms}/>
 				<Tabs
 					orientation='vertical'
 					variant="scrollable"
 					value={value}
 					onChange={handleChange}
 					aria-label="Chat channels"
-					sx={{ borderRight: 1, borderColor: 'divider', maxWidth: '20vw' }}
+					sx={{ borderRight: 1, borderColor: 'divider', maxWidth: '20vw', flexGrow: 1 }}
 				>
 					{rooms.map((room, i) => {
 						return (

@@ -39,6 +39,13 @@ export class ChatGateway
 		// console.log(this.server.sockets.adapter.rooms.get(room));
 	}
 
+	@SubscribeMessage('room_leave')
+	async roomLeave(client: Socket, room: string) {
+		client.leave(room);
+		const currentUser = await this.userService.findUserBySocketId(client.id);
+		client.broadcast.to(room).emit('room_user_leave', currentUser);
+	}
+
 	@SubscribeMessage('room_switch')
 	async roomSwitch(client: Socket, roomInfo: RoomInfo) {
 		const { prevRoom, room } = roomInfo;
@@ -54,12 +61,23 @@ export class ChatGateway
 			return await this.userService.findUserBySocketId(socketId);
 		}));
 		const currentUser = await this.userService.findUserBySocketId(client.id);
-		client.broadcast.to(room).emit('room_user_join', currentUser);
 		client.broadcast.to(prevRoom).emit('room_user_leave', currentUser);
+		client.broadcast.to(room).emit('room_user_join', currentUser);
 		client.emit('room_users', users);
-		
-		client.broadcast.emit('room_switched');
-		client.emit('room_switched');
+	}
+
+	@SubscribeMessage('room_created')
+	async roomCreated(client: Socket, room: string) {
+		this.server.emit('new_room', { name: room });
+		const rooms = await this.chatService.getActiveRooms();
+		let index;
+		for (let i = 0; i < rooms.length; i++) {
+			if (rooms[i].name === room) {
+				index = i;
+				break;
+			}
+		}
+		client.emit('autoswitch_room', index);
 	}
 
 	@SubscribeMessage('message_send')
@@ -81,8 +99,6 @@ export class ChatGateway
 		const invitingUser: User = await this.userService.findUserById(message[0]);
 		const invitedUser: User = await this.userService.findUserById(message[1]);
 		const unique_id = uuidv4();
-		// console.log(`inviting ${invitingUser.username} ${invitingUser.socketId}`);
-		// console.log(`invited ${invitedUser.username} ${invitedUser.socketId}`);
 		this.server.to(invitedUser.socketId).emit("make_game_room", unique_id);
 		this.server.to(invitingUser.socketId).emit("make_game_room", unique_id);
 	}
