@@ -1,6 +1,6 @@
 import { IsInt, IsPositive } from "class-validator";
 
-export class CreateBlockListDto {
+export class CreateBlocklistDto {
 	@IsInt()
 	@IsPositive()
 	public user_id: number;

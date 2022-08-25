@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BlockList, Game, Subscription, User} from '../typeorm/';
+import { Blocklist, Game, Subscription, User} from '../typeorm/';
 import { UserDetails, Ranking } from '../utils/types';
 import { Repository } from 'typeorm';
 
@@ -10,7 +10,7 @@ export class UserService {
 		@InjectRepository(User) private readonly userRepo: Repository<User>,
 		@InjectRepository(Game) private readonly gameRepo: Repository<Game>,
 		@InjectRepository(Subscription) private readonly subRepo: Repository<Subscription>,
-		@InjectRepository(BlockList) private readonly blockRepo: Repository<BlockList>,
+		@InjectRepository(Blocklist) private readonly blockRepo: Repository<Blocklist>,
 	) {}
 
 	async updateOne(details: UserDetails) {
@@ -56,30 +56,43 @@ export class UserService {
 		let leaderBoard = new Map<string, Ranking>();
 		for (let i = 0; i < games.length; i++)
 		{
-			leaderBoard.set(games[i].player_1.intraId, {user: games[i].player_1, victories: 0});
-			leaderBoard.set(games[i].player_2.intraId, {user: games[i].player_2, victories: 0});
+			leaderBoard.set(games[i].player_1.intraId, {user: games[i].player_1, victories: 0, losses: 0, ratio: 0});
+			leaderBoard.set(games[i].player_2.intraId, {user: games[i].player_2, victories: 0, losses: 0, ratio: 0});
 		}
 
 		for (let i = 0; i < games.length; i++)
 		{
 			if (games[i].player_1_score > games[i].player_2_score)
 			{
-				let tmp : number = leaderBoard.get(games[i].player_1.intraId).victories;
-				tmp ++ ;
-				leaderBoard.set(games[i].player_1.intraId, {user: games[i].player_1, victories: tmp} );
+				let tmp_vict : number = leaderBoard.get(games[i].player_1.intraId).victories;
+				let tmp_los : number = leaderBoard.get(games[i].player_1.intraId).losses;
+				tmp_vict ++ ;
+				leaderBoard.set(games[i].player_1.intraId, {user: games[i].player_1, victories: tmp_vict, losses: tmp_los, ratio: 0} );
+
+				tmp_vict = leaderBoard.get(games[i].player_2.intraId).victories;
+				tmp_los = leaderBoard.get(games[i].player_2.intraId).losses;
+				tmp_los ++ ;
+				leaderBoard.set(games[i].player_2.intraId, {user: games[i].player_2, victories: tmp_vict, losses: tmp_los, ratio: 0} );
 			}
 			if (games[i].player_2_score > games[i].player_1_score)
 			{
-				let tmp : number = leaderBoard.get(games[i].player_2.intraId).victories;
-				tmp ++ ;
-				leaderBoard.set(games[i].player_2.intraId, {user: games[i].player_2, victories: tmp} );
+				let tmp_vict : number = leaderBoard.get(games[i].player_2.intraId).victories;
+				let tmp_los : number = leaderBoard.get(games[i].player_2.intraId).losses;
+				tmp_vict ++ ;
+				leaderBoard.set(games[i].player_2.intraId, {user: games[i].player_2, victories: tmp_vict, losses: tmp_los, ratio: 0} );
+
+				tmp_vict = leaderBoard.get(games[i].player_1.intraId).victories;
+				tmp_los = leaderBoard.get(games[i].player_1.intraId).losses;
+				tmp_los ++ ;
+				leaderBoard.set(games[i].player_1.intraId, {user: games[i].player_1, victories: tmp_vict, losses: tmp_los, ratio: 0} );
 			}
 		}
 
 		let ret: Ranking[] = [];
 
 		leaderBoard.forEach((value) => {
-			let tmp : Ranking = {user : value.user, victories : value.victories};
+			let rat = value.losses == 0 && value.victories > 0 ? ((value.victories / 1)) : ((value.victories / value.losses));
+			let tmp : Ranking = {user : value.user, victories : value.victories, losses : value.losses, ratio: rat};
 			ret.push(tmp);
 		});
 
@@ -91,6 +104,16 @@ export class UserService {
 		sub.subscriber = await this.userRepo.findOneBy({ id: userId });
 		sub.subscribedTo = await this.userRepo.findOneBy({ id: friendUserId });
 		await this.subRepo.save(sub);
+	}
+
+	async removeFriend(userId: number, friendUserId: number) {
+		await this.subRepo.createQueryBuilder('subscription')
+			.leftJoinAndSelect('subscription.subscriber', 'subscriber')
+			.leftJoinAndSelect('subscription.subscribedTo', 'subscribedTo')
+			.delete()
+			.from(Subscription)
+			.where('subscriber.id = :userId AND subscribedTo.id = :friendUserId', { userId, friendUserId})
+			.execute()
 	}
 
 	async getFriends(userId: number) {
@@ -118,6 +141,26 @@ export class UserService {
 		block.blocker = await this.userRepo.findOneBy({ id: userId });
 		block.blockee = await this.userRepo.findOneBy({ id: blockeeId });
 		await this.blockRepo.save(block);
+	}
+
+	async unblockUser(userId: number, blockeeId: number) {
+		await this.blockRepo.createQueryBuilder('blocklist')
+			.leftJoinAndSelect('blocklist.blocker', 'blocker')
+			.leftJoinAndSelect('blocklist.blockee', 'blockee')
+			.delete()
+			.from(Blocklist)
+			.where('blocker.id = :userId AND blockee.id = :blockeeId', { userId, blockeeId})
+			.execute()
+	}
+
+	async isBlocked(userId: number, blockeeId: number) {
+		const result = await this.blockRepo.createQueryBuilder('blocklist')
+			.leftJoinAndSelect('blocklist.blocker', 'blocker')
+			.leftJoinAndSelect('blocklist.blockee', 'blockee')
+			.where('blocker.id = :userId AND blockee.id = :blockeeId', { userId, blockeeId})
+			.getOne();
+		
+		return result !== null;
 	}
 
 	async complete(query: string) {

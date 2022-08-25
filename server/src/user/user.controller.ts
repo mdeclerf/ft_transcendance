@@ -83,6 +83,12 @@ export class UserController {
 		this.userService.addFriend(req.user.id, friendId);
 	}
 
+	@Get('remove_friend')
+	@UseGuards(AuthenticatedGuard)
+	removeFriend(@Query('id') friendId: number, @Req() req: RequestWithUser) {
+		this.userService.removeFriend(req.user.id, friendId);
+	}
+
 	@Get('get_friends')
 	@UseGuards(AuthenticatedGuard)
 	async getFriends(@Req() req: RequestWithUser) {
@@ -105,6 +111,18 @@ export class UserController {
 	@UseGuards(AuthenticatedGuard)
 	blockUser(@Query('id') blockeeId: number, @Req() req: RequestWithUser) {
 		this.userService.blockUser(req.user.id, blockeeId);
+	}
+
+	@Get('unblock_user')
+	@UseGuards(AuthenticatedGuard)
+	unblockUser(@Query('id') blockeeId: number, @Req() req: RequestWithUser) {
+		this.userService.unblockUser(req.user.id, blockeeId);
+	}
+
+	@Get('is_blocked')
+	@UseGuards(AuthenticatedGuard)
+	isBlocked(@Query('id') blockeeId: number, @Req() req: RequestWithUser): Promise<boolean> {
+		return this.userService.isBlocked(req.user.id, blockeeId);
 	}
 
 	@Get('complete')

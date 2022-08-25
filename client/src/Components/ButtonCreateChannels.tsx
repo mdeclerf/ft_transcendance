@@ -23,8 +23,10 @@ function SimpleDialog(props: SimpleDialogProps) {
 	const { setOpen, open, switchRooms } = props;
 
 	const [name, setName] = React.useState<string>('');
+	const [taken, setTaken] = React.useState<boolean>(false);
 
 	const handleChangeName = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setTaken(false);
 		setName(event.target.value);
 	};
 
@@ -42,9 +44,17 @@ function SimpleDialog(props: SimpleDialogProps) {
 				type: 'public',
 				hash: '',
 			})
-			.then(() => {
-				socket.emit('room_created', name);
-				switchRooms({ name, type: 'public' });
+			.then((res) => {
+				if (res.data)
+				{
+					setTaken(true);
+				}
+				else
+				{
+					setOpen(false);
+					socket.emit('room_created', name);
+					switchRooms({ name, type: 'public' });
+				}
 			})
 			.catch((err) => {
 				if (err) throw err;
@@ -61,19 +71,17 @@ function SimpleDialog(props: SimpleDialogProps) {
 		<Dialog onClose={handleCancel} open={open}>
 			<DialogTitle>Create Channel</DialogTitle>
 			<DialogContent>
-				<DialogContentText>Create a new channel</DialogContentText>
-				<TextField
-					value={name}
-					onChange={handleChangeName}
-					onKeyDown={handleEnter}
-					label="Channel name"
-					type="password"
-					autoFocus
-					margin="normal"
-					variant="standard"
-					fullWidth
-					sx={{ mb: 2 }}
-				/>
+				<DialogContentText>
+					Create a new channel
+				</DialogContentText>
+				<TextField value={name} 
+				onChange={handleChangeName} 
+				label="Channel name" 
+				autoFocus margin="normal" 
+				variant="standard" 
+				error={taken}
+				helperText={taken ? "Channel already exists" : ""}
+				fullWidth sx={{mb:2}}/>
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={handleCancel}>Cancel</Button>

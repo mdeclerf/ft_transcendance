@@ -11,7 +11,7 @@ export class ChatService {
 		@InjectRepository(Chat) private readonly chatRepo: Repository<Chat>,
 		@InjectRepository(Room) private readonly roomRepo: Repository<Room>,
 	) {
-		this.roomRepo.upsert({ name: 'General', type: 'public' }, ["name"]);
+		this.roomRepo.upsert({ name: 'general', type: 'public' }, ["name"]);
 	}
 
 	//get all the table
