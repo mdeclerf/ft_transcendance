@@ -20,7 +20,6 @@ function SettingsDialog(props: SettingsDialogProps) {
 		setPassword(event.target.value as string);
 	};
 
-
 	const handleClose = () => {
 		setOpen(false);
 		// const hashedPassword = bcrypt.hashSync(password, '$2a$10$CwTycUXWue0Thq9StjUM0u'); // faut pas faire ca, faut hash cote server !

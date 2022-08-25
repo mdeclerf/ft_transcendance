@@ -11,6 +11,8 @@ export const LeaderBoard = (props: IBoardProps) => {
 
      const { user } = props;
      let leader = useFetchLeader().Response;
+
+     // ratio win loss trie ca;
      
      leader?.sort((a, b) => {
           return b.victories - a.victories;

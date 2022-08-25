@@ -83,6 +83,12 @@ export class UserController {
 		this.userService.addFriend(req.user.id, friendId);
 	}
 
+	@Get('remove_friend')
+	@UseGuards(AuthenticatedGuard)
+	removeFriend(@Query('id') friendId: number, @Req() req: RequestWithUser) {
+		this.userService.removeFriend(req.user.id, friendId);
+	}
+
 	@Get('get_friends')
 	@UseGuards(AuthenticatedGuard)
 	async getFriends(@Req() req: RequestWithUser) {

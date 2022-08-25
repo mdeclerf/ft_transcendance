@@ -64,8 +64,18 @@ export const Profile = (props: IProfileProps) => {
 		)
 	}
 
-	const handleFriend = (event: React.MouseEvent<HTMLButtonElement>) => {
+	const handleAddFriend = (event: React.MouseEvent<HTMLButtonElement>) => {
 		axios.get(`http://localhost:3001/api/user/add_friend?id=${user?.id}`, { withCredentials: true })
+			.then(() => {
+				window.location.reload();
+			})
+			.catch(err => {
+				if (err) throw err;
+			});
+	}
+
+	const handleRemoveFriend = (event: React.MouseEvent<HTMLButtonElement>) => {
+		axios.get(`http://localhost:3001/api/user/remove_friend?id=${user?.id}`, { withCredentials: true })
 			.then(() => {
 				window.location.reload();
 			})
@@ -119,8 +129,13 @@ export const Profile = (props: IProfileProps) => {
 				</Tooltip>
 				<br/>
 				{((user?.id !== currentUser?.id) && !isFriend) &&
-					<Button variant="contained" startIcon={<PersonAddIcon />} onClick={handleFriend} sx={{m:1}}>
+					<Button variant="contained" startIcon={<PersonAddIcon />} onClick={handleAddFriend} sx={{m:1}}>
 						Add Friend
+					</Button>
+				}
+				{((user?.id !== currentUser?.id) && isFriend) &&
+					<Button variant="contained" startIcon={<PersonAddIcon />} onClick={handleRemoveFriend} sx={{m:1}}>
+						Remove Friend
 					</Button>
 				}
 				{

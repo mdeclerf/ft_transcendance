@@ -17,8 +17,7 @@ export const ProfileDiv = styled.div`
 	margin: 40px;
 	display: flex;
 	flex-direction: row;
-	justify-content: center;
-	gap: 40px;
+	justify-content: space-evenly;
 `;
 
 export const StyledSpeedDial = styled(SpeedDial)`

@@ -93,6 +93,16 @@ export class UserService {
 		await this.subRepo.save(sub);
 	}
 
+	async removeFriend(userId: number, friendUserId: number) {
+		await this.subRepo.createQueryBuilder('subscription')
+			.leftJoinAndSelect('subscription.subscriber', 'subscriber')
+			.leftJoinAndSelect('subscription.subscribedTo', 'subscribedTo')
+			.delete()
+			.from(Subscription)
+			.where('subscriber.id = :userId AND subscribedTo.id = :friendUserId', { userId, friendUserId})
+			.execute()
+	}
+
 	async getFriends(userId: number) {
 		const subscriptions = await this.subRepo.createQueryBuilder('subscription')
 			.leftJoinAndSelect('subscription.subscriber', 'subscriber')
