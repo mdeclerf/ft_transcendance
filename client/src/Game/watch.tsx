@@ -71,7 +71,7 @@ function Watch() {
 		socket.on("add_ongoing_game", (message:string[]) => {
 			setToAdd({key:message[0], player_1:message[1], player_2:message[2]});
 		});
-		
+
 		if (array.some(e => e.key === toAdd.key) === false && toAdd.key !== "")
 		{
 			setArray(oldArray => [...oldArray, toAdd]);

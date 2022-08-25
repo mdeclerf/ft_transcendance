@@ -1,23 +1,23 @@
-import React, { useEffect, useRef, useState} from 'react';
-import { socket } from "../socket";
+
+import { Alert, Box, Table } from '@mui/material';
 import Button from '@mui/material/Button';
 import Stack from '@mui/material/Stack';
-import { useLocation } from 'react-router-dom';
-import { Alert } from '@mui/material';
-import { TextField } from '@mui/material';
-import { Table } from '@mui/material';
-import TableRow from '@mui/material/TableRow';
 import TableCell from '@mui/material/TableCell';
-import { useFetchCurrentUser } from "../utils/hooks/useFetchCurrentUser";
+import TableRow from '@mui/material/TableRow';
+import React, { useEffect, useRef, useState } from 'react';
+import { useLocation } from 'react-router-dom';
+import { socket } from "../socket";
+// import { useFetchCurrentUser } from "../utils/hooks/useFetchCurrentUser";
+import { CircularProgress, Dialog, DialogContentText } from '@mui/material';
+import FormControl from '@mui/material/FormControl';
+import FormControlLabel from '@mui/material/FormControlLabel';
+import FormLabel from '@mui/material/FormLabel';
 import Radio from '@mui/material/Radio';
 import RadioGroup from '@mui/material/RadioGroup';
-import FormControlLabel from '@mui/material/FormControlLabel';
-import FormControl from '@mui/material/FormControl';
-import FormLabel from '@mui/material/FormLabel';
-import { Dialog } from '@mui/material';
-import { DialogContentText } from '@mui/material';
+import { User } from '../utils/types';
 import './canvas.css';
-import { Help } from './help';
+import { Help } from './Help';
+import { Link } from 'react-router-dom';
 
 const up_key: string = "w";
 const down_key: string = "s";
@@ -33,21 +33,22 @@ const PADDLE_MARGIN = 10;
 const PADDLE_WIDTH = 10;
 const BALL_SIDE = 10;
 
-function Canvas() {
+export interface ICanvasProps {
+	user: User | undefined;
+}
 
-	const { user } = useFetchCurrentUser();
+function Canvas(props: ICanvasProps) {
+
+	const { user } = props;
 	const location = useLocation();
 	const canvasRef = useRef(null);
-	const [room, setRoom] = useState<string>("");
 	const [disconnection, setDisconnection] = useState<boolean>(false);
 	const [isRunning, setIsRunning] = useState<boolean>(false);
-	const [replay, setReplay] = useState<boolean>(false);
 	const [disabled, setDisabled] = useState<boolean>(false);
 	const [firstPScore, setFirstPScore] = useState<string>("0");
 	const [opponent, setOpponent] = useState<string>("");
 	const [secondPScore, setSecondPScore] = useState<string>("0");
 	const [dialogOpen, setDialogOpen] = useState<boolean>(false);
-	// const [back, setBack] = useState<string>("../Images/paper.webp");
 	const [back, setBack] = useState<string>("https://img.freepik.com/free-photo/white-paper-texture_1194-5998.jpg?w=1380&t=st=1659519955~exp=1659520555~hmac=a499219d876edb294bdebf8e768cddf59069e34d1c6f9ae680be92b4f17d7e92");
 
 	//////////////
@@ -56,60 +57,53 @@ function Canvas() {
 		setDisabled(true);
 	};
 
-	const handlePlayClick = () => {
-		socket.emit('play_again', room_number, {player_status});
-	};
-
 	const handleDialogClose = () => {
 		setDialogOpen(false);
 	};
 	///////////////
 
-	const joinRoom = () => {
-		if (room !== "") {
-			socket.emit("join_room", room, user?.username);
+	useEffect(() => {
+		socket.on('make_game_room', ( room: string ) => {
 			room_number = room;
-		}
-	};
+			if (user) {
+				socket.emit("join_room", { room: room, user: user });
+			}
+		});
 
-	socket.on("running", (message:string) => {
-		if (message === 'true'){
-			setIsRunning(true);
-		}
+		socket.on("running", (message:string) => {
+			if (message === 'true'){
+				setIsRunning(true);
+			}
 
-		if (message === 'false')
-		{
+			if (message === 'false') {
+				setIsRunning(false);
+				setDialogOpen(true);
+				socket.emit("kill_game", room_number);
+			}
+		});
+
+		socket.on('assigned_room', (message:string) => {
+			room_number = message;
+		});
+
+		socket.on('winning_score', (message:string) => {
+			winning_score = message;
+		});
+
+		socket.on('players', (message:string) => {
+			player_status = message;
+		});
+
+		socket.on('opponent_login', (message:string) => {
+			setOpponent(message);
+		});
+
+		socket.on('disconnection', (message:string) => {
+			setDisconnection(true);
 			setIsRunning(false);
-			setDialogOpen(true);
 			socket.emit("kill_game", room_number);
-		}
-	});
-
-	socket.on('assigned_room', (message:string) => {
-		room_number = message;
-	});
-
-	socket.on('winning_score', (message:string) => {
-		winning_score = message;
-	});
-
-	socket.on('players', (message:string) => {
-		player_status = message;
-	});
-
-	socket.on('opponent_login', (message:string) => {
-		setOpponent(message);
-	});
-
-	socket.on('disconnection', (message:string) => {
-		setDisconnection(true);
-		setIsRunning(false);
-		socket.emit("kill_game", room_number);
-	});
-
-	socket.on('replay', (message:string) => {
-		setReplay(true);
-	});
+		});
+	}, [user]);
 
 	const draw_players = (context:any, player1_y: number, player2_y: number, ball_x: number, ball_y: number) => {
 		context.clearRect(-100, -100, context.canvas.width + 100, context.canvas.height + 100);
@@ -156,29 +150,27 @@ function Canvas() {
 		socket.on('getPosition', (message: string) => {
 			setDisabled(false);
 			setDisconnection(false);
-			setReplay(false);
 			let data = message.split(" ");
 			draw_players(context, parseInt(data[0]), parseInt(data[1]), parseInt(data[2]), parseInt(data[3]));
 			setFirstPScore(data[4]);
 			setSecondPScore(data[5]);
 		});
-
-	// eslint-disable-next-line
 	}, []);
 
 	return (
 		<Stack spacing={2}>
 		<br></br>
 
-		{(location.pathname === "/chatmode") &&
-			<div>
-				<TextField variant="standard" placeholder="Room Number..."
-				onChange={(event: any) => {
-					setRoom(event.target.value);
-				}}
-				/>
-				<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif'}} onClick={joinRoom}> Create Room</Button>
-			</div>
+		{(location.pathname === "/chatmode" && !isRunning && firstPScore === "0" && secondPScore === "0") &&
+			<Box justifyContent='center' sx={{ display: 'flex', }}>
+				<CircularProgress />
+			</Box>
+		}
+
+		{(location.pathname === "/chatmode" && !isRunning && (firstPScore === winning_score || secondPScore === winning_score || disconnection)) &&
+			<Button component={Link} to="/" variant="contained" >
+			Come back to the home page
+			</Button>
 		}
 
 		{/* **************************** Dialog box who has won *****************************/}
@@ -209,10 +201,6 @@ function Canvas() {
 
 		{( location.pathname === "/play" && !isRunning && disabled) && 
 			<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif' }} disabled>I want to play, add me to queue !</Button>
-		}
-
-		{((location.pathname === "/chatmode" && replay && player_status !== "Watching"))&&
-			<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif'}} onClick={handlePlayClick}>Play again !</Button>
 		}
 
 		{/* **************************** Scores *****************************/}
@@ -260,26 +248,6 @@ function Canvas() {
 				<canvas ref={canvasRef}></canvas>
 			</div>
 		</div>
-
-		{/* src={require({back})} Would have loved to do something like this but it's not working error : Argument of type '{ back: string; }' is not assignable to parameter of type 'string'. */}
-		{/* <FormControl>
-			<FormLabel>Map background</FormLabel>
-			<RadioGroup row value={back} onChange={(e: React.ChangeEvent<HTMLInputElement>) => setBack(e.target.value)}>
-				<FormControlLabel value="../Images/paper.webp" 
-				control={<Radio />} label="Plain" />
-				<FormControlLabel 
-				value="../Images/glitter.webp" 
-				control={<Radio />} label="Glitter" />
-				<FormControlLabel value="../Images/sand.jpeg"
-				control={<Radio />} label="Sand" />
-		
-				<FormControlLabel value="../Images/metal.webp"
-				control={<Radio />} label="Metal" />
-		
-				<FormControlLabel value="../Images/plastic.webp"
-				control={<Radio />} label="Plastic" />
-			</RadioGroup>
-		</FormControl> */}
 
 		<FormControl>
 				<FormLabel>Map background</FormLabel>

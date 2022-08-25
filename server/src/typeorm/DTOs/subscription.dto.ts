@@ -1,6 +1,6 @@
-import { IsInt, IsPositive, Min } from "class-validator";
+import { IsInt, IsPositive } from "class-validator";
 
-export class CreateFriendlistDto {
+export class CreateSubscriptionDto {
 	@IsInt()
 	@IsPositive()
 	public user_id: number;

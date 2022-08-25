@@ -12,8 +12,8 @@ import { Paper } from '@mui/material';
 
 const fabStyle = {
 	position: 'absolute',
-	bottom: 85,
-	left: 16,
+	bottom: 16,
+	right: 16,
 };
 
 export function WIcon() {

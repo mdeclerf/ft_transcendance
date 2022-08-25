@@ -1,8 +1,15 @@
-import { Avatar, Box, Grid, List, ListItem, ListItemText, Typography } from "@mui/material/";
+import { Box, Button, Grid, List, ListItem, ListItemText, Tooltip, Typography } from "@mui/material/";
 import React from "react";
-import { ProfileDiv, StyledBadge } from "../utils/styles";
+import { ProfileDiv } from "../utils/styles";
 import { Game, User, Result } from "../utils/types";
 import { VictoryPie } from "victory-pie";
+import { CustomAvatar } from "../Components/CustomAvatar";
+import { useFetchCurrentUser } from "../utils/hooks/useFetchCurrentUser";
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+import { useFetchIsFriend } from "../utils/hooks/useFetchIsFriend";
+import { useFetchIsBlocked } from "../utils/hooks/useFetchIsBlocked"
+import axios from "axios";
+import { PersonRemove } from "@mui/icons-material";
 
 export interface IProfileProps {
 	user: User | undefined;
@@ -10,8 +17,10 @@ export interface IProfileProps {
 }
 
 export const Profile = (props: IProfileProps) => {
-	let { user, games } = props;
-	console.log(user);
+	const { user, games } = props;
+	const { user: currentUser } = useFetchCurrentUser();
+	const isFriend = useFetchIsFriend(user?.id);
+	const isBlocked = useFetchIsBlocked(user?.id);
 
 	let backHeight: number;
 	if (games)
@@ -27,7 +36,7 @@ export const Profile = (props: IProfileProps) => {
 		{
 			for(let i = 0; i < games?.length; i++)
 			{
-				if (games[i].player_1_score > games[i].player_2_score)
+				if ((games[i].player_2_score > games[i].player_1_score && games[i].player_2.username === user?.username) || (games[i].player_1_score > games[i].player_2_score && games[i].player_1.username === user?.username))
 					w.y++;
 				else
 					l.y++;
@@ -35,20 +44,19 @@ export const Profile = (props: IProfileProps) => {
 			data.push(w);
 			data.push(l);
 		}
-		console.log(data);
 		return data;
 	}
 
 	const getMatchHistory = (p1_score: number, p2_score: number, p1_name: string, p2_name: string, mode: string, i: number) => {
 		return (
 			<ListItem
-			key={i}
-			sx={{
-				alignItems: 'center',
-				borderRadius: '10px',
-				backgroundColor: (p1_score < p2_score) ? '#c84949' : '#49c860',
-				marginTop: '2px',
-			}}
+				key={i}
+				sx={{
+					alignItems: 'center',
+					borderRadius: '10px',
+					backgroundColor: (p1_score < p2_score) ? '#c84949' : '#49c860',
+					marginTop: '2px',
+				}}
 			>
 				<ListItemText
 					sx={{ fontFamily: 'Work Sans, sans-serif', fontSize: 70, color: 'white'}}
@@ -56,6 +64,26 @@ export const Profile = (props: IProfileProps) => {
 				/>
 			</ListItem>
 		)
+	}
+
+	const handleFriend = (event: React.MouseEvent<HTMLButtonElement>) => {
+		axios.get(`http://localhost:3001/api/user/add_friend?id=${user?.id}`, { withCredentials: true })
+			.then(() => {
+				window.location.reload();
+			})
+			.catch(err => {
+				if (err) throw err;
+			});
+	}
+
+	const handleBlock = (event: React.MouseEvent<HTMLButtonElement>) => {
+		axios.get(`http://localhost:3001/api/user/block_user?id=${user?.id}`, { withCredentials: true })
+			.then(() => {
+				window.location.reload();
+			})
+			.catch(err => {
+				if (err) throw err;
+			});
 	}
 
 	const generate = () => {
@@ -70,16 +98,13 @@ export const Profile = (props: IProfileProps) => {
 	const getTypography = (content: string | undefined) => {
 		return (
 			<Typography 
-				variant="h4" 
-				component="h1"
+				variant="h4"
+				component="span"
 				sx={{
-					mr: 2,
-					mt: 2,
-					display: { xs: 'none', md: 'flex' },
+					mr: 0,
 					fontFamily: 'Work Sans, sans-serif',
 					fontWeight: 700,
 					color: 'inherit',
-					textDecoration: 'none',
 				}}
 			>
 				{content}
@@ -87,26 +112,56 @@ export const Profile = (props: IProfileProps) => {
 		)
 	}
 
+	const getFriendButton = () => {
+		if (user?.id !== currentUser?.id)
+		{
+			if (!isFriend)
+			{
+				<Button variant="contained" startIcon={<PersonAddIcon />} onClick={handleFriend}>
+					Add Friend
+				</Button>
+			}
+			else
+			{
+				<Button variant="contained" startIcon={<PersonRemove />} onClick={handleFriend}>
+					Remove Friend
+				</Button>
+			}
+		}
+	}
+
+	const getBlockButton = () => {		
+		if (user?.id !== currentUser?.id)
+		{
+			if (!isBlocked)
+			{
+				return (
+					<Button variant="contained" startIcon={<PersonAddIcon />} onClick={handleBlock}>
+						Block User
+					</Button>
+				)
+			}
+			else
+			{
+				return (
+					<Button variant="contained" startIcon={<PersonAddIcon />} onClick={handleBlock}>
+						Unblock User
+					</Button>
+				)
+			}
+		}
+	}
+
 	return (
 		<ProfileDiv>
 			<div>
-				<div>
-					<StyledBadge
-						overlap="circular"
-						anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-						variant="dot"
-					>
-						<Avatar
-							alt={user?.username}
-							src={user?.photoURL}
-							sx={{
-								minWidth: { xs: 255 },
-								minHeight: { xs: 255 }
-							}}
-						/>
-					</StyledBadge>
-				</div>
-				{getTypography(user?.username)}
+				<CustomAvatar user={user} minSize={255} />
+				<Tooltip title={user?.displayName ? user.displayName : ""} placement="right">
+					{getTypography(user?.username)}
+				</Tooltip>
+				<br/>
+				{getFriendButton}
+				{getBlockButton}
 			</div>
 			<div>
 				{getTypography('Match History')}
@@ -127,7 +182,7 @@ export const Profile = (props: IProfileProps) => {
 				</Box>
 
 				{getTypography('Wins and losses')}
-				<Box sx={{
+				{ (games?.length !== 0) && <Box sx={{
 						width: 600,
 						height: 300,
 						backgroundColor: 'primary.main',
@@ -135,12 +190,18 @@ export const Profile = (props: IProfileProps) => {
 					}}>
 					<VictoryPie
 					style={{ labels: { fill: "white", fontSize: 20} }}
-					colorScale={['#49c860', '#c84949' ]}
+					colorScale={['#49c860', '#c84949' ]} // #49c860
 					innerRadius={50}
 					data={create_game_pie()}
 					/>
-					{}
-				</Box>
+				</Box> }
+				{ (games?.length === 0) && <Box sx={{
+						width: 600,
+						height: 50,
+						backgroundColor: 'primary.main',
+						borderRadius: '20px',
+					}}>
+				</Box> }
 			</div>
 		</ProfileDiv>
 	)

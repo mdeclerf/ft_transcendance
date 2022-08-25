@@ -1,6 +1,7 @@
 export type User = {
 	id: string;
 	intraId: string;
+	status: string;
 	photoURL: string;
 	username: string;
 	displayName: string;
@@ -11,6 +12,12 @@ export type User = {
 export type NameChangeResponse = {
 	taken: boolean;
 	user: User;
+}
+
+export type AutoCompleteResult = {
+	username: string;
+	photoURL: string;
+	displayName: string;
 }
 
 export type Game = {
@@ -26,7 +33,7 @@ export type Result = {
 	y : number
 }
 
-export type UserResponse = {
+export type UserQueryResponse = {
 	found: boolean;
 	user: User;
 	games: Game[];
@@ -37,8 +44,20 @@ export type ChatResponse = {
 	user: User;
 }
 
-export type ChatRoom = {
+export type Message = {
+	room: Room;
+	body: string;
+	user: User;
+}
+
+export type Room = {
 	name: string;
+}
+
+export type MessageGroup = {
+	side: 'left' | 'right';
+	messages: string[];
+	user: User;
 }
 
 export type CurrentMatch = {
@@ -47,14 +66,12 @@ export type CurrentMatch = {
 	player_2: string;
 }
 
-export type Message = {
-	side: 'left' | 'right';
-	message: string;
-	sender: User;
+export type Ranking = {
+	user : User;
+	victories : number;
 }
 
-export type MessageGroup = {
-	side: 'left' | 'right';
-	messages: string[];
-	sender: User;
+export type GameJoinRoomData = {
+	room: string;
+	user: User;
 }

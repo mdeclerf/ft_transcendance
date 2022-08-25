@@ -1,68 +1,134 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, Paper, TextField } from '@mui/material';
-import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { CircularProgress } from '@mui/material';
+import React, { useEffect, useRef } from 'react';
+import { useState } from 'react';
+import { VerticalTabs } from '../Components/VerticalTabs';
+import { socket } from '../socket';
+import { useFetchCurrentUser } from '../utils/hooks/useFetchCurrentUser';
+import { fetchRoomMessages, fetchRooms, joinChat, leaveChat, sendMessage, subscribeToMessages, subscribeToRoomUserJoin, subscribeToRoomUserLeave, subscribeToRoomUserList, switchRoom } from '../utils/socket_helpers';
+import { CenteredDiv } from '../utils/styles';
+import { Message, Room, User } from '../utils/types';
 
 export interface IChatProps {
 }
-function Chat (props: IChatProps) {
 
-	const [currentRoom, setCurrentRoom] = useState<string>("General");
+export function Chat (props: IChatProps) {
+	const { user } = useFetchCurrentUser();
+	const [message, setMessage] = useState("");
+	const [room, setRoom] = useState<Room>({ name: "General" });
+	const [rooms, setRooms] = useState<Room[]>([]);
+	const [messages, setMessages] = useState<Message[]>([]);
+	const [messagesLoading, setMessagesLoading] = useState(true);
+	const [roomsLoading, setRoomsLoading] = useState(true);
+	const [connectedUsers, setConnectedUsers] = useState<User[]>([]);
 
-	//Dialog functions
-	const [openDialog, setOpenDialog] = useState(false);
+	const prevRoomRef = useRef<Room>();
+	useEffect(() => {
+		prevRoomRef.current = room;
+	});
+	const prevRoom = prevRoomRef.current;
 
-	const handleClickOpen = () => {
-		setOpenDialog(true);
-	};
+	useEffect(() => {
+		return (() => {
+			leaveChat(room.name);
+		})
+	// eslint-disable-next-line
+	}, [])
 
-	const handleClose = () => {
-		setOpenDialog(false);
-	};
-	//End dialog functions
+	// switch switch room in the backend when it changes in the frontend
+	useEffect(() => {
+		if (prevRoom && room) {
+			switchRoom(prevRoom.name, room.name);
+			setRoom(room);
+		} else if (room) {
+			joinChat(room.name);
+		}
+	// eslint-disable-next-line
+	}, [room]);
+
+	// get available rooms
+	useEffect(() => {
+		fetchRooms().then((res: Room[]) => {
+			setRooms(res);
+			setRoomsLoading(false);
+		});
+
+		subscribeToMessages((data) => {
+			setMessages((messages) => [...messages, data]);
+		});
+
+		subscribeToRoomUserList((data) => {
+			setConnectedUsers([]);
+			setConnectedUsers(data);
+		});
+		
+		subscribeToRoomUserJoin((data) => {
+			setConnectedUsers((users) => [...users, data]);
+		});
+		
+		subscribeToRoomUserLeave((data) => {
+			setConnectedUsers((users) => users.filter(user => user.id !== data.id));
+		});
+	}, []);
+
+	// get messages for currently set room
+	useEffect(() => {
+		setMessages([]);
+		setMessagesLoading(true);
+
+		fetchRoomMessages(room.name).then((res: Message[]) => {
+			setMessages(res);
+			setMessagesLoading(false);
+		});
+	// eslint-disable-next-line
+	}, []);
+
+	useEffect(() => {
+		socket.on("room_switched", (data: any) => {
+			fetchRooms().then((res: Room[]) => {
+				setRooms(res);
+				setRoomsLoading(false);
+			});
+		});
+	}, []);
+
+	const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setMessage(event.target.value);
+	}
+
+	const handleMessageSend = () => {
+		if (!message || !user) return;
+
+		const data: Message = { room: room, body: message, user };
+		setMessages((messages) => [...messages, data]);
+		sendMessage(data);
+		setMessage("");
+	}
+
+	const handleSwitchRoom = (targetRoom: Room) => {
+		setMessages([]);
+		setMessagesLoading(true);
+
+		fetchRoomMessages(targetRoom.name).then((res: Message[]) => {
+			setMessages(res);
+			setMessagesLoading(false);
+		});
+		setRoom(targetRoom);
+	}
+
+	if (roomsLoading) return <CenteredDiv><CircularProgress /></CenteredDiv>
 
 	return (
-		<div className="columns">
-			{/* colonne de gauche */}
-			<div className="col1">
-				<Paper sx={{
-					width: "100%",
-					height: "calc(100vh - 64px)",
-					position: "relative",
-					backgroundColor: "rgba(0, 0, 0, 0)",
-					overflowY: "scroll",
-					padding: "0"
-				}}>
-					{/* bouton pour ouvrir dialogue (fenetre pour entre room name) public */}
-					<Button fullWidth={true} variant="contained" size="large" onClick={handleClickOpen}>Create Public Room</Button>
-					<Dialog open={openDialog} onClose={handleClose}>
-						<DialogTitle>Create a public room</DialogTitle>
-						<DialogContent>
-							<DialogContentText>Please enter a room name : </DialogContentText>
-							<TextField
-								autoFocus
-								margin="dense"
-								type="text"
-								fullWidth
-								variant="standard"
-								onChange={(event: any) => {
-									setCurrentRoom(event.target.value);
-								}}
-							/>
-						</DialogContent>
-						<DialogActions>
-							<Button onClick={handleClose}>Cancel</Button>
-							<Button onClick={handleClose}>Create Room</Button>
-						</DialogActions>
-					</Dialog>
-					{/* bouton pour ouvrir dialogue (fenetre pour entre room name et password) private */}
-					{/*<Button onClick={joinRoom} fullWidth={true} variant="contained" size="large"> Create Private Room</Button>*/}
-					{/* affichage des channels dispo et creation d un bouton / room */}
-					{/*<>
-						{ loadChannels }
-					</>*/}
-					</Paper>
-			</div>
-		</div>
+		<VerticalTabs
+			rooms={rooms}
+			message={message}
+			messages={messages}
+			currentUser={user}
+			switchRooms={handleSwitchRoom}
+			messagesLoading={messagesLoading}
+			messageChange={handleMessageChange}
+			messageSend={handleMessageSend}
+			prevRoom={prevRoom}
+			roomUsers={connectedUsers}
+		/>
 	);
 }
-export default Chat;

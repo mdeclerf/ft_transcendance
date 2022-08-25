@@ -1,5 +1,5 @@
 import styled from "@emotion/styled/"
-import { Badge, badgeClasses } from "@mui/material/";
+import { SpeedDial } from "@mui/material";
 
 export const CenteredDiv = styled.div`
 	margin: 0;
@@ -21,15 +21,8 @@ export const ProfileDiv = styled.div`
 	gap: 40px;
 `;
 
-export const StyledBadge = styled(Badge)(() => ({
-	'& .MuiBadge-badge': {
-		backgroundColor: '#44b700',
-		color: '#44b700',
-		boxShadow: '0 0 0 2px #121212',
-	},
-	[`& .${badgeClasses.dot}`]: {
-		width: 40,
-		height: 40,
-		borderRadius: "50%"
-	}
-}));
+export const StyledSpeedDial = styled(SpeedDial)`
+	position: absolute;
+	bottom: 16px;
+	left: 16px;
+`

@@ -8,19 +8,19 @@ export interface IProfileProps {
 	user: User | undefined;
 }
 
-export function Game (props: IProfileProps) {
+export function PlayGame (props: IProfileProps) {
 
     const { user } = props;
     React.useEffect(() => {
         return () => {
-            socket.emit("remove_from_game", user);
-            socket.emit("remove_from_queue");
+            socket.emit("remove_from_queue", user);
+            socket.emit("remove_from_game");
         }
     }, [user]);
 
   return (
     <Grid container justifyContent='center'>
-        <Canvas/>
+        <Canvas user={user}/>
     </Grid>
   );
 }

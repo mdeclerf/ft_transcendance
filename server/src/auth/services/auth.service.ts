@@ -11,13 +11,19 @@ export class AuthService implements IAuthService {
 
 	async validateUser(details: UserDetails) {
 		const { intraId } = details;
-		const user = await this.userRepo.findOne({
-			where: {
-				intraId: intraId,
-			}
-		});
+		const user = await this.userRepo.findOneBy({ intraId });
 		if (user) {
 			return user;
+		}
+		if (await this.userRepo.findOneBy({ username: details.username })) {
+			let n = 0;
+			let taken;
+			do {
+				n++;
+				taken = await this.userRepo.findOneBy({ username: `${details.username}_${n}`});
+			}
+			while (taken);
+			details.username = `${details.username}_${n}`;
 		}
 		return this.createUser(details);
 	}

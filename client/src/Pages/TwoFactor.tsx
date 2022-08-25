@@ -52,7 +52,9 @@ export function TwoFactor (props: ITwoFactorProps) {
 
 	return (
 		<CenteredDiv>
-			<img src={QRCode} alt="qr code"/>
+			{ !user.isTwoFactorAuthenticationEnabled &&
+				<img src={QRCode} alt="qr code"/>
+			}
 			<div ref={AuthInputDivRef}>
 				<AuthCode 
 					allowedCharacters='numeric'

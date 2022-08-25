@@ -1,17 +1,52 @@
-import { Box, Tab, Tabs, Typography } from '@mui/material';
+import { Box, Button, Tab, Tabs, TextField, Typography, Divider, AvatarGroup, Avatar, Tooltip } from '@mui/material';
+import SendIcon from '@mui/icons-material/Send';
 import * as React from 'react';
-import { Message, MessageGroup } from '../utils/types';
+import { Message, MessageGroup, Room, User } from '../utils/types';
 import { ChatMsg } from './ChatMsg';
+import { ButtonCreateChannels } from './ButtonCreateChannels';
 
 interface ITabPanelProps {
 	title: string;
 	children?: React.ReactNode;
+	message: string;
 	index: number;
 	value: number;
+	messageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+	messageSend: () => void;
+	roomUsers: User[];
+	currentUser: User | undefined;
 }
 
 const TabPanel = (props: ITabPanelProps) => {
-	const { title, children, value, index, ...other } = props;
+	const { title, message, children, value, index, messageChange, messageSend, roomUsers, currentUser } = props;
+	const divRef = React.useRef<HTMLDivElement>(null);
+
+	const handleInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
+		if (event.key === "Enter") {
+			event.preventDefault();
+			messageSend();
+		}
+	};
+
+	React.useEffect(() => {
+		if (divRef && divRef.current) {
+			divRef.current.scrollTo(0, divRef.current.scrollHeight);
+		}
+	}, [children])
+
+	const getFirstFourNonSelfUsers = () => {
+		if (roomUsers.length) {
+			const tmp = roomUsers.filter(user => user && currentUser && user.id !== currentUser.id).slice(0, 3);
+
+			return tmp.map((user, i) => {
+				return (
+					<Tooltip title={user.username} key={i}>
+						<Avatar alt={user.username} src={user.photoURL} key={i}/>
+					</Tooltip>
+				)
+			})
+		}
+	}
 
 	return (
 		<div
@@ -19,12 +54,31 @@ const TabPanel = (props: ITabPanelProps) => {
 			hidden={value !== index}
 			id={`vertical-tabpanel-${index}`}
 			aria-labelledby={`vertical-tab-${index}`}
-			{...other}
+			style={{ flexGrow: 1 }}
 		>
 			{value === index && (
-				<Box sx={{ p: 3, minWidth: '80vw' }}>
-					<Typography>{title}</Typography>
-					{children}
+				// <Box sx={{ p: 3, minWidth: '80vw', display: 'flex', flexDirection: 'column', height: '100%', justifyContent:'space-between' }}>
+				// 	<Typography sx={{ flexGrow: 0 }}>{title}</Typography>
+				// 	<div style={{ flexGrow: 1, maxHeight: '80vh', overflowY: 'auto' }}>
+
+
+				<Box sx={{ p: 3, minWidth: '80vw', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+					<Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+						<Typography sx={{ flexGrow: 0 }} variant="h4">{title}</Typography>
+						<AvatarGroup total={roomUsers.length}>
+							{getFirstFourNonSelfUsers()}
+						</AvatarGroup>
+					</Box>
+					<Divider />
+					<div style={{ flexGrow: 1, maxHeight: '80vh', overflowY: 'auto' }} ref={divRef}>
+						{children}
+					</div>
+					<form style={{ flexGrow: 0, display: 'flex', flexDirection: 'row' }}>
+							<TextField sx={{ flexGrow: 1 }} onChange={messageChange} value={message} onKeyDown={handleInput} autoComplete="off"/>
+							<Button variant="outlined" onClick={messageSend}>
+								<SendIcon />
+							</Button>
+					</form>
 				</Box>
 			)}
 		</div>
@@ -39,36 +93,62 @@ const a11yProps = (index: number) => {
 }
 
 export interface IVerticalTabsProps {
-	channels: string[];
+	rooms: Room[];
+	message: string;
 	messages: Message[];
+	currentUser: User | undefined;
+	switchRooms: (room: Room) => void;
+	messagesLoading: boolean;
+	messageChange: (event: React.ChangeEvent<HTMLInputElement>) => void;
+	messageSend: () => void;
+	roomUsers: User[];
+	prevRoom: Room | undefined;
 };
 
-export const VerticalTabs = (props: IVerticalTabsProps) => {
-	const { channels, messages } = props;
-	const [value, setValue] = React.useState(0);
+// export const VerticalTabs = (props: IVerticalTabsProps) => {
+// 	const { rooms, message, messages, currentUser, switchRooms, messagesLoading, messageChange, messageSend, prevRoom } = props;
+// 	messageSend: () => void;
+// 	roomUsers: User[];
+// };
 
-	const mapChatBubbles = () => {
+export const VerticalTabs = (props: IVerticalTabsProps) => {
+	const { rooms, message, messages, currentUser, switchRooms, messageChange, messageSend, roomUsers, prevRoom } = props;
+	const [value, setValue] = React.useState(0);
+	const [formattedMessages, setFormattedMessages] = React.useState<MessageGroup[]>([]);
+
+	React.useEffect(() => {
 		const msgGrp: MessageGroup[] = [];
 		for (let i = 0; i < messages.length; i++) {
-			if (i === 0 || messages[i - 1].sender.id !== messages[i].sender.id) {
-				msgGrp.push({ side: messages[i].side, messages: [messages[i].message], sender: messages[i].sender});
+			if (i === 0 || messages[i - 1].user.id !== messages[i].user.id) {
+				msgGrp.push({ 
+					side: (messages[i].user.id === currentUser?.id) ? 'right' : 'left', 
+					messages: [messages[i].body], 
+					user: messages[i].user
+				});
 			} else {
-				msgGrp[msgGrp.length - 1].messages.push(messages[i].message);
+				msgGrp[msgGrp.length - 1].messages.push(messages[i].body);
 			}
 		}
 
-		return msgGrp.map((msg) => {
+		setFormattedMessages([]);
+		setFormattedMessages(msgGrp);
+	}, [messages, currentUser?.id]);
+
+	const mapChatBubbles = () => {
+		return formattedMessages.map((msg, i) => {
 			return (
 				<ChatMsg
-					avatar={msg.side === 'left' ? msg.sender.photoURL : ''}
+					user={msg.side === 'left' ? msg.user : undefined}
 					messages={msg.messages}
 					side={msg.side}
+					key={i}
 				/>
 			)
-		})
+		});
 	}
 
 	const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+		switchRooms(rooms[newValue]);
 		setValue(newValue);
 	};
 
@@ -76,27 +156,42 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 		<Box
 			sx={{
 				bgColor: 'background.paper',
+				flexGrow: 1,
+				maxHeight: 'calc(100vh - 64px)',
 				display: 'flex',
-				alignItems: 'flex-end',
+				overflow: 'hidden',
 			}}
 		>
-			<Tabs
-				orientation='vertical'
-				variant="scrollable"
-				value={value}
-				onChange={handleChange}
-				aria-label="Chat channels"
-				sx={{ borderRight: 1, borderColor: 'divider', maxWidth: '20vw' }}
-			>
-				{channels.map((channel, i) => {
-					return (
-						<Tab label={channel} key={i} {...a11yProps(i)} />
-					)
-				})}
-			</Tabs>
-			{channels.map((channel, i) => {
+			<Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+				<ButtonCreateChannels prevRoom={prevRoom} switchRooms={switchRooms} setValue={setValue} numRooms={rooms.length}/>
+				<Tabs
+					orientation='vertical'
+					variant="scrollable"
+					value={value}
+					onChange={handleChange}
+					aria-label="Chat channels"
+					sx={{ borderRight: 1, borderColor: 'divider', maxWidth: '20vw', flexGrow: 1 }}
+				>
+					{rooms.map((room, i) => {
+						return (
+							<Tab label={room.name} key={i} {...a11yProps(i)} />
+						)
+					})}
+				</Tabs>
+			</Box>
+			{rooms.map((room, i) => {
 				return (
-					<TabPanel title={channel} value={value} index={i} key={i}>
+					<TabPanel
+						title={room.name}
+						value={value}
+						index={i}
+						key={i}
+						messageChange={messageChange}
+						messageSend={messageSend}
+						message={message}
+						roomUsers={roomUsers}
+						currentUser={currentUser}
+					>
 						{mapChatBubbles()}
 					</TabPanel>
 				)

@@ -3,13 +3,14 @@ import {
 	WebSocketGateway,
 	WebSocketServer,
 	OnGatewayDisconnect,
+	MessageBody,
 } from '@nestjs/websockets';
 import { Socket, Server } from 'socket.io';
 import { Logger } from '@nestjs/common';
 import { GameService } from './game.service';
-import { GameDetails } from '../utils/types';
+import { GameDetails, GameJoinRoomData } from '../utils/types';
 import { v4 as uuidv4 } from 'uuid';
-import { UserDetails } from "../utils/types";
+import { User } from 'src/typeorm';
 
 let details: GameDetails = new GameDetails;
 const CANVAS_HEIGHT = 500;
@@ -38,19 +39,19 @@ class Player {
 	id: string;
 	score: number;
 	socket: Socket;
-	userDetails: UserDetails;
+	user: User;
 
-	constructor(id: string, socket: Socket, userDetails: UserDetails) {
+	constructor(id: string, socket: Socket, user: User) {
 		this.y_pos = 0;
 		this.delta = 0;
 		this.id = id;
 		this.score = 0;
 		this.socket = socket;
-		this.userDetails = userDetails;
+		this.user = user;
 	}
 }
 
-class Pong{
+class Pong {
 	private logger: Logger = new Logger('GameGateway');
 	is_running: boolean = false;
 	is_over: boolean = false;
@@ -80,15 +81,21 @@ class Pong{
 		}
 	}
 
-	touch_player(player: Player): boolean {
-		const x: number = player == this.first_player ? PADDLE_MARGIN / 2 : CANVAS_WIDTH - PADDLE_WIDTH - PADDLE_MARGIN; // 670
-		return (this.ball_x >= x && this.ball_x <= x + PADDLE_WIDTH + PADDLE_MARGIN) && (this.ball_y >= player.y_pos && this.ball_y <= player.y_pos + PADDLE_HEIGHT + BALL_SIDE);
-	}
+	// touch_player(player: Player): boolean {
+	// 	let x: number = player == this.first_player ? PADDLE_MARGIN + PADDLE_WIDTH : CANVAS_WIDTH - PADDLE_WIDTH - PADDLE_MARGIN;
+	// 	const d: number = this.ball_angle + Math.PI;
+	// 	if ((this.first_player == player && (d > Math.PI / 2 && d < Math.PI / 2 * 3)) || (this.second_player == player && !(d > Math.PI / 2 && d < Math.PI / 2 * 3)) )
+	// 		return (false);
+	// 	return ((this.first_player == player && this.ball_x <= x) || (this.second_player == player && this.ball_x >= x))
+	// 	&& (this.ball_y >= player.y_pos && this.ball_y <= player.y_pos + PADDLE_HEIGHT + BALL_SIDE);
+	// }
 
-	touch_top_bottom(player : Player): boolean {
-		const left_edge: number = this.first_player ? PADDLE_MARGIN : CANVAS_WIDTH - PADDLE_MARGIN - PADDLE_WIDTH;
-		const right_edge: number = this.second_player ? PADDLE_MARGIN + PADDLE_WIDTH : CANVAS_WIDTH - PADDLE_MARGIN;
-		return ((this.ball_x >= left_edge && this.ball_x <= right_edge) && (this.ball_y + (BALL_SIDE / 2) >= player.y_pos && this.ball_y + (BALL_SIDE / 2) <= player.y_pos + PADDLE_HEIGHT + BALL_SIDE / 2));
+	touch_player(player: Player): boolean {
+		const x: number = player == this.first_player ? 5 : 670;
+		const d: number = this.ball_angle + Math.PI;
+		if ((this.first_player == player && (d > Math.PI / 2 && d < Math.PI / 2 * 3)) || (this.second_player == player && !(d > Math.PI / 2 && d < Math.PI / 2 * 3)) )
+			return (false);
+		return (this.ball_x >= x && this.ball_x <= x + 20) && (this.ball_y >= player.y_pos && this.ball_y <= player.y_pos + 70);
 	}
 
 	change_ball_pos(player_1: Player, player_2: Player) {
@@ -115,14 +122,6 @@ class Pong{
 		}
 		if (this.touch_player(this.second_player)) {
 			this.ball_angle = Math.PI - this.ball_angle;
-		}
-		if (this.touch_top_bottom(this.first_player)) {
-			this.ball_angle = -this.ball_angle;
-			this.ball_x = PADDLE_MARGIN + PADDLE_HEIGHT;
-		}
-		if (this.touch_top_bottom(this.second_player)) {
-			this.ball_angle = -this.ball_angle;
-			this.ball_x = CANVAS_WIDTH - (PADDLE_MARGIN + PADDLE_HEIGHT);
 		}
 	}
 
@@ -155,13 +154,7 @@ class Pong{
 				this.second_player.socket.emit("getPosition", `${this.second_player.y_pos} ${this.first_player.y_pos} ${CANVAS_WIDTH - this.ball_x} ${this.ball_y} ${this.first_player.score} ${this.second_player.score} `);
 				this.database_create(this.first_player.id, this.second_player.id);
 
-				if (this.mode === "chat")
-				{
-					this.first_player.socket.emit("replay", "");
-					this.second_player.socket.emit("replay", "");
-				}
-				else
-					this.is_over = true;
+				this.is_over = true;
 			}
 			await sleep(50);
 		}
@@ -170,18 +163,16 @@ class Pong{
 	add_player(p: Player) {
 			if (this.first_player == null) {
 				this.first_player = p;
-				console.log(` First player : ${this.first_player.userDetails.username}, ${this.first_player.userDetails.displayName}, ${this.first_player.userDetails.intraId}, ${this.first_player.userDetails.photoURL}`);
 				this.first_player.socket.emit("players", "First player");
 				this.first_player.socket.emit("winning_score", this.winning_score.toString());
 			}
 
 			else if (this.second_player == null) {
 				this.second_player = p;
-				console.log(` Second player : ${this.second_player.userDetails.username}, ${this.second_player.userDetails.displayName}, ${this.second_player.userDetails.intraId}, ${this.second_player.userDetails.photoURL}`);
 				this.second_player.socket.emit("players", "Second player");
 				this.second_player.socket.emit("winning_score", this.winning_score.toString());
-				this.first_player.socket.emit("opponent_login", this.second_player.userDetails.username);
-				this.second_player.socket.emit("opponent_login", this.first_player.userDetails.username);
+				this.first_player.socket.emit("opponent_login", this.second_player.user.username);
+				this.second_player.socket.emit("opponent_login", this.first_player.user.username);
 				this.is_running = true;
 				this.ball_x = CANVAS_WIDTH / 2;
 				this.ball_y = CANVAS_HEIGHT / 2;
@@ -237,8 +228,8 @@ class Pong{
 	{
 		if ((this.first_player && this.first_player.id == p1_id) && (this.second_player && this.second_player.id == p2_id))
 		{
-			details.player_1 = this.first_player.userDetails;
-			details.player_2 = this.second_player.userDetails;
+			details.player_1 = this.first_player.user;
+			details.player_2 = this.second_player.user;
 			details.player_1_score = this.first_player.score;
 			details.player_2_score = this.second_player.score;
 			if (this.mode === "play")
@@ -265,13 +256,15 @@ export class GameGateway implements OnGatewayDisconnect {
 	Game: Map<string, Pong> = new Map();
 	queue: Player[] = [];
 
-	@SubscribeMessage("join_room") // NOT TESTED
-	handleRoom(client: Socket, message: any) : void {
-		client.join(message[0]);
-
-		if (!this.Game.has(message[0]))
-			this.Game.set(message[0], new Pong(this.gameService, message[0], "chat"));
-		this.Game.get(message[0]).add_player(new Player(client.id, client, message[1]));
+	@SubscribeMessage("join_room")
+	handleRoom(client: Socket, data: GameJoinRoomData) : void {
+		client.join(data.room);
+		if (!this.Game.has(data.room))
+			this.Game.set(data.room, new Pong(this.gameService, data.room, "chat"));
+		if (!this.Game.get(data.room).is_running && (!this.Game.get(data.room).first_player || this.Game.get(data.room).first_player.user.username !== data.user.username))
+			this.Game.get(data.room).add_player(new Player(client.id, client, data.user));
+		if (this.Game.get(data.room).first_player && this.Game.get(data.room).second_player)
+			this.wss.sockets.emit("add_ongoing_game", [this.Game.get(data.room).key, this.Game.get(data.room).first_player.user.username, this.Game.get(data.room).second_player.user.username]);
 	}
 
 	@SubscribeMessage("kill_game")
@@ -319,42 +312,31 @@ export class GameGateway implements OnGatewayDisconnect {
 		}
 	}
 
-	@SubscribeMessage('play_again')
-	handleReplay(client: Socket, message: string) : void {
-		if (!JSON.stringify(message[1]).includes("Watching") && !this.Game.get(message[0]).is_running)
-		{
-			this.Game.get(message[0]).is_running = true;
-			this.Game.get(message[0]).first_player.score = 0;
-			this.Game.get(message[0]).second_player.score = 0;
-			this.Game.get(message[0]).run_game();
-		}
-	}
-
 	@SubscribeMessage('add_to_queue')
-	add_queue(client: Socket, message: UserDetails) : void {
+	add_queue(client: Socket, message: User) : void {
 		this.queue.push(new Player(client.id, client, message));
 
 		if (this.queue.length >= 2)
 		{
 			const unique_id = uuidv4();
 			this.Game.set(unique_id, new Pong(this.gameService, unique_id, "play"));
-			this.Game.get(unique_id).add_player(new Player(this.queue[0].id, this.queue[0].socket, this.queue[0].userDetails));
+			this.Game.get(unique_id).add_player(new Player(this.queue[0].id, this.queue[0].socket, this.queue[0].user));
 			this.queue.splice(0,1);
-			this.Game.get(unique_id).add_player(new Player(this.queue[0].id, this.queue[0].socket, this.queue[0].userDetails));
+			this.Game.get(unique_id).add_player(new Player(this.queue[0].id, this.queue[0].socket, this.queue[0].user));
 			this.queue.splice(0,1);
 			this.Game.get(unique_id).first_player.socket.emit("assigned_room", unique_id);
 			this.Game.get(unique_id).second_player.socket.emit("assigned_room", unique_id);
-			this.wss.sockets.emit("add_ongoing_game", [this.Game.get(unique_id).key, this.Game.get(unique_id).first_player.userDetails.username, this.Game.get(unique_id).second_player.userDetails.username]);
+			this.wss.sockets.emit("add_ongoing_game", [this.Game.get(unique_id).key, this.Game.get(unique_id).first_player.user.username, this.Game.get(unique_id).second_player.user.username]);
 		}
 	}
 
 	@SubscribeMessage('remove_from_queue')
-	removefromQueue(client: Socket, message: UserDetails) : void {
+	removefromQueue(client: Socket, message: User) : void {
 		for (let i = 0; i < this.queue.length; i++)
 		{
-			if (message.username === this.queue[i].userDetails.username)
+			if (message.username === this.queue[i].user.username)
 			{
-				console.log(`removed from queue --> ${this.queue[i].userDetails.username}`);
+				// console.log(`removed from queue --> ${this.queue[i].user.username}`);
 				this.queue.splice(i,1);
 			}
 		}
@@ -377,6 +359,6 @@ export class GameGateway implements OnGatewayDisconnect {
 	@SubscribeMessage('get_current_games')
 	getCurrentGames(client: Socket) : void {
 		for (let value of this.Game.values())
-			client.emit("current_games_list", [value.key, value.first_player.userDetails.username, value.second_player.userDetails.username]);
+			client.emit("current_games_list", [value.key, value.first_player.user.username, value.second_player.user.username]);
 	}
 }
