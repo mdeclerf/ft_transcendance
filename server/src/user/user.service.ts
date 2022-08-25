@@ -56,30 +56,43 @@ export class UserService {
 		let leaderBoard = new Map<string, Ranking>();
 		for (let i = 0; i < games.length; i++)
 		{
-			leaderBoard.set(games[i].player_1.intraId, {user: games[i].player_1, victories: 0});
-			leaderBoard.set(games[i].player_2.intraId, {user: games[i].player_2, victories: 0});
+			leaderBoard.set(games[i].player_1.intraId, {user: games[i].player_1, victories: 0, losses: 0, ratio: 0});
+			leaderBoard.set(games[i].player_2.intraId, {user: games[i].player_2, victories: 0, losses: 0, ratio: 0});
 		}
 
 		for (let i = 0; i < games.length; i++)
 		{
 			if (games[i].player_1_score > games[i].player_2_score)
 			{
-				let tmp : number = leaderBoard.get(games[i].player_1.intraId).victories;
-				tmp ++ ;
-				leaderBoard.set(games[i].player_1.intraId, {user: games[i].player_1, victories: tmp} );
+				let tmp_vict : number = leaderBoard.get(games[i].player_1.intraId).victories;
+				let tmp_los : number = leaderBoard.get(games[i].player_1.intraId).losses;
+				tmp_vict ++ ;
+				leaderBoard.set(games[i].player_1.intraId, {user: games[i].player_1, victories: tmp_vict, losses: tmp_los, ratio: 0} );
+
+				tmp_vict = leaderBoard.get(games[i].player_2.intraId).victories;
+				tmp_los = leaderBoard.get(games[i].player_2.intraId).losses;
+				tmp_los ++ ;
+				leaderBoard.set(games[i].player_2.intraId, {user: games[i].player_2, victories: tmp_vict, losses: tmp_los, ratio: 0} );
 			}
 			if (games[i].player_2_score > games[i].player_1_score)
 			{
-				let tmp : number = leaderBoard.get(games[i].player_2.intraId).victories;
-				tmp ++ ;
-				leaderBoard.set(games[i].player_2.intraId, {user: games[i].player_2, victories: tmp} );
+				let tmp_vict : number = leaderBoard.get(games[i].player_2.intraId).victories;
+				let tmp_los : number = leaderBoard.get(games[i].player_2.intraId).losses;
+				tmp_vict ++ ;
+				leaderBoard.set(games[i].player_2.intraId, {user: games[i].player_2, victories: tmp_vict, losses: tmp_los, ratio: 0} );
+
+				tmp_vict = leaderBoard.get(games[i].player_1.intraId).victories;
+				tmp_los = leaderBoard.get(games[i].player_1.intraId).losses;
+				tmp_los ++ ;
+				leaderBoard.set(games[i].player_1.intraId, {user: games[i].player_1, victories: tmp_vict, losses: tmp_los, ratio: 0} );
 			}
 		}
 
 		let ret: Ranking[] = [];
 
 		leaderBoard.forEach((value) => {
-			let tmp : Ranking = {user : value.user, victories : value.victories};
+			let rat = value.losses == 0 && value.victories > 0 ? ((value.victories / 1)) : ((value.victories / value.losses));
+			let tmp : Ranking = {user : value.user, victories : value.victories, losses : value.losses, ratio: rat};
 			ret.push(tmp);
 		});
 
