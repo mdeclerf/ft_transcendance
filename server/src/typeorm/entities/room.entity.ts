@@ -15,8 +15,8 @@ export class Room {
 	1 is protected
 	2 is private
 	*/
-	@Column({type: 'integer'})
-	public type: number;
+	@Column({type: 'text', default: 'public'})
+	public type: 'public' | 'protected' | 'private';
 
 	@Column({nullable: true, type: 'text'})
 	public hash: string;

@@ -20,7 +20,7 @@
     "react-scripts": "5.0.1",
     "recharts": "^2.1.13",
     "socket.io-client": "^4.5.1",
-    "victory": "^36.6.0",
+    "victory": "^36.6.5",
     "web-vitals": "^2.1.4"
   },
   "scripts": {
@@ -48,6 +48,7 @@
     ]
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
     "@types/jest": "^28.1.4",
     "@types/node": "^18.0.3",
     "@types/react": "^18.0.15",

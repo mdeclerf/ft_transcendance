@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Chat, CreateChatDto, CreateRoomDto, Room } from '../typeorm/';
 import { Repository } from 'typeorm';
+import { PasswordDto } from 'src/utils/password.dto';
 
 @Injectable()
 export class ChatService {
@@ -10,7 +11,7 @@ export class ChatService {
 		@InjectRepository(Chat) private readonly chatRepo: Repository<Chat>,
 		@InjectRepository(Room) private readonly roomRepo: Repository<Room>,
 	) {
-		this.roomRepo.upsert({ name: 'General', type: 0 }, ["name"]);
+		this.roomRepo.upsert({ name: 'General', type: 'public' }, ["name"]);
 	}
 
 	//get all the table
@@ -67,12 +68,17 @@ export class ChatService {
 		.insert()
 		.orIgnore()
 		.into(Room)
-		.values({name, type: 0}) //type should be 'public' be it won't compile idk why
+		.values({name, type: 'public'}) //type should be 'public' be it won't compile idk why
 		.execute();
 		return this.roomRepo.findOneBy({ name: name });
 	}
 
 	public createRoom(body: CreateRoomDto): Promise<Room> {
 		return this.roomRepo.save(body);
+	}
+
+	async updateRoom(data: PasswordDto) {
+		const room = await this.roomRepo.findOneBy({ name: data.name });
+		return this.roomRepo.update(room.id, { hash: data.password, type: 'protected' });
 	}
 }

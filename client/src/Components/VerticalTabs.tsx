@@ -4,6 +4,7 @@ import * as React from 'react';
 import { Message, MessageGroup, Room, User } from '../utils/types';
 import { ChatMsg } from './ChatMsg';
 import { ButtonCreateChannels } from './ButtonCreateChannels';
+import { RoomSettings } from './RoomSettings';
 
 interface ITabPanelProps {
 	title: string;
@@ -55,13 +56,9 @@ const TabPanel = (props: ITabPanelProps) => {
 			style={{ flexGrow: 1 }}
 		>
 			{value === index && (
-				// <Box sx={{ p: 3, minWidth: '80vw', display: 'flex', flexDirection: 'column', height: '100%', justifyContent:'space-between' }}>
-				// 	<Typography sx={{ flexGrow: 0 }}>{title}</Typography>
-				// 	<div style={{ flexGrow: 1, maxHeight: '80vh', overflowY: 'auto' }}>
-
-
 				<Box sx={{ p: 3, minWidth: '80vw', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
 					<Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+						<RoomSettings room={title}/>
 						<Typography sx={{ flexGrow: 0 }} variant="h4">{title}</Typography>
 						<AvatarGroup total={roomUsers.length}>
 							{getFirstFourNonSelfUsers()}
@@ -118,7 +115,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 		const msgGrp: MessageGroup[] = [];
 		for (let i = 0; i < messages.length; i++) {
 			if (i === 0 || messages[i - 1].user.id !== messages[i].user.id) {
-				msgGrp.push({ 
+				msgGrp.push({
 					side: (messages[i].user.id === currentUser?.id) ? 'right' : 'left', 
 					messages: [messages[i].body], 
 					user: messages[i].user

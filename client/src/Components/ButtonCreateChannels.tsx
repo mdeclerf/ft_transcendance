@@ -15,9 +15,8 @@ export interface SimpleDialogProps {
   }
   
 function SimpleDialog(props: SimpleDialogProps) {
-    const { setOpen, open, prevRoom, switchRooms, setValue, numRooms } = props;
+    const { setOpen, open, switchRooms, setValue, numRooms } = props;
 
-    const [privacy, setPrivacy] = React.useState('');
     const [name, setName] = React.useState<string>('');
 
     const handleChangeName = (event: any) => {
@@ -28,26 +27,20 @@ function SimpleDialog(props: SimpleDialogProps) {
     const handleClose = () => {
       setOpen(false);
       console.log(name);
-      console.log(privacy);
-		  axios.post("http://localhost:3001/api/chat/create_channel", {name: name.toLowerCase(), type: 0, hash: ""})
+		  axios.post("http://localhost:3001/api/chat/create_channel", {name: name.toLowerCase(), type: 'public', hash: ""})
 		    .then(() => {
-          if (prevRoom)
             switchRooms({ name });
-          else
-            switchRooms({ name });
+          })
+          .catch(err => {
+            ;
+          })
+          setName("");
           setValue(numRooms);
-		    })
-		    .catch(err => {
-          ;
-		    })
-        setName("");
-        setPrivacy("");
     };
 
     const handleCancel = () => {
       setOpen(false);
       setName("");
-      setPrivacy("");
     };
 
   
