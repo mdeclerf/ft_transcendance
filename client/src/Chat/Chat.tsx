@@ -69,12 +69,12 @@ export function Chat (props: IChatProps) {
 		});
 		
 		subscribeToRoomUserLeave((data) => {
-			setConnectedUsers((users) => users.filter(user => user.id !== data.id));
+			setConnectedUsers((users) => users.filter(user => user && user.id !== data.id));
 		});
 
 		subscribeToNewRoom((data) => {
 			setRooms((oldRooms) => [...oldRooms, data]);
-		})
+		});
 	}, []);
 
 	// get messages for currently set room
@@ -88,10 +88,6 @@ export function Chat (props: IChatProps) {
 		});
 	// eslint-disable-next-line
 	}, []);
-
-	useEffect(() => {
-		console.log(rooms);
-	}, [rooms]);
 
 	const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setMessage(event.target.value);

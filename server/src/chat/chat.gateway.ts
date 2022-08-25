@@ -67,10 +67,19 @@ export class ChatGateway
 	}
 
 	@SubscribeMessage('room_created')
-	roomCreated(client: Socket, room: string) {
+	async roomCreated(client: Socket, room: string) {
 		console.log(`room_created: ${room}`);
 		this.server.emit('new_room', { name: room });
-		client.emit('autoswitch_room', { name: room });
+		const rooms = await this.chatService.getActiveRooms();
+		let index;
+		for (let i = 0; i < rooms.length; i++) {
+			if (rooms[i].name === room) {
+				index = i;
+				break;
+			}
+		}
+		console.log('switch to room: ', index);
+		client.emit('autoswitch_room', index);
 	}
 
 	@SubscribeMessage('message_send')

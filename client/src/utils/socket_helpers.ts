@@ -18,11 +18,10 @@ export const switchRoom = (prevRoom: string, room: string) => {
 	}
 };
 
-export const subscribeToAutoSwitchRoom = (callback: (data: Room) => void) => {
+export const subscribeToAutoSwitchRoom = (callback: (data: number) => void) => {
 	if (!socket) return;
 
 	socket.on('autoswitch_room', (data) => {
-		console.log('autoswitch_room: ', data.name);
 		callback(data);
 	});
 };

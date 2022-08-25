@@ -25,15 +25,12 @@ function SimpleDialog(props: SimpleDialogProps) {
 
 	const handleClose = () => {
 		setOpen(false);
-		console.log(name);
-		console.log(privacy);
+		// console.log(name);
+		// console.log(privacy);
 		axios.post("http://localhost:3001/api/chat/create_channel", {name: name.toLowerCase(), type: 0, hash: ""})
 			.then(() => {
 				socket.emit('room_created', name);
-				if (prevRoom)
-					switchRooms({ name });
-				else
-					switchRooms({ name });
+				switchRooms({ name });
 			})
 			.catch(err => {
 				if (err) throw err;

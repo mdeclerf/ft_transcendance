@@ -137,12 +137,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 
 	React.useEffect(() => {
 		subscribeToAutoSwitchRoom((data) => {
-			let index = 0;
-			rooms.map((room, i) => {
-				if (room.name === data.name) index = i;
-			});
-			console.log("index: ", index);
-			setValue(index);
+			setValue(data);
 		})
 	}, [])
 
