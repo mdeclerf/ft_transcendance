@@ -28,8 +28,9 @@ export class ChatController {
 	async createChannel(@Body() roomDto: CreateRoomDto) {
 		const room = await this.chatService.getRoomByName(roomDto.name);
 		if (room)
-			return ;
-		return this.chatService.createRoom(roomDto);
+			return true;
+		this.chatService.createRoom(roomDto);
+		return false;
 	}
 
 	@Post('send_password')

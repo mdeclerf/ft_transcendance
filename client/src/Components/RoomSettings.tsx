@@ -24,8 +24,6 @@ function SettingsDialog(props: SettingsDialogProps) {
 	const handleClose = () => {
 		setOpen(false);
 		// const hashedPassword = bcrypt.hashSync(password, '$2a$10$CwTycUXWue0Thq9StjUM0u'); // faut pas faire ca, faut hash cote server !
-		console.log(password);
-		console.log(room);
 		axios.post("http://localhost:3001/api/chat/send_password", {password: password, name: room})
 			.then(() => {
 				;
