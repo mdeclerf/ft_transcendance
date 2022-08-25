@@ -9,6 +9,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import BlockIcon from '@mui/icons-material/Block';
 import { useFetchIsFriend } from "../utils/hooks/useFetchIsFriend";
 import axios from "axios";
+import { useFetchIsBlocked } from "../utils/hooks/useFetchIsBlocked";
 
 export interface IProfileProps {
 	user: User | undefined;
@@ -19,6 +20,7 @@ export const Profile = (props: IProfileProps) => {
 	const { user, games } = props;
 	const { user: currentUser } = useFetchCurrentUser();
 	const isFriend = useFetchIsFriend(user?.id);
+	const isBlocked = useFetchIsBlocked(user?.id);
 
 	let backHeight: number;
 	if (games)
@@ -94,6 +96,16 @@ export const Profile = (props: IProfileProps) => {
 			});
 	}
 
+	const handleUnblock = (event: React.MouseEvent<HTMLButtonElement>) => {
+		axios.get(`http://localhost:3001/api/user/unblock_user?id=${user?.id}`, { withCredentials: true })
+			.then(() => {
+				window.location.reload();
+			})
+			.catch(err => {
+				if (err) throw err;
+			});
+	}
+
 	const generate = () => {
 		return games?.map((game, i) => {
 			if (game.player_1.username === user?.username)
@@ -138,10 +150,14 @@ export const Profile = (props: IProfileProps) => {
 						Remove Friend
 					</Button>
 				}
-				{
-					(user?.id !== currentUser?.id) &&
+				{((user?.id !== currentUser?.id) && !isBlocked) &&
 					<Button variant="contained" startIcon={<BlockIcon />} onClick={handleBlock} sx={{m:1}}>
 						Block User
+					</Button>
+				}
+				{((user?.id !== currentUser?.id) && isBlocked) &&
+					<Button variant="contained" startIcon={<BlockIcon />} onClick={handleUnblock} sx={{m:1}}>
+						Unblock User
 					</Button>
 				}
 			</div>

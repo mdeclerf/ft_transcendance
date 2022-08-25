@@ -113,6 +113,18 @@ export class UserController {
 		this.userService.blockUser(req.user.id, blockeeId);
 	}
 
+	@Get('unblock_user')
+	@UseGuards(AuthenticatedGuard)
+	unblockUser(@Query('id') blockeeId: number, @Req() req: RequestWithUser) {
+		this.userService.unblockUser(req.user.id, blockeeId);
+	}
+
+	@Get('is_blocked')
+	@UseGuards(AuthenticatedGuard)
+	isBlocked(@Query('id') blockeeId: number, @Req() req: RequestWithUser): Promise<boolean> {
+		return this.userService.isBlocked(req.user.id, blockeeId);
+	}
+
 	@Get('complete')
 	@UseGuards(AuthenticatedGuard)
 	complete(@Query('q') query: string) {

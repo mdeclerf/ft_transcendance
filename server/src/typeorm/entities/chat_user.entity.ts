@@ -17,12 +17,8 @@ export class ChatUser {
 	@ManyToOne(() => User, (user) => user.chat_user)
 	user: User
 
-	// 0: is in the chat
-	// 1: admin
-	// 2: mute
-	// 3: banned
 	@Column({type: 'text'})
-	public status: "user" | "admin" | "mute" | "banned";
+	public status: "user" | "owner" | "admin" | "muted" | "banned";
 
 	// Date when the ban or the mute is over
 	@Column()

@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BlockList, Game, Subscription, User} from '../typeorm/';
+import { Blocklist, Game, Subscription, User} from '../typeorm/';
 import { UserDetails, Ranking } from '../utils/types';
 import { Repository } from 'typeorm';
 
@@ -10,7 +10,7 @@ export class UserService {
 		@InjectRepository(User) private readonly userRepo: Repository<User>,
 		@InjectRepository(Game) private readonly gameRepo: Repository<Game>,
 		@InjectRepository(Subscription) private readonly subRepo: Repository<Subscription>,
-		@InjectRepository(BlockList) private readonly blockRepo: Repository<BlockList>,
+		@InjectRepository(Blocklist) private readonly blockRepo: Repository<Blocklist>,
 	) {}
 
 	async updateOne(details: UserDetails) {
@@ -128,6 +128,26 @@ export class UserService {
 		block.blocker = await this.userRepo.findOneBy({ id: userId });
 		block.blockee = await this.userRepo.findOneBy({ id: blockeeId });
 		await this.blockRepo.save(block);
+	}
+
+	async unblockUser(userId: number, blockeeId: number) {
+		await this.blockRepo.createQueryBuilder('blocklist')
+			.leftJoinAndSelect('blocklist.blocker', 'blocker')
+			.leftJoinAndSelect('blocklist.blockee', 'blockee')
+			.delete()
+			.from(Blocklist)
+			.where('blocker.id = :userId AND blockee.id = :blockeeId', { userId, blockeeId})
+			.execute()
+	}
+
+	async isBlocked(userId: number, blockeeId: number) {
+		const result = await this.blockRepo.createQueryBuilder('blocklist')
+			.leftJoinAndSelect('blocklist.blocker', 'blocker')
+			.leftJoinAndSelect('blocklist.blockee', 'blockee')
+			.where('blocker.id = :userId AND blockee.id = :blockeeId', { userId, blockeeId})
+			.getOne();
+		
+		return result !== null;
 	}
 
 	async complete(query: string) {

@@ -2,7 +2,7 @@ import { CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from "typ
 import { User } from "./user.entity";
 
 @Entity()
-export class BlockList {
+export class Blocklist {
 	@PrimaryGeneratedColumn()
 	id: number;
 

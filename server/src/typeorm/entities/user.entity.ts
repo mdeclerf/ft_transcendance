@@ -1,7 +1,7 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Chat, Game, ChatUser } from "../";
 import { Subscription } from "./subscription.entity";
-import { BlockList } from "../";
+import { Blocklist } from "../";
 
 @Entity({ name: 'users' })
 export class User {
@@ -48,11 +48,11 @@ export class User {
 	@OneToMany(type => Subscription, subscription => subscription.subscribedTo)
 	subscribers: Subscription[];
 
-	@OneToMany(type => BlockList, blocklist => blocklist.blockee)
-	blocking: BlockList[];
+	@OneToMany(type => Blocklist, blocklist => blocklist.blockee)
+	blocking: Blocklist[];
 
-	@OneToMany(type => BlockList, blocklist => blocklist.blocker)
-	blocked_by: BlockList[];
+	@OneToMany(type => Blocklist, blocklist => blocklist.blocker)
+	blocked_by: Blocklist[];
 
 	@OneToMany(() => Game, (game) => game.player_1)
 	p1_game: Game[]

@@ -9,3 +9,4 @@ export const getUser = (username: string | undefined) => axios.get<UserQueryResp
 export const getQRCode = () => axios.post<Blob>('http://localhost:3001/api/2fa/generate', '', QRCONFIG);
 export const getLeaderBoard = () => axios.get<Ranking[]>('http://localhost:3001/api/user/leaderboard', CONFIG);
 export const getIsFriend = (friendId: string | undefined) => axios.get<boolean>(`http://localhost:3001/api/user/is_friend?id=${friendId}`, CONFIG);
+export const getIsBlocked = (blockeeId: string | undefined) => axios.get<boolean>(`http://localhost:3001/api/user/is_blocked?id=${blockeeId}`, CONFIG)

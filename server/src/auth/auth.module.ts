@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { UserService } from 'src/user/user.service';
-import { BlockList, Game, Session, Subscription, User } from '../typeorm/';
+import { Blocklist, Game, Session, Subscription, User } from '../typeorm/';
 import { AuthController } from './controllers/auth.controller';
 import { AuthService } from './services/auth.service';
 import { IntraStrategy } from './strategies/intra-oauth.strategy';
@@ -16,7 +16,7 @@ import { SessionSerializer } from './utils/Serializer';
 		UserService
 	],
 	imports: [
-		TypeOrmModule.forFeature([User, Session, Game, Subscription, BlockList])
+		TypeOrmModule.forFeature([User, Session, Game, Subscription, Blocklist])
 	]
 })
 export class AuthModule {}
