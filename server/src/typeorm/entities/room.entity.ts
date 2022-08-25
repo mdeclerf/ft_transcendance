@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryColumn, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Chat } from "../";
 import { ChatUser } from "../";
 
@@ -11,11 +11,6 @@ export class Room {
 	@Column({type: 'text', unique: true})
 	public name: string;
 
-	/*
-	0 is public
-	1 is protected
-	2 is private
-	*/
 	@Column({type: 'text', default: 'public'})
 	public type: 'public' | 'protected' | 'private';
 

@@ -1,53 +1,79 @@
-import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
-import * as React from 'react';
+import {
+	Button,
+	Dialog,
+	DialogActions,
+	DialogContent,
+	DialogContentText,
+	DialogTitle,
+	TextField,
+} from '@mui/material';
 import axios from 'axios';
-import { Room } from '../utils/types';
+import * as React from 'react';
 import { socket } from '../socket';
-// import { switchRoom } from '../utils/socket_helpers';
+import { Room } from '../utils/types';
 
 export interface SimpleDialogProps {
-		open: boolean;
-		setOpen: (value: boolean) => void;
-		switchRooms: (room: Room) => void;
-	}
-	
+	open: boolean;
+	setOpen: (value: boolean) => void;
+	switchRooms: (room: Room) => void;
+}
+
 function SimpleDialog(props: SimpleDialogProps) {
 	const { setOpen, open, switchRooms } = props;
 
 	const [name, setName] = React.useState<string>('');
 
-	const handleChangeName = (event: any) => {
-		setName(event.target.value as string);
+	const handleChangeName = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setName(event.target.value);
+	};
+
+	const handleEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
+		if (event.key === 'Enter') {
+			handleClose();
+		}
 	};
 
 	const handleClose = () => {
 		setOpen(false);
-		axios.post("http://localhost:3001/api/chat/create_channel", {name: name.toLowerCase(), type: 'public', hash: ""})
+		axios
+			.post('http://localhost:3001/api/chat/create_channel', {
+				name: name.toLowerCase(),
+				type: 'public',
+				hash: '',
+			})
 			.then(() => {
 				socket.emit('room_created', name);
-				switchRooms({ name });
+				switchRooms({ name, type: 'public' });
 			})
-			.catch(err => {
+			.catch((err) => {
 				if (err) throw err;
 			});
-		setName("");
+		setName('');
 	};
 
 	const handleCancel = () => {
 		setOpen(false);
-		setName("");
+		setName('');
 	};
-
 
 	return (
 		<Dialog onClose={handleCancel} open={open}>
 			<DialogTitle>Create Channel</DialogTitle>
 			<DialogContent>
-				<DialogContentText>
-					Create a new channel
-				</DialogContentText>
-				<TextField value={name} onChange={handleChangeName} label="Channel name" autoFocus margin="normal" variant="standard" fullWidth sx={{mb:2}}/>
+				<DialogContentText>Create a new channel</DialogContentText>
+				<TextField
+					value={name}
+					onChange={handleChangeName}
+					onKeyDown={handleEnter}
+					label="Channel name"
+					type="password"
+					autoFocus
+					margin="normal"
+					variant="standard"
+					fullWidth
+					sx={{ mb: 2 }}
+				/>
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={handleCancel}>Cancel</Button>
@@ -59,7 +85,7 @@ function SimpleDialog(props: SimpleDialogProps) {
 
 export interface IButtonCreateChannelsProps {
 	switchRooms: (room: Room) => void;
-};
+}
 
 export const ButtonCreateChannels = (props: IButtonCreateChannelsProps) => {
 	const { switchRooms } = props;
@@ -68,10 +94,16 @@ export const ButtonCreateChannels = (props: IButtonCreateChannelsProps) => {
 	const handleClickOpen = () => {
 		setOpen(true);
 	};
-	
+
 	return (
 		<div>
-			<Button sx={{marginTop:"2%"}} variant="outlined" startIcon={<AddIcon />} onClick={handleClickOpen} fullWidth>
+			<Button
+				sx={{ marginTop: '2%' }}
+				variant="outlined"
+				startIcon={<AddIcon />}
+				onClick={handleClickOpen}
+				fullWidth
+			>
 				Create channel
 			</Button>
 			<SimpleDialog
@@ -80,5 +112,5 @@ export const ButtonCreateChannels = (props: IButtonCreateChannelsProps) => {
 				switchRooms={switchRooms}
 			/>
 		</div>
-	)
-}
+	);
+};

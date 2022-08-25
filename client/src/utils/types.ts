@@ -52,6 +52,7 @@ export type Message = {
 
 export type Room = {
 	name: string;
+	type: 'public' | 'protected' | 'private';
 }
 
 export type MessageGroup = {

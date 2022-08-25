@@ -1,4 +1,4 @@
-import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions } from '@mui/material';
+import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogContentText, DialogActions, IconButton } from '@mui/material';
 import SettingsIcon from '@mui/icons-material/Settings';
 import * as React from 'react';
 import axios from 'axios';
@@ -24,9 +24,7 @@ function SettingsDialog(props: SettingsDialogProps) {
 	const handleClose = () => {
 		setOpen(false);
 		// const hashedPassword = bcrypt.hashSync(password, '$2a$10$CwTycUXWue0Thq9StjUM0u'); // faut pas faire ca, faut hash cote server !
-		console.log(password);
-		console.log(room);
-		axios.post("http://localhost:3001/api/chat/send_password", {password: password, name: room})
+		axios.post("http://localhost:3001/api/chat/set_password", {password: password, name: room})
 			.then(() => {
 				;
 			})
@@ -72,9 +70,9 @@ export const RoomSettings = (props: IRoomSettingsProps) => {
 
 	return (
 		<div>
-			<Button sx={{marginTop:"2%"}}variant="outlined" startIcon={<SettingsIcon />} onClick={handleClickOpen} fullWidth>
-				Settings
-			</Button>
+			<IconButton onClick={handleClickOpen}>
+				<SettingsIcon />
+			</IconButton>
 			<SettingsDialog
 				open={open}
 				setOpen={setOpen}

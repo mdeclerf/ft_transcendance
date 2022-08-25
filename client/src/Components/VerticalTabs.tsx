@@ -1,11 +1,13 @@
 import SendIcon from '@mui/icons-material/Send';
-import { Avatar, AvatarGroup, Box, Button, Divider, Tab, Tabs, TextField, Tooltip, Typography } from '@mui/material';
+import { Avatar, AvatarGroup, Box, Button, CircularProgress, Divider, Tab, Tabs, TextField, Tooltip, Typography } from '@mui/material';
 import * as React from 'react';
 import { subscribeToAutoSwitchRoom } from '../utils/socket_helpers';
 import { Message, MessageGroup, Room, User } from '../utils/types';
 import { ButtonCreateChannels } from './ButtonCreateChannels';
 import { RoomSettings } from './RoomSettings';
 import { ChatMsg } from './ChatMsg';
+import LockIcon from '@mui/icons-material/Lock';
+import { PasswordDialog } from './PasswordDialog';
 
 interface ITabPanelProps {
 	title: string;
@@ -17,11 +19,13 @@ interface ITabPanelProps {
 	messageSend: () => void;
 	roomUsers: User[];
 	currentUser: User | undefined;
+	isProtected: boolean;
 }
 
 const TabPanel = (props: ITabPanelProps) => {
-	const { title, message, children, value, index, messageChange, messageSend, roomUsers, currentUser } = props;
+	const { title, message, children, value, index, messageChange, messageSend, roomUsers, currentUser, isProtected } = props;
 	const divRef = React.useRef<HTMLDivElement>(null);
+	const [passAuthenticated, setPassAuthenticated] = React.useState(false);
 
 	const handleInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === "Enter") {
@@ -50,24 +54,12 @@ const TabPanel = (props: ITabPanelProps) => {
 		}
 	}
 
-	return (
-		<div
-			role="tabpanel"
-			hidden={value !== index}
-			id={`vertical-tabpanel-${index}`}
-			aria-labelledby={`vertical-tab-${index}`}
-			style={{ flexGrow: 1 }}
-		>
-			{value === index && (
-				<Box sx={{ p: 3, minWidth: '80vw', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
-					<Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-						<RoomSettings room={title}/>
-						<Typography sx={{ flexGrow: 0 }} variant="h4">{title}</Typography>
-						<AvatarGroup total={roomUsers.length}>
-							{getFirstFourNonSelfUsers()}
-						</AvatarGroup>
-					</Box>
-					<Divider />
+	const getChatAndInput = () => {
+		if (isProtected && !passAuthenticated) {
+			return <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }} ><CircularProgress /></Box>
+		} else {
+			return (
+				<>
 					<div style={{ flexGrow: 1, maxHeight: '80vh', overflowY: 'auto' }} ref={divRef}>
 						{children}
 					</div>
@@ -77,9 +69,40 @@ const TabPanel = (props: ITabPanelProps) => {
 								<SendIcon />
 							</Button>
 					</form>
-				</Box>
+				</>
+			)
+		}
+	}
+
+	return (
+		<>
+			<div
+				role="tabpanel"
+				hidden={value !== index}
+				id={`vertical-tabpanel-${index}`}
+				aria-labelledby={`vertical-tab-${index}`}
+				style={{ flexGrow: 1 }}
+			>
+				{value === index && (
+					<Box sx={{ p: 3, minWidth: '80vw', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
+						<Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
+							<Box sx={{ display: 'flex', flexDirection: 'row'}}>
+								<Typography sx={{ flexGrow: 0 }} variant="h4">{title}</Typography>
+								<RoomSettings room={title}/>
+							</Box>
+							<AvatarGroup total={roomUsers.length}>
+								{getFirstFourNonSelfUsers()}
+							</AvatarGroup>
+						</Box>
+						<Divider />
+						{getChatAndInput()}
+					</Box>
+				)}
+			</div>
+			{ (isProtected && !passAuthenticated && (value === index)) && (
+				<PasswordDialog title={title} setPassAuthenticated={setPassAuthenticated} />
 			)}
-		</div>
+		</>
 	);
 }
 
@@ -170,9 +193,15 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 					sx={{ borderRight: 1, borderColor: 'divider', maxWidth: '20vw', flexGrow: 1 }}
 				>
 					{rooms.map((room, i) => {
-						return (
-							<Tab label={room.name} key={i} {...a11yProps(i)} />
-						)
+						if (room.type === 'protected') {
+							return (
+								<Tab label={room.name} key={i} iconPosition='start' icon={<LockIcon />} {...a11yProps(i)} />
+							)
+						} else {
+							return (
+								<Tab label={room.name} key={i} {...a11yProps(i)} />
+							)
+						}
 					})}
 				</Tabs>
 			</Box>
@@ -188,6 +217,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 						message={message}
 						roomUsers={roomUsers}
 						currentUser={currentUser}
+						isProtected={room.type === 'protected'}
 					>
 						{mapChatBubbles()}
 					</TabPanel>
