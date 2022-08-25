@@ -68,7 +68,6 @@ export class ChatGateway
 
 	@SubscribeMessage('room_created')
 	async roomCreated(client: Socket, room: string) {
-		console.log(`room_created: ${room}`);
 		this.server.emit('new_room', { name: room });
 		const rooms = await this.chatService.getActiveRooms();
 		let index;
@@ -78,7 +77,6 @@ export class ChatGateway
 				break;
 			}
 		}
-		console.log('switch to room: ', index);
 		client.emit('autoswitch_room', index);
 	}
 
