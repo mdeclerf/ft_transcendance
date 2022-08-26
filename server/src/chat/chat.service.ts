@@ -21,25 +21,36 @@ export class ChatService {
 		return this.chatRepo.find();
 	}
 
-	//select * from users left join blocklist on blocklist.blockee_id = users.id where blocklist.blocker_id = 1;
 	//Return every message of a room
 	public async getRoomMessages(room_id: number, user: User) : Promise<Chat[]> {
-		//const blocklist = await this.blockRepo.createQueryBuilder('blocklist')
-		//	.leftJoinAndSelect('blocklist.blockee', 'blockee')
-		//	.where('blocklist.blocker = :id', { id: user.id })
-		//	.getMany()
-		//console.log(blocklist.map((blockEntry) => { return (blockEntry.blockee) }));
 		const blocklist = await this.userRepo.createQueryBuilder('users')
 			.leftJoinAndSelect('users.blocking', 'blocker')
 			.where('blocker.blocker = :id', { id: user.id })
 			.getMany()
-		console.log(blocklist);
-		const result = this.chatRepo.createQueryBuilder('chat')
+
+		if (Object.keys(blocklist).length !== 0)
+			return this.getRoomMessagesBlocks(room_id, blocklist);
+		else
+			return this.getRoomMessagesNoBlocks(room_id);
+	}
+
+	public async getRoomMessagesBlocks(room_id: number, blocklist: User[])
+	{
+		return await this.chatRepo.createQueryBuilder('chat')
+			.leftJoinAndSelect('chat.user', 'user')
+			.where('chat.room_id = :id', { id: room_id })
+			.where("chat.user_id NOT IN (:...ids)", {ids: blocklist.map(user => { return ( user.id )})})
+			.orderBy('chat.createdat', 'ASC')
+			.getMany();
+	}
+
+	public async getRoomMessagesNoBlocks(room_id: number)
+	{
+		return await this.chatRepo.createQueryBuilder('chat')
 			.leftJoinAndSelect('chat.user', 'user')
 			.where('chat.room_id = :id', { id: room_id })
 			.orderBy('chat.createdat', 'ASC')
 			.getMany();
-		return result;
 	}
 
 	public getMessage(id: number): Promise<Chat> {
