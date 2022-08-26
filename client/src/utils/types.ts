@@ -78,3 +78,8 @@ export type GameJoinRoomData = {
 	room: string;
 	user: User;
 }
+
+export type UpdateStatus = {
+	status: string;
+	user: User;
+}

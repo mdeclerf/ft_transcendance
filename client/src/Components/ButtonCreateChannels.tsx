@@ -30,11 +30,11 @@ function SimpleDialog(props: SimpleDialogProps) {
 		setName(event.target.value);
 	};
 
-	const handleEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
-		if (event.key === 'Enter') {
-			handleClose();
-		}
-	};
+	// const handleEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
+	// 	if (event.key === 'Enter') {
+	// 		handleClose();
+	// 	}
+	// };
 
 	const handleClose = () => {
 		setOpen(false);
