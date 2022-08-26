@@ -183,7 +183,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 			}}
 		>
 			<Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
-				<ButtonCreateChannels switchRooms={switchRooms}/>
+				<ButtonCreateChannels currentUser={currentUser} switchRooms={switchRooms}/>
 				<Tabs
 					orientation='vertical'
 					variant="scrollable"

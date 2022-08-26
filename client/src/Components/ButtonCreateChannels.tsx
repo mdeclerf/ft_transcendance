@@ -11,16 +11,17 @@ import {
 import axios from 'axios';
 import * as React from 'react';
 import { socket } from '../socket';
-import { Room } from '../utils/types';
+import { Room, User } from '../utils/types';
 
 export interface SimpleDialogProps {
+	currentUser: User | undefined;
 	open: boolean;
 	setOpen: (value: boolean) => void;
 	switchRooms: (room: Room) => void;
 }
 
 function SimpleDialog(props: SimpleDialogProps) {
-	const { setOpen, open, switchRooms } = props;
+	const { currentUser, setOpen, open, switchRooms } = props;
 
 	const [name, setName] = React.useState<string>('');
 	const [taken, setTaken] = React.useState<boolean>(false);
@@ -59,6 +60,18 @@ function SimpleDialog(props: SimpleDialogProps) {
 			.catch((err) => {
 				if (err) throw err;
 			});
+			if (currentUser)
+			axios
+			.post('http://localhost:3001/api/chat/set_channel_owner', {
+				currentUser: currentUser.username,
+				name: name
+			})
+			.then(() => {
+				console.log(currentUser);
+			})
+			.catch((err) => {
+				if (err) throw err;
+			});
 		setName('');
 	};
 
@@ -93,10 +106,11 @@ function SimpleDialog(props: SimpleDialogProps) {
 
 export interface IButtonCreateChannelsProps {
 	switchRooms: (room: Room) => void;
+	currentUser: User | undefined;
 }
 
 export const ButtonCreateChannels = (props: IButtonCreateChannelsProps) => {
-	const { switchRooms } = props;
+	const { switchRooms, currentUser } = props;
 	const [open, setOpen] = React.useState(false);
 
 	const handleClickOpen = () => {
@@ -115,6 +129,7 @@ export const ButtonCreateChannels = (props: IButtonCreateChannelsProps) => {
 				Create channel
 			</Button>
 			<SimpleDialog
+				currentUser={currentUser}
 				open={open}
 				setOpen={setOpen}
 				switchRooms={switchRooms}

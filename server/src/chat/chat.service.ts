@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Blocklist, Chat, CreateChatDto, CreateRoomDto, Room, User } from '../typeorm/';
 import { Repository } from 'typeorm';
 import { PasswordDto } from 'src/utils/password.dto';
+import { ChannelOwner } from 'src/utils/channelOwner.dto';
 
 @Injectable()
 export class ChatService {
@@ -12,6 +13,7 @@ export class ChatService {
 		@InjectRepository(Room) private readonly roomRepo: Repository<Room>,
 		@InjectRepository(User) private readonly userRepo: Repository<User>,
 		@InjectRepository(Blocklist) private readonly blockRepo: Repository<Blocklist>,
+		
 	) {
 		this.roomRepo.upsert({ name: 'general', type: 'public' }, ["name"]);
 	}
@@ -33,7 +35,7 @@ export class ChatService {
 			.leftJoinAndSelect('users.blocking', 'blocker')
 			.where('blocker.blocker = :id', { id: user.id })
 			.getMany()
-		console.log(blocklist);
+		// console.log(blocklist);
 		const result = this.chatRepo.createQueryBuilder('chat')
 			.leftJoinAndSelect('chat.user', 'user')
 			.where('chat.room_id = :id', { id: room_id })
@@ -92,5 +94,15 @@ export class ChatService {
 	async updateRoom(data: PasswordDto) {
 		const room = await this.roomRepo.findOneBy({ name: data.name });
 		return this.roomRepo.update(room.id, { hash: data.password, type: 'protected' });
+	}
+
+	async setUserStatus(data: CreateChatUserDto) {
+		const chat_user: Chat_user = new Chat_user;
+
+		chat_user.id = data.id;
+		chat_user.room = data.room;
+		chat_user.user = data.user;
+		chat_user.status = data.status;
+		await this.repository.save(chat_user);
 	}
 }

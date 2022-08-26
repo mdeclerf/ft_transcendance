@@ -1,19 +1,12 @@
 import { IsInt, IsPositive, Max, Min } from "class-validator";
+import { Room } from "../entities/room.entity";
+import { User } from "../entities/user.entity";
 
 export class CreateChatUserDto {
 
-	@IsInt()
-	@IsPositive()
-	public room_number: number;
+	public room_name: string;
 
-	@IsInt()
-	@IsPositive()
-	public user_id: number;
+	public usernme: string;
 
-	//@IsInt()
-	//@Min(0)
-	//@Max(3)
 	public status: string;
-
-	public endStatusDate: Date;
 }

@@ -8,8 +8,8 @@ export class ChatUser {
 	@PrimaryGeneratedColumn()
 	public id!: number;
 
-	@Column ({type: 'integer'})
-	public room_number: number;
+	/*@Column ({type: 'integer'})
+	public room_number: number;*/
 
 	@ManyToOne(() => Room, (room) => room.chat_user)
 	room: Room

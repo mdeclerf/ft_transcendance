@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
 import { CreateRoomDto } from 'src/typeorm';
 import { AuthenticatedGuard } from '../auth/guards/intra-oauth.guard';
 import { ChatService } from './chat.service';
@@ -6,6 +6,7 @@ import { PasswordDto } from '../utils/password.dto';
 import * as bcrypt from 'bcrypt';
 import { RequestWithUser } from 'src/utils/types';
 import { Response } from 'express';
+import { ChannelOwner} from '../utils/channelOwner.dto';
 
 @Controller('chat')
 export class ChatController {
@@ -51,5 +52,11 @@ export class ChatController {
 		} else {
 			return res.status(401).send();
 		}
+	}
+
+	@Post('set_channel_owner')
+	async setChannelOwner(@Body() data: ChannelOwner) {
+		const room = await this.chatService.getRoomByName(data.name);
+		return this.chatService.setUserStatus(data.currentUser, data.name, 'owner');
 	}
 }
