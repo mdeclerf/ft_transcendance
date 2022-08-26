@@ -7,7 +7,7 @@ import { ButtonCreateChannels } from './ButtonCreateChannels';
 import { RoomSettings } from './RoomSettings';
 import { ChatMsg } from './ChatMsg';
 import LockIcon from '@mui/icons-material/Lock';
-import { PasswordDialog } from './PasswordDialog';
+import { ButtonJoinChannel } from './ButtonJoinChannel';
 
 interface ITabPanelProps {
 	title: string;
@@ -20,12 +20,12 @@ interface ITabPanelProps {
 	roomUsers: User[];
 	currentUser: User | undefined;
 	isProtected: boolean;
+	passAuthenticated: boolean;
 }
 
 const TabPanel = (props: ITabPanelProps) => {
-	const { title, message, children, value, index, messageChange, messageSend, roomUsers, currentUser, isProtected } = props;
+	const { title, message, children, value, index, messageChange, messageSend, roomUsers, currentUser, isProtected, passAuthenticated } = props;
 	const divRef = React.useRef<HTMLDivElement>(null);
-	const [passAuthenticated, setPassAuthenticated] = React.useState(false);
 
 	const handleInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === "Enter") {
@@ -55,9 +55,9 @@ const TabPanel = (props: ITabPanelProps) => {
 	}
 
 	const getChatAndInput = () => {
-		if (isProtected && !passAuthenticated) {
-			return <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }} ><CircularProgress /></Box>
-		} else {
+		// if (isProtected && !passAuthenticated) {
+		// 	return <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }} ><CircularProgress /></Box>
+		// } else {
 			return (
 				<>
 					<div style={{ flexGrow: 1, maxHeight: '80vh', overflowY: 'auto' }} ref={divRef}>
@@ -71,7 +71,7 @@ const TabPanel = (props: ITabPanelProps) => {
 					</form>
 				</>
 			)
-		}
+		// }
 	}
 
 	return (
@@ -99,9 +99,9 @@ const TabPanel = (props: ITabPanelProps) => {
 					</Box>
 				)}
 			</div>
-			{ (isProtected && !passAuthenticated && (value === index)) && (
+			{/* { (isProtected && !passAuthenticated && (value === index)) && (
 				<PasswordDialog title={title} setPassAuthenticated={setPassAuthenticated} />
-			)}
+			)} */}
 		</>
 	);
 }
@@ -129,6 +129,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 	const { rooms, message, messages, currentUser, switchRooms, messageChange, messageSend, roomUsers } = props;
 	const [value, setValue] = React.useState(0);
 	const [formattedMessages, setFormattedMessages] = React.useState<MessageGroup[]>([]);
+	const [passAuthenticated, setPassAuthenticated] = React.useState(false);
 
 	React.useEffect(() => {
 		const msgGrp: MessageGroup[] = [];
@@ -184,6 +185,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 		>
 			<Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
 				<ButtonCreateChannels switchRooms={switchRooms}/>
+				<ButtonJoinChannel setPassAuthenticated={setPassAuthenticated} />
 				<Tabs
 					orientation='vertical'
 					variant="scrollable"
@@ -218,6 +220,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 						roomUsers={roomUsers}
 						currentUser={currentUser}
 						isProtected={room.type === 'protected'}
+						passAuthenticated={passAuthenticated}
 					>
 						{mapChatBubbles()}
 					</TabPanel>

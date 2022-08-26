@@ -1,19 +1,16 @@
-import { IsInt, IsPositive, Max, Min } from "class-validator";
+import { IsIn, IsInt, IsPositive, IsString, Max, Min } from "class-validator";
 
 export class CreateChatUserDto {
 
 	@IsInt()
 	@IsPositive()
-	public room_number: number;
+	public user_id: number;
 
 	@IsInt()
 	@IsPositive()
-	public user_id: number;
+	public room_id: number;
 
-	//@IsInt()
-	//@Min(0)
-	//@Max(3)
-	public status: string;
-
-	public endStatusDate: Date;
+	@IsString()
+	@IsIn(['user', 'owner', 'admin', 'muted', 'banned'])
+	public status: 'user' | 'owner' | 'admin' | 'muted' | 'banned';
 }
