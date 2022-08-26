@@ -14,7 +14,7 @@ export type NameChangeResponse = {
 	user: User;
 }
 
-export type AutoCompleteResult = {
+export type AutoCompleteSearchResult = {
 	username: string;
 	photoURL: string;
 	displayName: string;

@@ -2,13 +2,13 @@ import { Module } from '@nestjs/common';
 import { ChatService } from './chat.service';
 import { ChatController } from './chat.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Blocklist, Chat, Game, Room, Subscription, User } from '../typeorm/';
+import { Blocklist, Chat, ChatUser, Game, Room, Subscription, User } from '../typeorm/';
 import { ChatGateway } from './chat.gateway';
 import { UserService } from 'src/user/user.service';
 
 @Module({
 	imports: [
-		TypeOrmModule.forFeature([Chat, Room, User, Game, Subscription, Blocklist]),
+		TypeOrmModule.forFeature([Chat, Room, User, Game, Subscription, Blocklist, ChatUser]),
 	],
 	controllers: [ChatController],
 	providers: [ChatService, ChatGateway, UserService],

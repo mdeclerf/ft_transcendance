@@ -3,19 +3,19 @@ import { useState } from 'react';
 import SearchIcon from '@mui/icons-material/Search';
 import * as React from 'react';
 import axios from 'axios';
-import { AutoCompleteResult } from '../utils/types';
+import { AutoCompleteSearchResult } from '../utils/types';
 
 export interface ISearchBarProps {
 }
 
 export function SearchBar (props: ISearchBarProps) {
 	const [searchQuery, setSearchQuery] = useState('');
-	const [complete, setComplete] = useState<AutoCompleteResult[]>([]);
+	const [complete, setComplete] = useState<AutoCompleteSearchResult[]>([]);
 	const [loading, setLoading] = useState(false);
 	const [isOpen, setIsOpen] = useState(false);
 
 	const filterOptions = createFilterOptions({
-		stringify: (option: AutoCompleteResult) => `${option.username} ${option.displayName}`
+		stringify: (option: AutoCompleteSearchResult) => `${option.username} ${option.displayName}`
 	});
 
 	const handleClick = () => {
@@ -65,11 +65,11 @@ export function SearchBar (props: ISearchBarProps) {
 					getOptionLabel={({ username }) => {
 						return username;
 					}}
-					isOptionEqualToValue={(option: AutoCompleteResult, value: AutoCompleteResult) => {
+					isOptionEqualToValue={(option: AutoCompleteSearchResult, value: AutoCompleteSearchResult) => {
 						return option.username === value.username;
 					}}
 					filterSelectedOptions
-					renderOption={(props, option: AutoCompleteResult) => (
+					renderOption={(props, option: AutoCompleteSearchResult) => (
 						<Box component="li" sx={{ mr: 2, flexShrink: 0, gap: 1 }} {...props}>
 							<Avatar
 								src={option.photoURL}

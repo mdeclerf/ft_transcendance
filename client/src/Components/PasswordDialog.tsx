@@ -60,7 +60,7 @@ export function PasswordDialog (props: IPasswordDialogProps) {
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={handleCancel}>Cancel</Button>
-				<Button onClick={handleClick}>Apply</Button>
+				<Button onClick={handleClick}>Join</Button>
 			</DialogActions>
 		</Dialog>
 	);

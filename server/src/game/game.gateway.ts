@@ -327,8 +327,6 @@ export class GameGateway implements OnGatewayDisconnect {
 		await this.userService.setStatus(disconnectedUser.id, 'offline');
 
 		this.wss.sockets.emit("color_change", { status: 'offline', user: disconnectedUser});
-		console.log('vfdvffvfvf')
-		console.log(disconnectedUser.status)
 
 		for (let value of this.Game.values())
 		{
