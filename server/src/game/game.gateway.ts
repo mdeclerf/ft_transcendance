@@ -324,6 +324,8 @@ export class GameGateway implements OnGatewayDisconnect {
 
 	async handleDisconnect(client: Socket) {
 		const disconnectedUser = await this.userService.findUserBySocketId(client.id);
+		if (!disconnectedUser)
+			return ;
 		await this.userService.setStatus(disconnectedUser.id, 'offline');
 
 		this.wss.sockets.emit("color_change", { status: 'offline', user: disconnectedUser});
