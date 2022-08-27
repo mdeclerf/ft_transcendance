@@ -37,37 +37,21 @@ function SimpleDialog(props: SimpleDialogProps) {
 		}
 	};
 
-	const handleClose = () => {
-		setOpen(false);
-		axios
+	const handleClose = async () => {
+		await axios
 			.post('http://localhost:3001/api/chat/create_channel', {
 				name: name.toLowerCase(),
 				type: 'public',
 				hash: '',
-			})
+			}, { withCredentials: true })
 			.then((res) => {
 				if (res.data)
-				{
 					setTaken(true);
-				}
-				else
-				{
+				else {
 					setOpen(false);
 					socket.emit('room_created', name);
 					switchRooms({ name, type: 'public' });
 				}
-			})
-			.catch((err) => {
-				if (err) throw err;
-			});
-			if (currentUser)
-			axios
-			.post('http://localhost:3001/api/chat/set_channel_owner', {
-				currentUser: currentUser.username,
-				name: name
-			})
-			.then(() => {
-				console.log(currentUser);
 			})
 			.catch((err) => {
 				if (err) throw err;
@@ -87,14 +71,17 @@ function SimpleDialog(props: SimpleDialogProps) {
 				<DialogContentText>
 					Create a new channel
 				</DialogContentText>
-				<TextField value={name} 
-				onChange={handleChangeName} 
-				label="Channel name" 
-				autoFocus margin="normal" 
-				variant="standard" 
-				error={taken}
-				helperText={taken ? "Channel already exists" : ""}
-				fullWidth sx={{mb:2}}/>
+				<TextField
+					value={name} 
+					onChange={handleChangeName}
+					onKeyDown={handleEnter}
+					label="Channel name" 
+					autoFocus margin="normal" 
+					variant="standard" 
+					error={taken}
+					helperText={taken ? "Channel already exists" : ""}
+					fullWidth sx={{mb:2}}
+				/>
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={handleCancel}>Cancel</Button>

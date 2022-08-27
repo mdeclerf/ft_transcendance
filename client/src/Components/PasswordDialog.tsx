@@ -1,4 +1,4 @@
-import { Button, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle, TextField } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
 import axios from 'axios';
 import React, { useState } from 'react';
 
@@ -60,7 +60,7 @@ export function PasswordDialog (props: IPasswordDialogProps) {
 			</DialogContent>
 			<DialogActions>
 				<Button onClick={handleCancel}>Cancel</Button>
-				<Button onClick={handleClick}>Apply</Button>
+				<Button onClick={handleClick}>Join</Button>
 			</DialogActions>
 		</Dialog>
 	);

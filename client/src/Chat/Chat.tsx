@@ -2,6 +2,7 @@ import { CircularProgress } from '@mui/material';
 import React, { useEffect, useRef } from 'react';
 import { useState } from 'react';
 import { VerticalTabs } from '../Components/VerticalTabs';
+import { socket } from '../socket';
 import { useFetchCurrentUser } from '../utils/hooks/useFetchCurrentUser';
 import { fetchRoomMessages, fetchRooms, joinChat, leaveChat, sendMessage, subscribeToMessages, subscribeToNewRoom, subscribeToRoomUserJoin, subscribeToRoomUserLeave, subscribeToRoomUserList, switchRoom } from '../utils/socket_helpers';
 import { CenteredDiv } from '../utils/styles';
@@ -48,10 +49,6 @@ export function Chat (props: IChatProps) {
 	// eslint-disable-next-line
 	}, [room, socketLoading]);
 
-	// useEffect(() => {
-	// 	console.log(rooms);
-	// }, [rooms])
-
 	// get available rooms
 	useEffect(() => {
 		fetchRooms().then((res: Room[]) => {
@@ -79,6 +76,7 @@ export function Chat (props: IChatProps) {
 		subscribeToNewRoom((data) => {
 			setRooms((oldRooms) => [...oldRooms, data]);
 		});
+	// eslint-disable-next-line
 	}, []);
 
 	// get messages for currently set room
@@ -86,12 +84,10 @@ export function Chat (props: IChatProps) {
 		setMessages([]);
 		setMessagesLoading(true);
 
-		fetchRoomMessages(room.name).then((res: Message[]) => {
-			console.log(res);
+		fetchRoomMessages('general').then((res: Message[]) => {
 			setMessages(res);
 			setMessagesLoading(false);
 		});
-	// eslint-disable-next-line
 	}, []);
 
 	const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {

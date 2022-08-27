@@ -26,24 +26,24 @@ export class ChatGateway
 	@WebSocketServer()
 	server: Server;
 
-	@SubscribeMessage('room_join')
-	async connect(client: Socket, room: string) {
-		client.join(room);
-		const sockets = Array.from(this.server.sockets.adapter.rooms.get(room));
+	@SubscribeMessage('room_active')
+	async roomActive(client: Socket, room_name: string) {
+		client.join(room_name);
+		const sockets = Array.from(this.server.sockets.adapter.rooms.get(room_name));
 		const users = await Promise.all(sockets.map(async (socketId) => {
 			return await this.userService.findUserBySocketId(socketId);
 		}));
 		const currentUser = await this.userService.findUserBySocketId(client.id);
-		client.broadcast.to(room).emit('room_user_join', currentUser);
+		client.broadcast.to(room_name).emit('room_user_active', currentUser);
 		client.emit('room_users', users);
 		// console.log(this.server.sockets.adapter.rooms.get(room));
 	}
 
-	@SubscribeMessage('room_leave')
-	async roomLeave(client: Socket, room: string) {
-		client.leave(room);
+	@SubscribeMessage('room_inactive')
+	async roomInactive(client: Socket, room_name: string) {
+		client.leave(room_name);
 		const currentUser = await this.userService.findUserBySocketId(client.id);
-		client.broadcast.to(room).emit('room_user_leave', currentUser);
+		client.broadcast.to(room_name).emit('room_user_inactive', currentUser);
 	}
 
 	@SubscribeMessage('room_switch')
@@ -51,26 +51,30 @@ export class ChatGateway
 		const { prevRoom, room } = roomInfo;
 		if (prevRoom) {
 			client.leave(prevRoom);
+			this.roomInactive(client, prevRoom);
 		}
 		if (room) {
+			this.roomActive(client, room);
 			client.join(room);
 		}
 
-		const sockets = Array.from(this.server.sockets.adapter.rooms.get(room));
-		const users = await Promise.all(sockets.map(async (socketId) => {
-			return await this.userService.findUserBySocketId(socketId);
-		}));
-		const currentUser = await this.userService.findUserBySocketId(client.id);
-		client.broadcast.to(prevRoom).emit('room_user_leave', currentUser);
-		client.broadcast.to(room).emit('room_user_join', currentUser);
-		client.emit('room_users', users);
+
+		// const sockets = Array.from(this.server.sockets.adapter.rooms.get(room));
+		// const users = await Promise.all(sockets.map(async (socketId) => {
+		// 	return await this.userService.findUserBySocketId(socketId);
+		// }));
+		// const currentUser = await this.userService.findUserBySocketId(client.id);
+		// client.broadcast.to(prevRoom).emit('room_user_inactive', currentUser);
+		// client.broadcast.to(room).emit('room_user_active', currentUser);
+		// client.emit('room_users', users);
 	}
 
 	@SubscribeMessage('room_created')
 	async roomCreated(client: Socket, room: string) {
-		this.server.emit('new_room', { name: room });
-		const rooms = await this.chatService.getActiveRooms();
-		let index;
+		client.emit('new_room', { name: room });
+		const currentUser = await this.userService.findUserBySocketId(client.id);
+		const rooms = await this.chatService.getActiveRooms(currentUser.id);
+		let index: number;
 		for (let i = 0; i < rooms.length; i++) {
 			if (rooms[i].name === room) {
 				index = i;
@@ -78,6 +82,15 @@ export class ChatGateway
 			}
 		}
 		client.emit('autoswitch_room', index);
+	}
+
+	@SubscribeMessage('room_join')
+	async roomJoin(client: Socket, room_name: string) {
+		const currentUser = await this.userService.findUserBySocketId(client.id);
+		const room_entry = await this.chatService.getRoomByName(room_name);
+		await this.chatService.createChatUserIfNotExists({ room_id: room_entry.id, user_id: currentUser.id, status: 'user'});
+		this.roomCreated(client, room_name);
+		this.roomActive(client, room_name);
 	}
 
 	@SubscribeMessage('message_send')

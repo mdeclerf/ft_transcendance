@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Inject, Param, Post, Req, Res, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Inject, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { CreateRoomDto } from 'src/typeorm';
 import { AuthenticatedGuard } from '../auth/guards/intra-oauth.guard';
 import { ChatService } from './chat.service';
@@ -17,8 +17,8 @@ export class ChatController {
 
 	@Get('get_rooms')
 	@UseGuards(AuthenticatedGuard)
-	async getRooms() {
-		const rooms = await this.chatService.getActiveRooms();
+	async getRooms(@Req() req: RequestWithUser) {
+		const rooms = await this.chatService.getActiveRooms(req.user.id);
 		return rooms;
 	}
 
@@ -28,12 +28,31 @@ export class ChatController {
 		return this.chatService.getRoomMessages(room.id, req.user);
 	}
 
+	@Get('rooms/complete')
+	@UseGuards(AuthenticatedGuard)
+	complete(@Query('q') query: string) {
+		return this.chatService.complete(query);
+	}
+
+	@Get('rooms/:room_name/type')
+	async getRoomInfo(@Param('room_name') room_name: string) {
+		const room = await this.chatService.getRoomByName(room_name);
+		return room.type;
+	}
+
+	@Post('rooms/:room_name/join_room')
+	joinRoom(@Param('room_name') room_name: string) {
+
+	}
+
 	@Post('create_channel')
-	async createChannel(@Body() roomDto: CreateRoomDto) {
+	@UseGuards(AuthenticatedGuard)
+	async createChannel(@Body() roomDto: CreateRoomDto, @Req() req: RequestWithUser) {
 		const room = await this.chatService.getRoomByName(roomDto.name);
 		if (room)
 			return true;
-		this.chatService.createRoom(roomDto);
+		const created_room = await this.chatService.createRoom(roomDto);
+		this.chatService.createChatUserIfNotExists({ room_id: created_room.id, user_id: req.user.id, status: 'owner' });
 		return false;
 	}
 
@@ -52,11 +71,5 @@ export class ChatController {
 		} else {
 			return res.status(401).send();
 		}
-	}
-
-	@Post('set_channel_owner')
-	async setChannelOwner(@Body() data: ChannelOwner) {
-		const room = await this.chatService.getRoomByName(data.name);
-		return this.chatService.setUserStatus(data.currentUser, data.name, 'owner');
 	}
 }

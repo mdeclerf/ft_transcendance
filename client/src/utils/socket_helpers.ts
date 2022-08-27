@@ -9,7 +9,7 @@ export const joinChat = (room: string) => {
 };
 
 export const leaveChat = (room: string) => {
-	if (socket) socket.emit('room_leave', room);
+	if (socket) socket.emit('room_inactive', room);
 };
 
 export const switchRoom = (prevRoom: string, room: string) => {
@@ -53,7 +53,7 @@ export const subscribeToRoomUserList = (callback: (data: User[]) => void) => {
 export const subscribeToRoomUserJoin = (callback: (data: User) => void) => {
 	if (!socket) return;
 
-	socket.on('room_user_join', (data) => {
+	socket.on('room_user_active', (data) => {
 		callback(data);
 	});
 };
@@ -61,7 +61,7 @@ export const subscribeToRoomUserJoin = (callback: (data: User) => void) => {
 export const subscribeToRoomUserLeave = (callback: (data: User) => void) => {
 	if (!socket) return;
 
-	socket.on('room_user_leave', (data) => {
+	socket.on('room_user_inactive', (data) => {
 		callback(data);
 	});
 };

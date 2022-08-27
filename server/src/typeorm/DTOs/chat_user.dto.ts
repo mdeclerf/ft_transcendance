@@ -1,12 +1,16 @@
-import { IsInt, IsPositive, Max, Min } from "class-validator";
-import { Room } from "../entities/room.entity";
-import { User } from "../entities/user.entity";
+import { IsIn, IsInt, IsPositive, IsString, Max, Min } from "class-validator";
 
 export class CreateChatUserDto {
 
-	public room_name: string;
+	@IsInt()
+	@IsPositive()
+	public user_id: number;
 
-	public usernme: string;
+	@IsInt()
+	@IsPositive()
+	public room_id: number;
 
-	public status: string;
+	@IsString()
+	@IsIn(['user', 'owner', 'admin', 'muted', 'banned'])
+	public status: 'user' | 'owner' | 'admin' | 'muted' | 'banned';
 }
