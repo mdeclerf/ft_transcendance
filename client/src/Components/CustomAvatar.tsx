@@ -1,6 +1,7 @@
 import { Avatar, Badge, badgeClasses, Tooltip } from '@mui/material';
-import * as React from 'react';
-import { User } from '../utils/types';
+import React, { useEffect } from 'react';
+import { UpdateStatus, User } from '../utils/types';
+import { socket } from "../socket";
 
 export interface ICustomAvatarProps {
 	user: User | undefined;
@@ -8,21 +9,51 @@ export interface ICustomAvatarProps {
 	disableTooltip?: boolean;
 }
 
+const getStatusColor = ( user: User | undefined ) => {
+	if (user) {
+		switch (user.status) {
+			case 'online': return '#44b700';
+			case 'offline': return '#b71f00';
+			case 'in_game': return '#a500b7';
+		}
+	} else {
+		return '#b71f00';
+	}
+}
+
+// const getText = ( color: string | undefined ) => {
+// 	if (color) {
+// 		switch (color) {
+// 			case '#44b700': return 'online';
+// 			case '#b71f00': return 'offline';
+// 			case 'in_game': return '#a500b7';
+// 		}
+// 	} else {
+// 		return '#b71f00';
+// 	}
+// }
+
 export function CustomAvatar (props: ICustomAvatarProps) {
 	const { user, minSize, disableTooltip } = props;
+	const [statusColor, setStatusColor] = React.useState(getStatusColor( user));
 	const [tooltipOpen, setTooltipOpen] = React.useState(false);
+	// const [text, setText] = React.useState(getText(statusColor))
 
-	const getStatusColor = () => {
-		if (user) {
-			switch (user.status) {
-				case 'online': return '#44b700';
-				case 'offline': return '#b71f00';
-				case 'in_game': return '#a500b7';
-			}
-		} else {
-			return '#b71f00';
-		}
+	const ColorRet = () => {
+		return statusColor;
 	}
+
+	useEffect(() => {
+		socket.on('color_change', (message:UpdateStatus) => {
+			console.log(message.user.status)
+			if (message.user.id === user?.id)
+			{
+				if (message.status === "online") setStatusColor('#44b700');
+				if (message.status === "offline") setStatusColor('#b71f00');
+				if (message.status === 'in_game') setStatusColor('#a500b7');
+			}
+		});
+	}, [user]);
 
 	const badge = (
 		<Badge
@@ -31,7 +62,7 @@ export function CustomAvatar (props: ICustomAvatarProps) {
 			variant="dot"
 			sx={{
 				'& .MuiBadge-badge': {
-					backgroundColor: getStatusColor(),
+					backgroundColor: ColorRet(),
 					boxShadow: `0 0 0 ${(minSize === 255 ? '2px': '1px')} #121212`,
 				},
 				[`& .${badgeClasses.dot}`]: {

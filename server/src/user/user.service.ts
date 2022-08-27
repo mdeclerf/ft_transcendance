@@ -48,6 +48,11 @@ export class UserService {
 	}
 
 	async findLeader() {
+		let ret: Ranking[] = [];
+		const exist = await this.gameRepo.find();
+		if (!exist )
+			return ret;
+
 		const games = await this.gameRepo.createQueryBuilder('game')
 			.leftJoinAndSelect('game.player_1', 'player_1')
 			.leftJoinAndSelect('game.player_2', 'player_2')
@@ -87,8 +92,6 @@ export class UserService {
 				leaderBoard.set(games[i].player_1.intraId, {user: games[i].player_1, victories: tmp_vict, losses: tmp_los, ratio: 0} );
 			}
 		}
-
-		let ret: Ranking[] = [];
 
 		leaderBoard.forEach((value) => {
 			let rat = value.losses == 0 && value.victories > 0 ? ((value.victories / 1)) : ((value.victories / value.losses));
@@ -180,7 +183,6 @@ export class UserService {
 	async setStatus(userId: number, status: 'online' | 'offline' | 'in_game') {
 		const user = await this.userRepo.findOneBy({ id: userId });
 		user.status = status;
-
 		this.userRepo.save(user);
 	}
 
@@ -204,7 +206,7 @@ export class UserService {
 		return this.userRepo.update(user_id, { socketId });
 	}
 	
-	async findUserBySocketId(socketId: string) {
+	async findUserBySocketId(socketId: string) : Promise<User | undefined> {
 		return this.userRepo.findOneBy({ socketId });
 	}
 }

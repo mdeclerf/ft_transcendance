@@ -15,7 +15,7 @@ export class User {
 	@Column ({type: 'text'})
 	public username: string;
 
-	@Column({ default: 'online' })
+	@Column({ default: 'offline' })
 	status: 'online' | 'offline' | 'in_game';
 
 	@Column ({type: 'text', name: 'display_name'})

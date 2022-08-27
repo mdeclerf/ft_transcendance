@@ -3,14 +3,15 @@ import {
 	WebSocketGateway,
 	WebSocketServer,
 	OnGatewayDisconnect,
-	MessageBody,
 } from '@nestjs/websockets';
+import { Inject } from '@nestjs/common';
 import { Socket, Server } from 'socket.io';
 import { Logger } from '@nestjs/common';
 import { GameService } from './game.service';
 import { GameDetails, GameJoinRoomData } from '../utils/types';
 import { v4 as uuidv4 } from 'uuid';
 import { User } from 'src/typeorm';
+import { UserService } from '../user/user.service';
 
 let details: GameDetails = new GameDetails;
 const CANVAS_HEIGHT = 500;
@@ -67,7 +68,7 @@ class Pong {
 	mode: string = "";
 	removed: boolean = false;
 
-	constructor(private gameService: GameService, unique_id:string, mode:string) {
+	constructor(private gameService: GameService, private userService: UserService, private wss: Server, unique_id:string, mode:string) {
 		this.key = unique_id;
 		this.mode = mode;
 	}
@@ -152,6 +153,12 @@ class Pong {
 				this.second_player.socket.emit("running", "false");
 				this.first_player.socket.emit("getPosition", `${this.first_player.y_pos} ${this.second_player.y_pos} ${this.ball_x} ${this.ball_y} ${this.first_player.score} ${this.second_player.score}`);
 				this.second_player.socket.emit("getPosition", `${this.second_player.y_pos} ${this.first_player.y_pos} ${CANVAS_WIDTH - this.ball_x} ${this.ball_y} ${this.first_player.score} ${this.second_player.score} `);
+
+				this.userService.setStatus(this.first_player.user.id, 'online');
+				this.userService.setStatus(this.second_player.user.id, 'online');
+				this.wss.sockets.emit("color_change", { status: 'online', user: this.first_player.user});
+				this.wss.sockets.emit("color_change", { status: 'online', user: this.second_player.user});
+
 				this.database_create(this.first_player.id, this.second_player.id);
 
 				this.is_over = true;
@@ -176,6 +183,12 @@ class Pong {
 				this.is_running = true;
 				this.ball_x = CANVAS_WIDTH / 2;
 				this.ball_y = CANVAS_HEIGHT / 2;
+
+				this.userService.setStatus(this.first_player.user.id, 'in_game');
+				this.userService.setStatus(this.second_player.user.id, 'in_game');
+				this.wss.sockets.emit("color_change", { status: 'in_game', user: this.first_player.user});
+				this.wss.sockets.emit("color_change", { status: 'in_game', user: this.second_player.user});
+
 				this.run_game();
 				this.first_player.socket.emit("running", "true");
 				this.second_player.socket.emit("running", "true");
@@ -188,16 +201,37 @@ class Pong {
 			}
 	}
 
-	remove_player(id: string) {
+	remove_player(id: string, b : boolean) {
 		if (this.first_player && this.first_player.id == id) {
+
+			this.userService.setStatus(this.first_player.user.id, b ? 'offline' : 'online');
+			this.wss.sockets.emit("color_change", { status: b ? 'offline' : 'online', user: this.first_player.user});
+
+			if (this.second_player.user)
+			{
+				this.userService.setStatus(this.second_player.user.id, 'online');
+				this.wss.sockets.emit("color_change", { status: 'online', user: this.second_player.user});
+			}
 			this.first_player = null;
+
+			this.wss.sockets.emit("color_change");
 			this.is_running = false;
 			this.removed = true;
 			if (this.second_player)
-				this.second_player.socket.emit("disconnection", "");
+			this.second_player.socket.emit("disconnection", "");
 		}
 		else if (this.second_player && this.second_player.id == id) {
+			this.userService.setStatus(this.second_player.user.id, b ? 'offline' : 'online');
+			this.wss.sockets.emit("color_change", { status: b ? 'offline' : 'online', user: this.second_player.user});
+
+			if (this.first_player.user)
+			{
+				this.wss.sockets.emit("color_change", { status: 'online', user: this.first_player.user});
+				this.userService.setStatus(this.first_player.user.id, 'online');
+			}
+
 			this.second_player = null;
+
 			this.is_running = false;
 			this.removed = true;
 			if (this.first_player)
@@ -250,7 +284,10 @@ class Pong {
 @WebSocketGateway({ cors: true })
 export class GameGateway implements OnGatewayDisconnect {
 
-	constructor(private gameService: GameService) {}
+	constructor(
+		@Inject(UserService) private readonly userService: UserService,
+		private gameService: GameService
+	) {}
 	@WebSocketServer() wss: Server;
 
 	Game: Map<string, Pong> = new Map();
@@ -260,7 +297,7 @@ export class GameGateway implements OnGatewayDisconnect {
 	handleRoom(client: Socket, data: GameJoinRoomData) : void {
 		client.join(data.room);
 		if (!this.Game.has(data.room))
-			this.Game.set(data.room, new Pong(this.gameService, data.room, "chat"));
+			this.Game.set(data.room, new Pong(this.gameService, this.userService, this.wss, data.room, "chat"));
 		if (!this.Game.get(data.room).is_running && (!this.Game.get(data.room).first_player || this.Game.get(data.room).first_player.user.username !== data.user.username))
 			this.Game.get(data.room).add_player(new Player(client.id, client, data.user));
 		if (this.Game.get(data.room).first_player && this.Game.get(data.room).second_player)
@@ -285,12 +322,17 @@ export class GameGateway implements OnGatewayDisconnect {
 			this.Game.get(message).remove_spectator(client.id);
 	}
 
-	handleDisconnect(client: Socket) {
+	async handleDisconnect(client: Socket) {
+		const disconnectedUser = await this.userService.findUserBySocketId(client.id);
+		await this.userService.setStatus(disconnectedUser.id, 'offline');
+
+		this.wss.sockets.emit("color_change", { status: 'offline', user: disconnectedUser});
+
 		for (let value of this.Game.values())
 		{
 			if ((value.first_player && client.id === value.first_player.id) || (value.second_player && client.id === value.second_player.id)) {
 			
-				value.remove_player(client.id);
+				value.remove_player(client.id, true);
 				for(let i = 0; i < value.spectator.length; i++)
 					value.spectator[i].socket.emit("disconnection_of_player", value.key);
 				break;
@@ -319,7 +361,7 @@ export class GameGateway implements OnGatewayDisconnect {
 		if (this.queue.length >= 2)
 		{
 			const unique_id = uuidv4();
-			this.Game.set(unique_id, new Pong(this.gameService, unique_id, "play"));
+			this.Game.set(unique_id, new Pong(this.gameService, this.userService, this.wss, unique_id, "play"));
 			this.Game.get(unique_id).add_player(new Player(this.queue[0].id, this.queue[0].socket, this.queue[0].user));
 			this.queue.splice(0,1);
 			this.Game.get(unique_id).add_player(new Player(this.queue[0].id, this.queue[0].socket, this.queue[0].user));
@@ -347,8 +389,7 @@ export class GameGateway implements OnGatewayDisconnect {
 		for (let value of this.Game.values())
 		{
 			if ((value.first_player && client.id === value.first_player.id) || (value.second_player && client.id === value.second_player.id)) {
-			
-				value.remove_player(client.id);
+				value.remove_player(client.id, false);
 				for(let i = 0; i < value.spectator.length; i++)
 					value.spectator[i].socket.emit("disconnection_of_player", value.key);
 				break;

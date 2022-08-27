@@ -22,12 +22,6 @@ export const Profile = (props: IProfileProps) => {
 	const isFriend = useFetchIsFriend(user?.id);
 	const isBlocked = useFetchIsBlocked(user?.id);
 
-	let backHeight: number;
-	if (games)
-		backHeight = games.length * 80;
-	else
-		backHeight = 80;
-
 	const create_game_pie = () => {
 		const data: Result[] = [];
 		let w: Result = { x: "Wins", y:0 };
@@ -166,7 +160,8 @@ export const Profile = (props: IProfileProps) => {
 				<Box
 					sx={{
 						width: 600,
-						height: {backHeight},
+						maxHeight: 600,
+						overflow: 'auto',
 						padding: '3%',
 						backgroundColor: 'primary.main',
 						borderRadius: '20px',
@@ -178,6 +173,8 @@ export const Profile = (props: IProfileProps) => {
 						</List>
 					</Grid>
 				</Box>
+
+				<br></br>
 
 				{getTypography('Wins and losses')}
 				{ (games?.length !== 0) && <Box sx={{
