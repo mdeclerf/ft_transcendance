@@ -1,4 +1,5 @@
 import { CircularProgress } from '@mui/material';
+import axios from 'axios';
 import React, { useEffect, useRef } from 'react';
 import { useState } from 'react';
 import { VerticalTabs } from '../Components/VerticalTabs';
@@ -22,6 +23,7 @@ export function Chat (props: IChatProps) {
 	const [messagesLoading, setMessagesLoading] = useState(true);
 	const [roomsLoading, setRoomsLoading] = useState(true);
 	const [connectedUsers, setConnectedUsers] = useState<User[]>([]);
+	const [ owner, setOwner ] = React.useState<boolean>(true);
 
 	const prevRoomRef = useRef<Room>();
 	useEffect(() => {
@@ -42,8 +44,10 @@ export function Chat (props: IChatProps) {
 			if (prevRoom && room) {
 				switchRoom(prevRoom.name, room.name);
 				setRoom(room);
+				// amIOwner();
 			} else if (room) {
 				joinChat(room.name);
+				// amIOwner();
 			}
 		}
 	// eslint-disable-next-line
@@ -104,6 +108,9 @@ export function Chat (props: IChatProps) {
 	}
 
 	const handleSwitchRoom = (targetRoom: Room) => {
+		amIOwner().then((res: boolean) => {
+			setOwner(res);
+		});
 		setMessages([]);
 		setMessagesLoading(true);
 
@@ -114,10 +121,25 @@ export function Chat (props: IChatProps) {
 		setRoom(targetRoom);
 	}
 
+	async function amIOwner(): Promise<boolean> {
+		if (user && room)
+		{
+			const response = await axios.get<string>(`http://localhost:3001/api/chat/rooms/${room.name}/${user.username}/get_chat_user_status`, { withCredentials: true });
+			console.log(response.data)
+			if (response && response.data === 'owner')
+				return (true);
+			else
+				return (false);
+		}
+		else
+			return (false);
+	}
+
 	if (roomsLoading) return <CenteredDiv><CircularProgress /></CenteredDiv>
 
 	return (
 		<VerticalTabs
+			owner={owner}
 			rooms={rooms}
 			message={message}
 			messages={messages}

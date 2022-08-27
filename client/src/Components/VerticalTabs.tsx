@@ -8,8 +8,10 @@ import { RoomSettings } from './RoomSettings';
 import { ChatMsg } from './ChatMsg';
 import LockIcon from '@mui/icons-material/Lock';
 import { ButtonJoinChannel } from './ButtonJoinChannel';
+// import axios from "axios";
 
 interface ITabPanelProps {
+	owner: boolean
 	title: string;
 	children?: React.ReactNode;
 	message: string;
@@ -24,8 +26,9 @@ interface ITabPanelProps {
 }
 
 const TabPanel = (props: ITabPanelProps) => {
-	const { title, message, children, value, index, messageChange, messageSend, roomUsers, currentUser, isProtected, passAuthenticated } = props;
+	const { owner, title, message, children, value, index, messageChange, messageSend, roomUsers, currentUser, isProtected, passAuthenticated } = props;
 	const divRef = React.useRef<HTMLDivElement>(null);
+	// const [ owner, setOwner ] = React.useState<boolean>(true);
 
 	const handleInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === "Enter") {
@@ -34,10 +37,23 @@ const TabPanel = (props: ITabPanelProps) => {
 		}
 	};
 
+	// const amIOwner = async () => {
+	// 	if (currentUser && title)
+	// 	{
+	// 		const response = await axios.get<string>(`http://localhost:3001/api/chat/rooms/${title}/${currentUser}/get_chat_user_status`, { withCredentials: true });
+	// 		console.log(response.data)
+	// 		if (response && response.data === 'owner')
+	// 			setOwner(true);
+	// 		else
+	// 			setOwner(false)
+	// 	}
+	// }
+
 	React.useEffect(() => {
 		if (divRef && divRef.current) {
 			divRef.current.scrollTo(0, divRef.current.scrollHeight);
 		}
+		// amIOwner()
 	}, [children])
 
 	const getFirstFourNonSelfUsers = () => {
@@ -88,7 +104,9 @@ const TabPanel = (props: ITabPanelProps) => {
 						<Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
 							<Box sx={{ display: 'flex', flexDirection: 'row'}}>
 								<Typography sx={{ flexGrow: 0 }} variant="h4">{title}</Typography>
+							{owner === true && (
 								<RoomSettings room={title}/>
+							)}
 							</Box>
 							<AvatarGroup total={roomUsers.length}>
 								{getFirstFourNonSelfUsers()}
@@ -114,6 +132,7 @@ const a11yProps = (index: number) => {
 }
 
 export interface IVerticalTabsProps {
+	owner: boolean;
 	rooms: Room[];
 	message: string;
 	messages: Message[];
@@ -126,7 +145,7 @@ export interface IVerticalTabsProps {
 };
 
 export const VerticalTabs = (props: IVerticalTabsProps) => {
-	const { rooms, message, messages, currentUser, switchRooms, messageChange, messageSend, roomUsers } = props;
+	const { owner, rooms, message, messages, currentUser, switchRooms, messageChange, messageSend, roomUsers } = props;
 	const [value, setValue] = React.useState(0);
 	const [formattedMessages, setFormattedMessages] = React.useState<MessageGroup[]>([]);
 	const [passAuthenticated, setPassAuthenticated] = React.useState(false);
@@ -210,6 +229,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 			{rooms.map((room, i) => {
 				return (
 					<TabPanel
+						owner={owner}
 						title={room.name}
 						value={value}
 						index={i}

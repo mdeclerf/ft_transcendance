@@ -72,4 +72,14 @@ export class ChatController {
 			return res.status(401).send();
 		}
 	}
+
+	@Get('rooms/:room_name/:username/get_chat_user_status')
+	async getChatUserStatus(@Param('room_name') room_name: string, @Param('username') username: string, @Req() req: RequestWithUser) {
+		console.log("here");
+		const currentRoom = await this.chatService.getRoomByName(room_name);
+		console.log(currentRoom.name);
+		const chatUser = await this.chatService.getUserByName(username);
+		console.log(chatUser.username);
+		return this.chatService.getChatUserStatus(chatUser, currentRoom);
+	}
 }
