@@ -8,14 +8,12 @@ import { CreateChatDto, Room, User } from '../typeorm/';
 import { UserController } from 'src/user/user.controller';
 import { v4 as uuidv4 } from 'uuid';
 
-// @WebSocketGateway({
-// 	cors: {
-// 		origin: "http://localhost:3000",
-// 		methods: ["GET", "POST"],
-// 	},
-// })
-
-@WebSocketGateway({ cors: true })
+@WebSocketGateway({
+		cors: {
+			origin: "http://localhost:3000",
+			methods: ["GET", "POST"],
+		},
+	})
 export class ChatGateway
 {
 	constructor(

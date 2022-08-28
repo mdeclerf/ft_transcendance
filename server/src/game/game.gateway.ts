@@ -281,7 +281,12 @@ class Pong {
 
 ////////////////////////////////////////////////////////////////
 
-@WebSocketGateway({ cors: true })
+@WebSocketGateway({
+	cors: {
+		origin: "http://localhost:3000",
+		methods: ["GET", "POST"],
+	},
+})
 export class GameGateway implements OnGatewayDisconnect {
 
 	constructor(
