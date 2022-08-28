@@ -113,7 +113,7 @@ export class ChatService {
 	}
 
 	async getChatUserStatus(chatUser: User, currentRoom: Room): Promise<string> {
-		console.log(`||| ${chatUser.username} ||| ${currentRoom.name} ||||`);
+		// console.log(`||| ${chatUser.username} ||| ${currentRoom.name} ||||`);
 		const chatU = await this.chatUserRepo.findOne({
 			where: {
 				room: { id: currentRoom.id },
@@ -122,7 +122,7 @@ export class ChatService {
 		});
 		if (!chatU)
 		{
-			console.log("||||||||");
+			// console.log("||||||||");
 			return ;
 		}
 		// for (let entry of chatU) {
@@ -137,7 +137,7 @@ export class ChatService {
 			user: await this.userRepo.findOneBy({ id: chatUser.user_id}),
 			status: chatUser.status,
 		});
-		console.log(entry.room);
+		// console.log(entry.room);
 		this.chatUserRepo.createQueryBuilder()
 			.insert()
 			.orIgnore()

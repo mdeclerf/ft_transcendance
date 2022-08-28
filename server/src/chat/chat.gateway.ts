@@ -88,7 +88,8 @@ export class ChatGateway
 	async roomJoin(client: Socket, room_name: string) {
 		const currentUser = await this.userService.findUserBySocketId(client.id);
 		const room_entry = await this.chatService.getRoomByName(room_name);
-		await this.chatService.createChatUserIfNotExists({ room_id: room_entry.id, user_id: currentUser.id, status: 'user'});
+		if (currentUser) // Fix or not fix I do not know.....
+			await this.chatService.createChatUserIfNotExists({ room_id: room_entry.id, user_id: currentUser.id, status: 'user'});
 		this.roomCreated(client, room_name);
 		this.roomActive(client, room_name);
 	}

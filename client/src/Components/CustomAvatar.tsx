@@ -21,23 +21,11 @@ const getStatusColor = ( user: User | undefined ) => {
 	}
 }
 
-// const getText = ( color: string | undefined ) => {
-// 	if (color) {
-// 		switch (color) {
-// 			case '#44b700': return 'online';
-// 			case '#b71f00': return 'offline';
-// 			case 'in_game': return '#a500b7';
-// 		}
-// 	} else {
-// 		return '#b71f00';
-// 	}
-// }
-
 export function CustomAvatar (props: ICustomAvatarProps) {
 	const { user, minSize, disableTooltip } = props;
 	const [statusColor, setStatusColor] = React.useState(getStatusColor( user));
+	const [text, setText] = React.useState<string>(user ? user.status : "");
 	const [tooltipOpen, setTooltipOpen] = React.useState(false);
-	// const [text, setText] = React.useState(getText(statusColor))
 
 	const ColorRet = () => {
 		return statusColor;
@@ -45,12 +33,13 @@ export function CustomAvatar (props: ICustomAvatarProps) {
 
 	useEffect(() => {
 		socket.on('color_change', (message:UpdateStatus) => {
-			console.log(message.user.status)
+			console.log(`in use effect ${message.user.status}`)
 			if (message.user.id === user?.id)
 			{
 				if (message.status === "online") setStatusColor('#44b700');
 				if (message.status === "offline") setStatusColor('#b71f00');
 				if (message.status === 'in_game') setStatusColor('#a500b7');
+				setText(message.status);
 			}
 		});
 	}, [user]);
@@ -94,7 +83,7 @@ export function CustomAvatar (props: ICustomAvatarProps) {
 		return (
 			<div>
 				<Tooltip
-					title={user?.status || ''}
+					title={text}
 					open={tooltipOpen}
 					placement="bottom-end"
 					PopperProps={{

@@ -50,6 +50,7 @@ function Canvas(props: ICanvasProps) {
 	const [secondPScore, setSecondPScore] = useState<string>("0");
 	const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 	const [ratio, setRatio] = useState<number>(1);
+	const [againstU, setAgainstU] = useState<boolean>(false);
 	const [back, setBack] = useState<string>("https://img.freepik.com/free-photo/white-paper-texture_1194-5998.jpg?w=1380&t=st=1659519955~exp=1659520555~hmac=a499219d876edb294bdebf8e768cddf59069e34d1c6f9ae680be92b4f17d7e92");
 
 	//////////////
@@ -114,6 +115,11 @@ function Canvas(props: ICanvasProps) {
 			setDisconnection(true);
 			setIsRunning(false);
 			socket.emit("kill_game", room_number);
+		});
+
+		socket.on('already_in_queue', (message:string) => {
+			setDisabled(true);
+			setAgainstU(true);
 		});
 
 	}, [user]);
@@ -238,6 +244,12 @@ function Canvas(props: ICanvasProps) {
 
 		{( location.pathname === "/play" && !isRunning && disabled) && 
 			<Button variant="contained" sx={{fontFamily: 'Work Sans, sans-serif' }} disabled>I want to play, add me to queue !</Button>
+		}
+
+		{((location.pathname === "/play" ) && againstU === true) &&
+			<div>
+			<Alert severity="info">You already are in the queue...</Alert>
+			</div>
 		}
 
 		{/* **************************** Scores *****************************/}

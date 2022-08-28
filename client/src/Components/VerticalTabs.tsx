@@ -1,5 +1,5 @@
 import SendIcon from '@mui/icons-material/Send';
-import { Avatar, AvatarGroup, Box, Button, CircularProgress, Divider, Tab, Tabs, TextField, Tooltip, Typography } from '@mui/material';
+import { Avatar, AvatarGroup, Box, Button, Divider, Tab, Tabs, TextField, Tooltip, Typography } from '@mui/material';
 import * as React from 'react';
 import { subscribeToAutoSwitchRoom } from '../utils/socket_helpers';
 import { Message, MessageGroup, Room, User } from '../utils/types';
@@ -26,7 +26,7 @@ interface ITabPanelProps {
 }
 
 const TabPanel = (props: ITabPanelProps) => {
-	const { owner, title, message, children, value, index, messageChange, messageSend, roomUsers, currentUser, isProtected, passAuthenticated } = props;
+	const { owner, title, message, children, value, index, messageChange, messageSend, roomUsers, currentUser} = props; // isProtected, passAuthenticated
 	const divRef = React.useRef<HTMLDivElement>(null);
 	// const [ owner, setOwner ] = React.useState<boolean>(true);
 

@@ -15,6 +15,7 @@ export class UserGateway {
 	async handleMessage(client: Socket, user_id: number) {
 		await this.userService.addSocketId(user_id, client.id);
 		client.emit('socket_saved');
+		this.userService.setStatus(user_id, 'online');
 		const ConnectedUser = await this.userService.findUserById(user_id);
 		this.wss.sockets.emit("color_change", { status: 'online', user: ConnectedUser});
 	}

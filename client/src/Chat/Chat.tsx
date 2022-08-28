@@ -3,7 +3,7 @@ import axios from 'axios';
 import React, { useEffect, useRef } from 'react';
 import { useState } from 'react';
 import { VerticalTabs } from '../Components/VerticalTabs';
-import { socket } from '../socket';
+// import { socket } from '../socket';
 import { useFetchCurrentUser } from '../utils/hooks/useFetchCurrentUser';
 import { fetchRoomMessages, fetchRooms, joinChat, leaveChat, sendMessage, subscribeToMessages, subscribeToNewRoom, subscribeToRoomUserJoin, subscribeToRoomUserLeave, subscribeToRoomUserList, switchRoom } from '../utils/socket_helpers';
 import { CenteredDiv } from '../utils/styles';
@@ -125,7 +125,7 @@ export function Chat (props: IChatProps) {
 		if (user && room)
 		{
 			const response = await axios.get<string>(`http://localhost:3001/api/chat/rooms/${room.name}/${user.username}/get_chat_user_status`, { withCredentials: true });
-			console.log(response.data)
+			// console.log(response.data)
 			if (response && response.data === 'owner')
 				return (true);
 			else

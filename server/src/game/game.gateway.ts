@@ -358,7 +358,12 @@ export class GameGateway implements OnGatewayDisconnect {
 
 	@SubscribeMessage('add_to_queue')
 	add_queue(client: Socket, message: User) : void {
-		this.queue.push(new Player(client.id, client, message));
+
+		const tmp = new Player(client.id, client, message);
+		if(!this.queue.some(e => e.user.id === tmp.user.id))
+			this.queue.push(tmp);
+		else
+			client.emit("already_in_queue");
 
 		if (this.queue.length >= 2)
 		{
