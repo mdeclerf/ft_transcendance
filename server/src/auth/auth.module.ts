@@ -13,7 +13,7 @@ import { SessionSerializer } from './utils/Serializer';
 		IntraStrategy,
 		SessionSerializer,
 		AuthService,
-		UserService
+		UserService,
 	],
 	imports: [
 		TypeOrmModule.forFeature([User, Session, Game, Subscription, Blocklist])

@@ -14,6 +14,7 @@ export interface IChatProps {
 }
 
 export function Chat (props: IChatProps) {
+
 	const { socketLoading } = props;
 	const { user } = useFetchCurrentUser();
 	const [message, setMessage] = useState("");
@@ -45,9 +46,10 @@ export function Chat (props: IChatProps) {
 				switchRoom(prevRoom.name, room.name);
 				setRoom(room);
 				// amIOwner();
-			} else if (room) {
-				joinChat(room.name);
-				// amIOwner();
+			// } else if (room) {
+			// 	console.log(room.name);
+			// 	// joinChat(room.name);
+			// 	// amIOwner();
 			}
 		}
 	// eslint-disable-next-line

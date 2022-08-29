@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blocklist, Chat, ChatUser, CreateChatDto, CreateChatUserDto, CreateRoomDto, Room, User } from '../typeorm/';
 import { Repository } from 'typeorm';
 import { PasswordDto } from 'src/utils/password.dto';
+import { v4 as uuidv4 } from 'uuid';
 import { ChannelOwner } from 'src/utils/channelOwner.dto';
+import { ChatGateway } from './chat.gateway';
 
 @Injectable()
 export class ChatService {
@@ -13,7 +15,7 @@ export class ChatService {
 		@InjectRepository(Room) private readonly roomRepo: Repository<Room>,
 		@InjectRepository(User) private readonly userRepo: Repository<User>,
 		@InjectRepository(Blocklist) private readonly blockRepo: Repository<Blocklist>,
-		@InjectRepository(ChatUser) private readonly chatUserRepo: Repository<ChatUser>,
+		@InjectRepository(ChatUser) private readonly chatUserRepo: Repository<ChatUser>
 	) {
 		this.roomRepo.upsert({ name: 'general', type: 'public' }, ["name"]);
 	}
@@ -113,7 +115,7 @@ export class ChatService {
 	}
 
 	async getChatUserStatus(chatUser: User, currentRoom: Room): Promise<string> {
-		// console.log(`||| ${chatUser.username} ||| ${currentRoom.name} ||||`);
+		if (!chatUser || !currentRoom) return;
 		const chatU = await this.chatUserRepo.findOne({
 			where: {
 				room: { id: currentRoom.id },
@@ -121,14 +123,8 @@ export class ChatService {
 			},
 		});
 		if (!chatU)
-		{
-			// console.log("||||||||");
-			return ;
-		}
-		// for (let entry of chatU) {
-		// 	if (entry.room.id === currentRoom.id)
-		// }
-				return chatU.status;
+			return;
+		return chatU.status;
 	}
 
 	async createChatUserIfNotExists(chatUser: CreateChatUserDto) {
@@ -144,6 +140,35 @@ export class ChatService {
 			.into(ChatUser)
 			.values(entry)
 			.execute();
+	}
+
+	// select * from room left join chat_user on room.id=chat_user.room_id where chat_user.user_id = 2 and room.id IN 
+	// (select chat_user.room_id from chat_user left join room on chat_user.room_id=room.id where user_id = 1 and room.type='private');
+
+	async checkIfDmRoomExists(user1 : User, user2 : User) { /// HERE
+		const room = await this.roomRepo.createQueryBuilder('room')
+			.leftJoin('room.chat_user', 'chat_user')
+			.where('chat_user.user_id = :id', {id: user1.id})
+			.andWhere((qb) => {
+				const subQuery = qb
+					.subQuery()
+					.select('chat_user.room_id')
+					.from(ChatUser, 'chat_user')
+					.where('chat_user.user_id = :user2id')
+					.getQuery();
+				return ("room.id IN " + subQuery);
+			})
+			.setParameter('user2id', user2.id)
+			.andWhere("room.type = :type", { type: "private" })
+			.getOne();
+		if (!room) {
+			const createdRoom = await this.createRoom({ name: uuidv4(), type: 'private', hash: '' });
+			this.createChatUserIfNotExists({ user_id: user1.id, room_id: createdRoom.id, status: 'user' });
+			this.createChatUserIfNotExists({ user_id: user2.id, room_id: createdRoom.id, status: 'user' });
+			return { created: true, name: createdRoom.name};
+		} else {
+			return { created: false, name: room.name };
+		}
 	}
 
 	async updateRoom(data: PasswordDto) {

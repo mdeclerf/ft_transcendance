@@ -66,3 +66,8 @@ export type UpdateStatus = {
 	status: string;
 	user: User;
 }
+
+export type UserPair = {
+	user1: User;
+	user2: User;
+}
