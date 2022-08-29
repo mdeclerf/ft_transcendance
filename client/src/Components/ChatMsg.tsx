@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { User } from '../utils/types';
 import { socket } from "../socket";
 import { useFetchCurrentUser } from '../utils/hooks/useFetchCurrentUser';
+import axios from 'axios';
 // import axios from 'axios';
 
 export interface IChatMsgProps {
@@ -34,16 +35,16 @@ export function ChatMsg (props: IChatMsgProps) {
 		setAnchorEl(null);
 	};
 
-	// const handleBlock = () => {
-	// 	axios.get(`http://localhost:3001/api/user/block_user?id=${user?.id}`, { withCredentials: true })
-	// 		.then(() => {
-	// 			setAnchorEl(null);
-	// 			window.location.reload();
-	// 		})
-	// 		.catch(err => {
-	// 			if (err) throw err;
-	// 		});
-	// }
+	 const handleBlock = () => {
+	 	axios.get(`http://localhost:3001/api/user/block_user?id=${user?.id}`, { withCredentials: true })
+	 		.then(() => {
+	 			setAnchorEl(null);
+	 			window.location.reload();
+	 		})
+	 		.catch(err => {
+	 			if (err) throw err;
+	 		});
+	 }
 
 	return (
 		<Grid
@@ -85,6 +86,10 @@ export function ChatMsg (props: IChatMsgProps) {
 							setAnchorEl(null);
 						}}
 						>Invite to game</MenuItem>
+						{
+							((user?.id !== currentUser?.id)) &&
+							<MenuItem onClick={handleBlock}>Block</MenuItem>
+						}
 					</Menu>
 				</Grid>
 			)}

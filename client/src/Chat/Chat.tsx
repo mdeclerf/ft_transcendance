@@ -3,6 +3,7 @@ import axios from 'axios';
 import React, { useEffect, useRef } from 'react';
 import { useState } from 'react';
 import { VerticalTabs } from '../Components/VerticalTabs';
+import { getIsBlocked } from '../utils/api';
 import { useFetchCurrentUser } from '../utils/hooks/useFetchCurrentUser';
 import { fetchRoomMessages, fetchRooms, joinChat, leaveChat, sendMessage, subscribeToMessages, subscribeToNewRoom, subscribeToRoomUserJoin, subscribeToRoomUserLeave, subscribeToRoomUserList, switchRoom } from '../utils/socket_helpers';
 import { CenteredDiv } from '../utils/styles';
@@ -62,7 +63,12 @@ export function Chat (props: IChatProps) {
 		});
 
 		subscribeToMessages((data) => {
-			setMessages((messages) => [...messages, data]);
+			getIsBlocked(data.user.id)
+			.then((res) => {
+				if (!res.data) {
+					setMessages((messages) => [...messages, data]);
+				}
+			});
 		});
 
 		subscribeToRoomUserList((data) => {

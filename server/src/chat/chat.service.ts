@@ -41,7 +41,7 @@ export class ChatService {
 		return await this.chatRepo.createQueryBuilder('chat')
 			.leftJoinAndSelect('chat.user', 'user')
 			.where('chat.room_id = :id', { id: room_id })
-			.where("chat.user_id NOT IN (:...ids)", {ids: blocklist.map(user => { return ( user.id )})})
+			.andWhere("chat.user_id NOT IN (:...ids)", {ids: blocklist.map(user => { return ( user.id )})})
 			.orderBy('chat.createdat', 'ASC')
 			.getMany();
 	}
