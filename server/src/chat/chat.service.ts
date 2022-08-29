@@ -4,6 +4,7 @@ import { Blocklist, Chat, ChatUser, CreateChatDto, CreateChatUserDto, CreateRoom
 import { Repository } from 'typeorm';
 import { PasswordDto } from 'src/utils/password.dto';
 import { ChannelOwner } from 'src/utils/channelOwner.dto';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 @Injectable()
 export class ChatService {
@@ -123,6 +124,19 @@ export class ChatService {
 			return ;
 		}
 		return chatU.status;
+	}
+
+	async updateStatus(chatUser: User, currentRoom: Room, newStatus: (() => string) | QueryDeepPartialEntity<"user" | "owner" | "admin" | "muted" | "banned">): Promise<boolean> {
+		const chatU = await this.chatUserRepo.findOne({
+			where: {
+				room: { id: currentRoom.id },
+				user: { id: chatUser.id}
+			},
+		});
+		if (!chatU)
+			return false;
+		if (await this.chatUserRepo.update(chatU.id, {status: newStatus}))
+			return true;
 	}
 
 	async createChatUserIfNotExists(chatUser: CreateChatUserDto) {
