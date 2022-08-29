@@ -4,7 +4,7 @@ import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 import { UserService } from '../user/user.service';
 import { RoomInfo } from '../utils/types';
-import { CreateChatDto, Room, User } from '../typeorm/';
+import { CreateChatDto, CreateChatUserDto, Room, User, SetUserStatusDto } from '../typeorm/';
 import { UserController } from 'src/user/user.controller';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -65,6 +65,17 @@ export class ChatGateway
 		// client.broadcast.to(prevRoom).emit('room_user_inactive', currentUser);
 		// client.broadcast.to(room).emit('room_user_active', currentUser);
 		// client.emit('room_users', users);
+	}
+
+	@SubscribeMessage('add_admin')
+	async addAdmin(client: Socket, chat_user: SetUserStatusDto) {
+		if (chat_user.user_id && chat_user.room_name) {
+			const chatUser = await this.chatService.getUserById(chat_user.user_id);
+			const currentRoom = await this.chatService.getRoomByName(chat_user.room_name);
+			if (chatUser && currentRoom)
+				if (await this.chatService.updateStatus(chatUser, currentRoom, 'admin'))
+					this.server.to(chatUser.socketId).emit('admin_added');
+		}
 	}
 
 	@SubscribeMessage('room_created')
