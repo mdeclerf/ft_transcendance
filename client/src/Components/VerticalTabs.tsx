@@ -8,7 +8,6 @@ import { RoomSettings } from './RoomSettings';
 import { ChatMsg } from './ChatMsg';
 import LockIcon from '@mui/icons-material/Lock';
 import { ButtonJoinChannel } from './ButtonJoinChannel';
-// import axios from "axios";
 
 interface ITabPanelProps {
 	owner: boolean
@@ -28,7 +27,6 @@ interface ITabPanelProps {
 const TabPanel = (props: ITabPanelProps) => {
 	const { owner, title, message, children, value, index, messageChange, messageSend, roomUsers, currentUser} = props; // isProtected, passAuthenticated
 	const divRef = React.useRef<HTMLDivElement>(null);
-	// const [ owner, setOwner ] = React.useState<boolean>(true);
 
 	const handleInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === "Enter") {
@@ -37,23 +35,10 @@ const TabPanel = (props: ITabPanelProps) => {
 		}
 	};
 
-	// const amIOwner = async () => {
-	// 	if (currentUser && title)
-	// 	{
-	// 		const response = await axios.get<string>(`http://localhost:3001/api/chat/rooms/${title}/${currentUser}/get_chat_user_status`, { withCredentials: true });
-	// 		console.log(response.data)
-	// 		if (response && response.data === 'owner')
-	// 			setOwner(true);
-	// 		else
-	// 			setOwner(false)
-	// 	}
-	// }
-
 	React.useEffect(() => {
 		if (divRef && divRef.current) {
 			divRef.current.scrollTo(0, divRef.current.scrollHeight);
 		}
-		// amIOwner()
 	}, [children])
 
 	const getFirstFourNonSelfUsers = () => {
