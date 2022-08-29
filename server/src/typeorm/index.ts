@@ -13,7 +13,8 @@ import { CreateSubscriptionDto } from "./DTOs/subscription.dto";
 import { CreateGameDto } from "./DTOs/game.dto";
 import { CreateRoomDto } from "./DTOs/room.dto";
 import { CreateUserDto } from "./DTOs/user.dto";
+import { SetUserStatusDto } from "./DTOs/set_user_status.dto";
 
 export const entities = [Blocklist, Chat, ChatUser, Subscription, Game, Room, Session, User];
 
-export { Blocklist, Chat, ChatUser, Subscription, Game, Room, Session, User, CreateBlocklistDto, CreateChatDto, CreateChatUserDto, CreateSubscriptionDto, CreateGameDto, CreateRoomDto, CreateUserDto };
+export { Blocklist, Chat, ChatUser, Subscription, Game, Room, Session, User, CreateBlocklistDto, CreateChatDto, CreateChatUserDto, CreateSubscriptionDto, CreateGameDto, CreateRoomDto, CreateUserDto, SetUserStatusDto };

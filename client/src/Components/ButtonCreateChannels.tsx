@@ -21,7 +21,7 @@ export interface SimpleDialogProps {
 }
 
 function SimpleDialog(props: SimpleDialogProps) {
-	const { setOpen, open, switchRooms } = props; // currentUser
+	const { setOpen, open, switchRooms } = props;
 
 	const [name, setName] = React.useState<string>('');
 	const [taken, setTaken] = React.useState<boolean>(false);

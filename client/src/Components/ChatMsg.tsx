@@ -4,9 +4,14 @@ import { Link } from 'react-router-dom';
 import { User } from '../utils/types';
 import { socket } from "../socket";
 import { useFetchCurrentUser } from '../utils/hooks/useFetchCurrentUser';
+import axios from 'axios';
+import { Room } from '../utils/types';
 // import axios from 'axios';
 
 export interface IChatMsgProps {
+	room?: Room;
+	admin: boolean;
+	owner: boolean;
 	user?: User;
 	messages: string[];
 	side?: 'left' | 'right';
@@ -15,6 +20,9 @@ export interface IChatMsgProps {
 
 export function ChatMsg (props: IChatMsgProps) {
 	const {
+		room,
+		admin,
+		owner,
 		user,
 		messages,
 		side,
@@ -34,16 +42,16 @@ export function ChatMsg (props: IChatMsgProps) {
 		setAnchorEl(null);
 	};
 
-	// const handleBlock = () => {
-	// 	axios.get(`http://localhost:3001/api/user/block_user?id=${user?.id}`, { withCredentials: true })
-	// 		.then(() => {
-	// 			setAnchorEl(null);
-	// 			window.location.reload();
-	// 		})
-	// 		.catch(err => {
-	// 			if (err) throw err;
-	// 		});
-	// }
+	 const handleBlock = () => {
+	 	axios.get(`http://localhost:3001/api/user/block_user?id=${user?.id}`, { withCredentials: true })
+	 		.then(() => {
+	 			setAnchorEl(null);
+	 			window.location.reload();
+	 		})
+	 		.catch(err => {
+	 			if (err) throw err;
+	 		});
+	 }
 
 	return (
 		<Grid
@@ -81,10 +89,21 @@ export function ChatMsg (props: IChatMsgProps) {
 						<MenuItem component={Link} to={`/user/${user?.username}`} onClick={handleClose}>Profile</MenuItem>
 						<MenuItem component={Link} to="/chatmode" onClick={() => 
 						{
-							socket.emit("invited", [currentUser?.id, user?.id])
+							socket.emit("invited", [currentUser?.id, user?.id]);
 							setAnchorEl(null);
 						}}
 						>Invite to game</MenuItem>
+						{
+							((user?.id !== currentUser?.id)) &&
+							<MenuItem onClick={handleBlock}>Block</MenuItem>
+						}
+						{owner && !admin && <MenuItem onClick={() => 
+						{
+							if (user && room) {
+								socket.emit("add_admin", {user_id: user.id, room_name: room.name, status: 'admin'});
+							}
+							setAnchorEl(null);
+						}} >Add admin</MenuItem>}
 					</Menu>
 				</Grid>
 			)}

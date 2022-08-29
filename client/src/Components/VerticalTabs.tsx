@@ -29,7 +29,6 @@ interface ITabPanelProps {
 const TabPanel = (props: ITabPanelProps) => {
 	const { owner, title, message, children, value, index, messageChange, messageSend, roomUsers, currentUser} = props; // isProtected, passAuthenticated
 	const divRef = React.useRef<HTMLDivElement>(null);
-	// const [ owner, setOwner ] = React.useState<boolean>(true);
 
 	const handleInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === "Enter") {
@@ -38,13 +37,10 @@ const TabPanel = (props: ITabPanelProps) => {
 		}
 	};
 
-		
-
 	React.useEffect(() => {
 		if (divRef && divRef.current) {
 			divRef.current.scrollTo(0, divRef.current.scrollHeight);
 		}
-		// amIOwner()
 	}, [children])
 
 	const getFirstFourNonSelfUsers = () => {
@@ -123,6 +119,8 @@ const a11yProps = (index: number) => {
 }
 
 export interface IVerticalTabsProps {
+	room: Room;
+	admin: boolean;
 	owner: boolean;
 	rooms: Room[];
 	message: string;
@@ -137,7 +135,7 @@ export interface IVerticalTabsProps {
 
 export const VerticalTabs = (props: IVerticalTabsProps) => {
 	const location = useLocation();
-	const { owner, rooms, message, messages, currentUser, switchRooms, messageChange, messageSend, roomUsers } = props;
+	const { room, admin, owner, rooms, message, messages, currentUser, switchRooms, messageChange, messageSend, roomUsers } = props;
 	const [value, setValue] = React.useState(0);
 	const [formattedMessages, setFormattedMessages] = React.useState<MessageGroup[]>([]);
 	const [passAuthenticated, setPassAuthenticated] = React.useState(false);
@@ -179,6 +177,9 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 		return formattedMessages.map((msg, i) => {
 			return (
 				<ChatMsg
+					room={room}
+					admin={admin}
+					owner={owner}
 					user={msg.side === 'left' ? msg.user : undefined}
 					messages={msg.messages}
 					side={msg.side}

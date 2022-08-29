@@ -5,7 +5,7 @@ import { Repository } from 'typeorm';
 import { PasswordDto } from 'src/utils/password.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { ChannelOwner } from 'src/utils/channelOwner.dto';
-import { ChatGateway } from './chat.gateway';
+import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 @Injectable()
 export class ChatService {
@@ -43,7 +43,7 @@ export class ChatService {
 		return await this.chatRepo.createQueryBuilder('chat')
 			.leftJoinAndSelect('chat.user', 'user')
 			.where('chat.room_id = :id', { id: room_id })
-			.where("chat.user_id NOT IN (:...ids)", {ids: blocklist.map(user => { return ( user.id )})})
+			.andWhere("chat.user_id NOT IN (:...ids)", {ids: blocklist.map(user => { return ( user.id )})})
 			.orderBy('chat.createdat', 'ASC')
 			.getMany();
 	}
@@ -122,9 +122,23 @@ export class ChatService {
 				user: { id: chatUser.id}
 			},
 		});
-		if (!chatU)
-			return;
+		if (!chatU) {
+			return ;
+		}
 		return chatU.status;
+	}
+
+	async updateStatus(chatUser: User, currentRoom: Room, newStatus: (() => string) | QueryDeepPartialEntity<"user" | "owner" | "admin" | "muted" | "banned">): Promise<boolean> {
+		const chatU = await this.chatUserRepo.findOne({
+			where: {
+				room: { id: currentRoom.id },
+				user: { id: chatUser.id}
+			},
+		});
+		if (!chatU)
+			return false;
+		if (await this.chatUserRepo.update(chatU.id, {status: newStatus}))
+			return true;
 	}
 
 	async createChatUserIfNotExists(chatUser: CreateChatUserDto) {
@@ -133,7 +147,6 @@ export class ChatService {
 			user: await this.userRepo.findOneBy({ id: chatUser.user_id}),
 			status: chatUser.status,
 		});
-		// console.log(entry.room);
 		this.chatUserRepo.createQueryBuilder()
 			.insert()
 			.orIgnore()

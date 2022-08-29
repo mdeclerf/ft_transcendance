@@ -3,9 +3,10 @@ import axios from 'axios';
 import React, { useEffect, useRef } from 'react';
 import { useState } from 'react';
 import { VerticalTabs } from '../Components/VerticalTabs';
-// import { socket } from '../socket';
+import { getIsBlocked } from '../utils/api';
+import { socket } from '../socket';
 import { useFetchCurrentUser } from '../utils/hooks/useFetchCurrentUser';
-import { fetchRoomMessages, fetchRooms, joinChat, leaveChat, sendMessage, subscribeToMessages, subscribeToNewRoom, subscribeToRoomUserJoin, subscribeToRoomUserLeave, subscribeToRoomUserList, switchRoom } from '../utils/socket_helpers';
+import { fetchRoomMessages, fetchRooms, leaveChat, sendMessage, subscribeToMessages, subscribeToNewRoom, subscribeToRoomUserJoin, subscribeToRoomUserLeave, subscribeToRoomUserList, switchRoom } from '../utils/socket_helpers';
 import { CenteredDiv } from '../utils/styles';
 import { Message, Room, User } from '../utils/types';
 
@@ -24,7 +25,8 @@ export function Chat (props: IChatProps) {
 	const [messagesLoading, setMessagesLoading] = useState(true);
 	const [roomsLoading, setRoomsLoading] = useState(true);
 	const [connectedUsers, setConnectedUsers] = useState<User[]>([]);
-	const [ owner, setOwner ] = React.useState<boolean>(true);
+	const [ owner, setOwner ] = React.useState<boolean>(false);
+	const [ admin, setAdmin ] = React.useState<boolean>(false);
 
 	const prevRoomRef = useRef<Room>();
 	useEffect(() => {
@@ -41,19 +43,17 @@ export function Chat (props: IChatProps) {
 
 	// switch switch room in the backend when it changes in the frontend
 	useEffect(() => {
+		amIOwner().then((res: boolean) => {
+			setOwner(res);
+		});
 		if (!socketLoading) {
 			if (prevRoom && room) {
 				switchRoom(prevRoom.name, room.name);
 				setRoom(room);
-				// amIOwner();
-			// } else if (room) {
-			// 	console.log(room.name);
-			// 	// joinChat(room.name);
-			// 	// amIOwner();
 			}
 		}
 	// eslint-disable-next-line
-	}, [room, socketLoading]);
+	}, [room, socketLoading, owner]);
 
 	// get available rooms
 	useEffect(() => {
@@ -63,7 +63,12 @@ export function Chat (props: IChatProps) {
 		});
 
 		subscribeToMessages((data) => {
-			setMessages((messages) => [...messages, data]);
+			getIsBlocked(data.user.id)
+			.then((res) => {
+				if (!res.data) {
+					setMessages((messages) => [...messages, data]);
+				}
+			});
 		});
 
 		subscribeToRoomUserList((data) => {
@@ -96,6 +101,12 @@ export function Chat (props: IChatProps) {
 		});
 	}, []);
 
+	useEffect(() => {
+		socket.on('admin_added', data => {
+			setAdmin(true);
+		})
+	}, [admin]);
+
 	const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setMessage(event.target.value);
 	}
@@ -109,10 +120,8 @@ export function Chat (props: IChatProps) {
 		setMessage("");
 	}
 
-	const handleSwitchRoom = (targetRoom: Room) => {
-		amIOwner().then((res: boolean) => {
-			setOwner(res);
-		});
+	const handleSwitchRoom = (targetRoom: Room) => {	
+		setOwner(false);
 		setMessages([]);
 		setMessagesLoading(true);
 
@@ -127,7 +136,6 @@ export function Chat (props: IChatProps) {
 		if (user && room)
 		{
 			const response = await axios.get<string>(`http://localhost:3001/api/chat/rooms/${room.name}/${user.username}/get_chat_user_status`, { withCredentials: true });
-			// console.log(response.data)
 			if (response && response.data === 'owner')
 				return (true);
 			else
@@ -141,6 +149,8 @@ export function Chat (props: IChatProps) {
 
 	return (
 		<VerticalTabs
+			room={room}
+			admin={admin}
 			owner={owner}
 			rooms={rooms}
 			message={message}
