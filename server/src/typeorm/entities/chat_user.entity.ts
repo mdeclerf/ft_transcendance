@@ -17,9 +17,12 @@ export class ChatUser {
 	@JoinColumn({ name: 'user_id'})
 	user: User
 
-	@Column({type: 'text'})
+	@Column({type: 'text', default: 'user' })
 	public status: "user" | "owner" | "admin" | "muted" | "banned";
 
 	@CreateDateColumn({ name: 'join_date' })
 	joinDate: Date;
+	
+	@Column({ nullable: true, name: 'expiration_date'})
+	expirationDate: Date;
 }

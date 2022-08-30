@@ -1,10 +1,11 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blocklist, Chat, ChatUser, CreateChatDto, CreateChatUserDto, CreateRoomDto, Room, User } from '../typeorm/';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { PasswordDto } from 'src/utils/password.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import { Interval, SchedulerRegistry } from '@nestjs/schedule';
 
 @Injectable()
 export class ChatService {
@@ -14,7 +15,8 @@ export class ChatService {
 		@InjectRepository(Room) private readonly roomRepo: Repository<Room>,
 		@InjectRepository(User) private readonly userRepo: Repository<User>,
 		@InjectRepository(Blocklist) private readonly blockRepo: Repository<Blocklist>,
-		@InjectRepository(ChatUser) private readonly chatUserRepo: Repository<ChatUser>
+		@InjectRepository(ChatUser) private readonly chatUserRepo: Repository<ChatUser>,
+		private schedulerRegistry: SchedulerRegistry
 	) {
 		this.roomRepo.upsert({ name: 'general', type: 'public' }, ["name"]);
 	}
@@ -138,18 +140,48 @@ export class ChatService {
 		return chatU.status;
 	}
 
-	async updateStatus(chatUser: User, currentRoom: Room, newStatus: (() => string) | QueryDeepPartialEntity<"user" | "owner" | "admin" | "muted" | "banned">): Promise<boolean> {
-		const chatU = await this.chatUserRepo.findOne({
+	async updateStatus(user: User, currentRoom: Room, newStatus: "user" | "owner" | "admin" | "muted" | "banned"): Promise<boolean> {
+		const chatUser = await this.chatUserRepo.findOne({
 			where: {
 				room: { id: currentRoom.id },
-				user: { id: chatUser.id}
+				user: { id: user.id}
 			},
 		});
-		if (!chatU)
+		if (!chatUser)
 			return false;
-		if (await this.chatUserRepo.update(chatU.id, {status: newStatus}))
+		const updatedStatus = await this.chatUserRepo.update(chatUser.id, {status: newStatus});
+		if (updatedStatus) {
+			const callback = () => {
+				this.chatUserRepo.update(chatUser.id, { status: 'user', expirationDate: null });
+				console.log(`un${newStatus} ${user.username}`);
+			}
+
+			const timeout = setTimeout(callback, 60000);
+			this.schedulerRegistry.addTimeout(`${user.username}-${newStatus}`, timeout);
 			return true;
+		}
 	}
+
+	// @Interval(60000)
+	// async handleExpirationDate() {
+	// 	const currentDate = new Date();
+
+	// 	console.log(`update !! ${currentDate}`);
+
+	// 	await this.chatUserRepo.createQueryBuilder()
+	// 		.update(ChatUser)
+	// 		.set({ status: 'user', expirationDate: null })
+	// 		.where('status IN (:...statuses)', {statuses: ['muted', 'banned']})
+	// 		.where('expiration_date <= :time', {time: currentDate})
+	// 		.execute();
+
+	// 	const result = await this.chatUserRepo.createQueryBuilder()
+	// 		.where('status IN (:...statuses)', {statuses: ['muted', 'banned']})
+	// 		.where('expiration_date <= :time', {time: currentDate})
+	// 		.getMany();
+
+	// 	console.log(result);
+	// }
 
 	async createChatUserIfNotExists(chatUser: CreateChatUserDto) {
 		const entry = this.chatUserRepo.create({
@@ -200,12 +232,16 @@ export class ChatService {
 	}
 
 	async complete(query: string, user: User) {
-		const alreadyJoined = (await this.chatUserRepo.find({ where: { user }})).map((chatUser) => {
-			return (chatUser.room.id);
-		})
+		const alreadyJoined = (await this.roomRepo.createQueryBuilder('room')
+			.leftJoin('room.chat_user', 'chat_user')
+			.where('chat_user.user_id = :id', { id: user.id })
+			.getMany())
+			.map((room) => { return (room.id) });
+
+		console.log(alreadyJoined);
 
 		const result = await this.roomRepo.createQueryBuilder('room')
-			.where('room.id NOT IN :(...ids)', { ids: alreadyJoined })
+			.where('room.id NOT IN (:...ids)', { ids: alreadyJoined })
 			.andWhere('room.name LIKE :query', { query: `%${query}%` })
 			.getMany();
 
