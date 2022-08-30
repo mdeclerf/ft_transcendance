@@ -4,8 +4,7 @@ import { Blocklist, Chat, ChatUser, CreateChatDto, CreateChatUserDto, CreateRoom
 import { Repository, UpdateResult } from 'typeorm';
 import { PasswordDto } from 'src/utils/password.dto';
 import { v4 as uuidv4 } from 'uuid';
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
-import { Interval, SchedulerRegistry } from '@nestjs/schedule';
+import { SchedulerRegistry } from '@nestjs/schedule';
 
 @Injectable()
 export class ChatService {

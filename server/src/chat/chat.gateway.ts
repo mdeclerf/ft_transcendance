@@ -61,7 +61,7 @@ export class ChatGateway
 			const currentRoom = await this.chatService.getRoomByName(chat_user.room_name);
 			if (user && currentRoom) {
 				if (await this.chatService.updateStatus(user, currentRoom, chat_user.status, chat_user.time))
-				this.server.to(user.socketId).emit(`${chat_user.status}_added`);
+					this.server.to(user.socketId).emit(`${chat_user.status}_added`, chat_user.room_name);
 			}
 		}
 	}
@@ -117,5 +117,11 @@ export class ChatGateway
 		const unique_id = uuidv4();
 		this.server.to(invitedUser.socketId).emit("make_game_room", unique_id);
 		this.server.to(invitingUser.socketId).emit("make_game_room", unique_id);
+	}
+
+	@SubscribeMessage('invitation_declined')
+	async invitationDeclined(client: Socket, message: number) {
+		const invitingUser: User = await this.userService.findUserById(message);
+		this.server.to(invitingUser.socketId).emit("invitation_declined");
 	}
 }
