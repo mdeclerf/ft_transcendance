@@ -40,18 +40,17 @@ export class ChatGateway
 		client.leave(room_name);
 		const currentUser = await this.userService.findUserBySocketId(client.id);
 		client.broadcast.to(room_name).emit('room_user_inactive', currentUser);
+		console.log(`${currentUser.username} left ${room_name}`);
 	}
 
 	@SubscribeMessage('room_switch')
 	async roomSwitch(client: Socket, roomInfo: RoomInfo) {
 		const { prevRoom, room } = roomInfo;
 		if (prevRoom) {
-			client.leave(prevRoom);
 			this.roomInactive(client, prevRoom);
 		}
 		if (room) {
 			this.roomActive(client, room);
-			client.join(room);
 		}
 	}
 

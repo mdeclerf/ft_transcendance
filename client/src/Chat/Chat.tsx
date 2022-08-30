@@ -38,8 +38,7 @@ export function Chat (props: IChatProps) {
 		return (() => {
 			leaveChat(room.name);
 		})
-	// eslint-disable-next-line
-	}, [])
+	}, [room.name])
 
 	// switch switch room in the backend when it changes in the frontend
 	useEffect(() => {

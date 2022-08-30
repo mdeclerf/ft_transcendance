@@ -94,6 +94,7 @@ export class ChatService {
 	}
 
 	async getActiveRooms(userId: number) {
+		// console.log(await this.roomRepo.createQueryBuilder('room').leftJoin('room.chat_user', 'chat_user').where('chat_user.user_id = :id', {id: userId}).getMany());
 		const ret = await this.roomRepo.createQueryBuilder('room')
 			.leftJoinAndSelect('room.chat_user', 'chat_user')
 			.where('chat_user.user_id = :id', { id: userId })
@@ -177,6 +178,7 @@ export class ChatService {
 			.into(ChatUser)
 			.values(entry)
 			.execute();
+		return false;
 	}
 
 	async checkIfDmRoomExists(user1 : User, user2 : User) { /// HERE
