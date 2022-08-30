@@ -103,7 +103,7 @@ export function Chat (props: IChatProps) {
 		});
 		
 		subscribeToRoomUserLeave((data) => {
-			setConnectedUsers((users) => users.filter(user => user && user.id !== data.id));
+			setConnectedUsers((users) => users.filter(user => user && data && user.id !== data.id));
 		});
 
 		subscribeToNewRoom((data) => {

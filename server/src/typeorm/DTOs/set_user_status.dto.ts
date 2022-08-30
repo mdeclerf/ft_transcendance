@@ -13,4 +13,7 @@ export class SetUserStatusDto {
 	@IsString()
 	@IsIn(['user', 'owner', 'admin', 'muted', 'banned'])
 	public status: 'user' | 'owner' | 'admin' | 'muted' | 'banned';
+
+	@IsString()
+	public time: '60000' | '300000' | '3600000';
 }

@@ -140,7 +140,7 @@ export class ChatService {
 		return chatU.status;
 	}
 
-	async updateStatus(user: User, currentRoom: Room, newStatus: "user" | "owner" | "admin" | "muted" | "banned"): Promise<boolean> {
+	async updateStatus(user: User, currentRoom: Room, newStatus: "user" | "owner" | "admin" | "muted" | "banned", time: '60000' | '300000' | '3600000'): Promise<boolean> {
 		const chatUser = await this.chatUserRepo.findOne({
 			where: {
 				room: { id: currentRoom.id },
@@ -150,38 +150,20 @@ export class ChatService {
 		if (!chatUser)
 			return false;
 		const updatedStatus = await this.chatUserRepo.update(chatUser.id, {status: newStatus});
-		if (updatedStatus) {
+		if (updatedStatus && newStatus === 'muted') {
 			const callback = () => {
 				this.chatUserRepo.update(chatUser.id, { status: 'user', expirationDate: null });
-				console.log(`un${newStatus} ${user.username}`);
+				this.schedulerRegistry.deleteTimeout(`${user.username}-${newStatus}`);
 			}
 
-			const timeout = setTimeout(callback, 60000);
+			const timeout = setTimeout(callback, parseInt(time));
 			this.schedulerRegistry.addTimeout(`${user.username}-${newStatus}`, timeout);
 			return true;
 		}
+		if (updatedStatus)
+			return true;
+		return false;
 	}
-
-	// @Interval(60000)
-	// async handleExpirationDate() {
-	// 	const currentDate = new Date();
-
-	// 	console.log(`update !! ${currentDate}`);
-
-	// 	await this.chatUserRepo.createQueryBuilder()
-	// 		.update(ChatUser)
-	// 		.set({ status: 'user', expirationDate: null })
-	// 		.where('status IN (:...statuses)', {statuses: ['muted', 'banned']})
-	// 		.where('expiration_date <= :time', {time: currentDate})
-	// 		.execute();
-
-	// 	const result = await this.chatUserRepo.createQueryBuilder()
-	// 		.where('status IN (:...statuses)', {statuses: ['muted', 'banned']})
-	// 		.where('expiration_date <= :time', {time: currentDate})
-	// 		.getMany();
-
-	// 	console.log(result);
-	// }
 
 	async createChatUserIfNotExists(chatUser: CreateChatUserDto) {
 		const entry = this.chatUserRepo.create({
@@ -196,9 +178,6 @@ export class ChatService {
 			.values(entry)
 			.execute();
 	}
-
-	// select * from room left join chat_user on room.id=chat_user.room_id where chat_user.user_id = 2 and room.id IN 
-	// (select chat_user.room_id from chat_user left join room on chat_user.room_id=room.id where user_id = 1 and room.type='private');
 
 	async checkIfDmRoomExists(user1 : User, user2 : User) { /// HERE
 		const room = await this.roomRepo.createQueryBuilder('room')
