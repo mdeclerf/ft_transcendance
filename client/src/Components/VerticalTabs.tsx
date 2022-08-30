@@ -119,6 +119,7 @@ const a11yProps = (index: number) => {
 }
 
 export interface IVerticalTabsProps {
+	mute: boolean;
 	room: Room;
 	admin: boolean;
 	owner: boolean;
@@ -135,7 +136,7 @@ export interface IVerticalTabsProps {
 
 export const VerticalTabs = (props: IVerticalTabsProps) => {
 	const location = useLocation();
-	const { room, admin, owner, rooms, message, messages, currentUser, switchRooms, messageChange, messageSend, roomUsers } = props;
+	const { mute, room, admin, owner, rooms, message, messages, currentUser, switchRooms, messageChange, messageSend, roomUsers } = props;
 	const [value, setValue] = React.useState(0);
 	const [formattedMessages, setFormattedMessages] = React.useState<MessageGroup[]>([]);
 	const [passAuthenticated, setPassAuthenticated] = React.useState(false);
