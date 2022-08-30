@@ -44,7 +44,7 @@ export function ChatMsg (props: IChatMsgProps) {
 					setIsHeAdmin(true);
 					setIsHeMute(false);
 				}
-				if (res === 'mute') {
+				if (res === 'muted') {
 					setIsHeAdmin(false);
 					setIsHeMute(true);
 				}
@@ -143,7 +143,7 @@ export function ChatMsg (props: IChatMsgProps) {
 						{admin && !isHeMute && !isHeAdmin && <MenuItem onClick={() => 
 						{
 							if (user && room) {
-								socket.emit("set_status", {user_id: user.id, room_name: room.name, status: 'mute'});
+								socket.emit("set_status", {user_id: user.id, room_name: room.name, status: 'muted'});
 							}
 							setAnchorEl(null);
 						}} >Mute</MenuItem>}

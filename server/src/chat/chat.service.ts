@@ -238,14 +238,14 @@ export class ChatService {
 			.getMany())
 			.map((room) => { return (room.id) });
 
-		console.log(alreadyJoined);
+		// console.log(alreadyJoined);
 
 		const result = await this.roomRepo.createQueryBuilder('room')
 			.where('room.id NOT IN (:...ids)', { ids: alreadyJoined })
 			.andWhere('room.name LIKE :query', { query: `%${query}%` })
 			.getMany();
 
-		console.log(result);
+		// console.log(result);
 
 		return result.map(({ name, type }) => {
 			return ({ name, type })
