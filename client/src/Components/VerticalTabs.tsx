@@ -9,11 +9,12 @@ import { ChatMsg } from './ChatMsg';
 import LockIcon from '@mui/icons-material/Lock';
 import { ButtonJoinChannel } from './ButtonJoinChannel';
 import { useLocation } from 'react-router-dom';
+import ThreePIcon from '@mui/icons-material/ThreeP';
 // import axios from "axios";
 
 interface ITabPanelProps {
-	owner: boolean
-	title: string;
+	owner: boolean;
+	title: string | undefined;
 	children?: React.ReactNode;
 	message: string;
 	index: number;
@@ -167,7 +168,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 			setValue(index);
 		}
 	// eslint-disable-next-line
-	}, [location.hash, rooms]) // switchRooms in dependancy creates a glitch
+	}, [location.hash, rooms])
 
 	React.useEffect(() => {
 		subscribeToAutoSwitchRoom((data) => {
@@ -222,7 +223,13 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 							return (
 								<Tab label={room.name} key={i} iconPosition='start' icon={<LockIcon />} {...a11yProps(i)} />
 							)
-						} else {
+						} 
+						else if (room.type === 'private'){
+							return (
+								<Tab label={room?.DM_user || ''} key={i} iconPosition='start' icon={<ThreePIcon />} {...a11yProps(i)} />
+							)
+						}
+						else {
 							return (
 								<Tab label={room.name} key={i} {...a11yProps(i)} />
 							)
@@ -234,7 +241,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 				return (
 					<TabPanel
 						owner={owner}
-						title={room.name}
+						title={room.type === "private" ? room.DM_user : room.name}
 						value={value}
 						index={i}
 						key={i}

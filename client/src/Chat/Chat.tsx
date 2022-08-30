@@ -1,7 +1,6 @@
 import { CircularProgress } from '@mui/material';
 import axios from 'axios';
-import React, { useEffect, useRef } from 'react';
-import { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { VerticalTabs } from '../Components/VerticalTabs';
 import { getIsBlocked } from '../utils/api';
 import { socket } from '../socket';
@@ -69,6 +68,7 @@ export function Chat (props: IChatProps) {
 				}
 			}
 		});
+
 		if (!socketLoading) {
 			if (prevRoom && room) {
 				switchRoom(prevRoom.name, room.name);
