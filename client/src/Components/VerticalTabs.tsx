@@ -165,7 +165,8 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 			const index = rooms.map((room) => { return (room.name) }).indexOf(hash);
 			setValue(index);
 		}
-	}, [location.hash, rooms, switchRooms])
+	// eslint-disable-next-line
+	}, [location.hash, rooms]) // switchRooms in dependancy creates a glitch
 
 	React.useEffect(() => {
 		subscribeToAutoSwitchRoom((data) => {

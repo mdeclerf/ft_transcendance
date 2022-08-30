@@ -94,7 +94,6 @@ export const Profile = (props: IProfileProps) => {
 	const handleDM = async () => {
 		axios.get<string>(`http://localhost:3001/api/chat/rooms/check_dm?user=${user?.id}`, { withCredentials: true})
 			.then(res => {
-				console.log(`res.data ${res.data}`)
 				window.location.href = `http://localhost:3000/chat#${res.data}`;
 			});
 	}
