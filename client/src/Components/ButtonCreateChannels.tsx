@@ -21,7 +21,7 @@ export interface SimpleDialogProps {
 }
 
 function SimpleDialog(props: SimpleDialogProps) {
-	const { setOpen, open, switchRooms } = props; // currentUser
+	const { setOpen, open, switchRooms } = props;
 
 	const [name, setName] = React.useState<string>('');
 	const [taken, setTaken] = React.useState<boolean>(false);
@@ -107,7 +107,7 @@ export const ButtonCreateChannels = (props: IButtonCreateChannelsProps) => {
 	return (
 		<div>
 			<Button
-				sx={{ marginTop: '2%' }}
+				sx={{ marginTop: '2%', marginBottom: '2%' }}
 				variant="outlined"
 				startIcon={<AddIcon />}
 				onClick={handleClickOpen}

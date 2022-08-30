@@ -53,6 +53,7 @@ export type Message = {
 export type Room = {
 	name: string;
 	type: 'public' | 'protected' | 'private';
+	DM_user? : string;
 }
 
 export type MessageGroup = {

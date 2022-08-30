@@ -6,7 +6,7 @@ import axios from 'axios';
 export interface SettingsDialogProps {
 	open: boolean;
 	setOpen: (value: boolean) => void;
-	room: string;
+	room: string | undefined;
 }
 
 function SettingsDialog(props: SettingsDialogProps) {
@@ -53,7 +53,7 @@ function SettingsDialog(props: SettingsDialogProps) {
 }
 
 export interface IRoomSettingsProps {
-	room: string;
+	room: string | undefined;
 };
 
 export const RoomSettings = (props: IRoomSettingsProps) => {

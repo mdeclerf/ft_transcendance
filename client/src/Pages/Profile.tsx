@@ -1,7 +1,7 @@
 import { Box, Button, Grid, List, ListItem, ListItemText, Tooltip, Typography } from "@mui/material/";
 import React from "react";
 import { ProfileDiv } from "../utils/styles";
-import { Game, User, Result } from "../utils/types";
+import { Game, User, Result, Room } from "../utils/types";
 import { VictoryPie } from "victory-pie";
 import { CustomAvatar } from "../Components/CustomAvatar";
 import { useFetchCurrentUser } from "../utils/hooks/useFetchCurrentUser";
@@ -10,6 +10,7 @@ import BlockIcon from '@mui/icons-material/Block';
 import { useFetchIsFriend } from "../utils/hooks/useFetchIsFriend";
 import axios from "axios";
 import { useFetchIsBlocked } from "../utils/hooks/useFetchIsBlocked";
+import MessageIcon from '@mui/icons-material/Message';
 
 export interface IProfileProps {
 	user: User | undefined;
@@ -90,6 +91,13 @@ export const Profile = (props: IProfileProps) => {
 			});
 	}
 
+	const handleDM = async () => {
+		axios.get<Room>(`http://localhost:3001/api/chat/rooms/check_dm?user=${user?.id}`, { withCredentials: true})
+			.then(res => {
+				window.location.href = `http://localhost:3000/chat#${res.data.name}`;
+			});
+	}
+
 	const handleUnblock = (event: React.MouseEvent<HTMLButtonElement>) => {
 		axios.get(`http://localhost:3001/api/user/unblock_user?id=${user?.id}`, { withCredentials: true })
 			.then(() => {
@@ -154,6 +162,12 @@ export const Profile = (props: IProfileProps) => {
 						Unblock User
 					</Button>
 				}
+				{((user?.id !== currentUser?.id)) &&
+					<Button variant="contained" startIcon={<MessageIcon />} onClick={handleDM} sx={{m:1}}>
+						Send private message
+					</Button>
+				}
+
 			</div>
 			<div>
 				{getTypography('Match History')}

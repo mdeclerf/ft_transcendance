@@ -1,5 +1,5 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
-import { Chat } from "../";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn, ManyToOne, JoinColumn, Index } from "typeorm";
+import { Chat, User } from "../";
 import { ChatUser } from "../";
 
 @Entity()

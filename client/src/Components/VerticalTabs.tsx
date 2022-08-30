@@ -8,11 +8,13 @@ import { RoomSettings } from './RoomSettings';
 import { ChatMsg } from './ChatMsg';
 import LockIcon from '@mui/icons-material/Lock';
 import { ButtonJoinChannel } from './ButtonJoinChannel';
+import { useLocation } from 'react-router-dom';
+import ThreePIcon from '@mui/icons-material/ThreeP';
 // import axios from "axios";
 
 interface ITabPanelProps {
-	owner: boolean
-	title: string;
+	owner: boolean;
+	title: string | undefined;
 	children?: React.ReactNode;
 	message: string;
 	index: number;
@@ -28,7 +30,6 @@ interface ITabPanelProps {
 const TabPanel = (props: ITabPanelProps) => {
 	const { owner, title, message, children, value, index, messageChange, messageSend, roomUsers, currentUser} = props; // isProtected, passAuthenticated
 	const divRef = React.useRef<HTMLDivElement>(null);
-	// const [ owner, setOwner ] = React.useState<boolean>(true);
 
 	const handleInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === "Enter") {
@@ -37,23 +38,10 @@ const TabPanel = (props: ITabPanelProps) => {
 		}
 	};
 
-	// const amIOwner = async () => {
-	// 	if (currentUser && title)
-	// 	{
-	// 		const response = await axios.get<string>(`http://localhost:3001/api/chat/rooms/${title}/${currentUser}/get_chat_user_status`, { withCredentials: true });
-	// 		console.log(response.data)
-	// 		if (response && response.data === 'owner')
-	// 			setOwner(true);
-	// 		else
-	// 			setOwner(false)
-	// 	}
-	// }
-
 	React.useEffect(() => {
 		if (divRef && divRef.current) {
 			divRef.current.scrollTo(0, divRef.current.scrollHeight);
 		}
-		// amIOwner()
 	}, [children])
 
 	const getFirstFourNonSelfUsers = () => {
@@ -132,6 +120,8 @@ const a11yProps = (index: number) => {
 }
 
 export interface IVerticalTabsProps {
+	room: Room;
+	admin: boolean;
 	owner: boolean;
 	rooms: Room[];
 	message: string;
@@ -145,7 +135,8 @@ export interface IVerticalTabsProps {
 };
 
 export const VerticalTabs = (props: IVerticalTabsProps) => {
-	const { owner, rooms, message, messages, currentUser, switchRooms, messageChange, messageSend, roomUsers } = props;
+	const location = useLocation();
+	const { room, admin, owner, rooms, message, messages, currentUser, switchRooms, messageChange, messageSend, roomUsers } = props;
 	const [value, setValue] = React.useState(0);
 	const [formattedMessages, setFormattedMessages] = React.useState<MessageGroup[]>([]);
 	const [passAuthenticated, setPassAuthenticated] = React.useState(false);
@@ -169,6 +160,16 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 	}, [messages, currentUser?.id]);
 
 	React.useEffect(() => {
+		if (location.hash !== '') {
+			const hash = location.hash.slice(1);
+			switchRooms({ name: hash, type: 'private'});
+			const index = rooms.map((room) => { return (room.name) }).indexOf(hash);
+			setValue(index);
+		}
+	// eslint-disable-next-line
+	}, [location.hash, rooms])
+
+	React.useEffect(() => {
 		subscribeToAutoSwitchRoom((data) => {
 			setValue(data);
 		})
@@ -178,6 +179,9 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 		return formattedMessages.map((msg, i) => {
 			return (
 				<ChatMsg
+					room={room}
+					admin={admin}
+					owner={owner}
 					user={msg.side === 'left' ? msg.user : undefined}
 					messages={msg.messages}
 					side={msg.side}
@@ -218,7 +222,13 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 							return (
 								<Tab label={room.name} key={i} iconPosition='start' icon={<LockIcon />} {...a11yProps(i)} />
 							)
-						} else {
+						} 
+						else if (room.type === 'private'){
+							return (
+								<Tab label={room?.DM_user || ''} key={i} iconPosition='start' icon={<ThreePIcon />} {...a11yProps(i)} />
+							)
+						}
+						else {
 							return (
 								<Tab label={room.name} key={i} {...a11yProps(i)} />
 							)
@@ -230,7 +240,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 				return (
 					<TabPanel
 						owner={owner}
-						title={room.name}
+						title={room.type === "private" ? room.DM_user : room.name}
 						value={value}
 						index={i}
 						key={i}

@@ -1,5 +1,5 @@
 import { Column, Entity, JoinColumn, OneToMany, PrimaryGeneratedColumn } from "typeorm";
-import { Chat, Game, ChatUser } from "../";
+import { Chat, Game, ChatUser, Room } from "../";
 import { Subscription } from "./subscription.entity";
 import { Blocklist } from "../";
 
@@ -60,7 +60,4 @@ export class User {
 	@OneToMany(() => Game, (game) => game.player_2)
 	p2_game: Game[]
 
-	// @ManyToMany(() => User, user => user.id)
-	// @JoinTable()
-	// friends: User[]
 }

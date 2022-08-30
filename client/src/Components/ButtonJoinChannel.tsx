@@ -64,7 +64,6 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 								setPassword("");
 							})
 					} else if (res.data === 'public') {
-						// console.log('here');
 						socket.emit('room_join', searchQuery);
 						setDialogOpen(false);
 					}
@@ -87,6 +86,7 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 	}
 
 	const handleClose = () => {
+		setDialogOpen(false);
 		handleClick();
 	}
 
