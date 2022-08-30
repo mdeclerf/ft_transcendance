@@ -97,7 +97,6 @@ export class ChatGateway
 		const status = await this.chatService.getChatUserStatus(message.user, currentRoom);
 		if (status !== "mute")
 		{
-			console.log("message sent");
 			this.chatService.createMessage(message);
 			const { room } = message;
 			client.broadcast.to(room.name).emit('new_message', message);
