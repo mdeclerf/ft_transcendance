@@ -10,7 +10,8 @@ import LockIcon from '@mui/icons-material/Lock';
 import { ButtonJoinChannel } from './ButtonJoinChannel';
 import { useLocation } from 'react-router-dom';
 import ThreePIcon from '@mui/icons-material/ThreeP';
-// import axios from "axios";
+import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import axios from 'axios';
 
 interface ITabPanelProps {
 	owner: boolean;
@@ -90,11 +91,12 @@ const TabPanel = (props: ITabPanelProps) => {
 				{value === index && (
 					<Box sx={{ p: 3, minWidth: '80vw', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '100%' }}>
 						<Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
-							<Box sx={{ display: 'flex', flexDirection: 'row'}}>
+							<Box sx={{ display: 'flex', flexDirection: 'row', gap: '10px'}}>
 								<Typography sx={{ flexGrow: 0 }} variant="h4">{title}</Typography>
-							{owner === true && (
-								<RoomSettings room={title}/>
-							)}
+								{owner === true && (
+									<RoomSettings room={title}/>
+								)}
+								<Button variant="text" startIcon={<ExitToAppIcon />} size="small">Leave</Button>
 							</Box>
 							<AvatarGroup total={roomUsers.length}>
 								{getFirstFourNonSelfUsers()}
@@ -207,7 +209,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 				overflow: 'hidden',
 			}}
 		>
-			<Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1 }}>
+			<Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, gap: '2px' }}>
 				<ButtonCreateChannels currentUser={currentUser} switchRooms={switchRooms}/>
 				<ButtonJoinChannel setPassAuthenticated={setPassAuthenticated} />
 				<Tabs

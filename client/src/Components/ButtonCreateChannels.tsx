@@ -107,7 +107,7 @@ export const ButtonCreateChannels = (props: IButtonCreateChannelsProps) => {
 	return (
 		<div>
 			<Button
-				sx={{ marginTop: '2%', marginBottom: '2%' }}
+				sx={{ marginTop: '2px' }}
 				variant="outlined"
 				startIcon={<AddIcon />}
 				onClick={handleClickOpen}
