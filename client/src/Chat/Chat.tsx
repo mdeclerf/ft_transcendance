@@ -127,12 +127,21 @@ export function Chat (props: IChatProps) {
 
 	useEffect(() => {
 		handleAdmin(room.name);
+		handleMuted(room.name);
 	}, [admin, room.name]);
 	
 	const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setMessage(event.target.value);
 	}
-	
+
+	const handleMuted = (name: string) => {
+		socket.on('muted_added', data => {
+			if (name === data) {
+				setMute(true);
+			}
+		})
+	}
+
 	const handleAdmin = (name: string) => {
 		socket.on('admin_added', data => {
 			if (name === data) {

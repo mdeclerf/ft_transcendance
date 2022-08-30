@@ -62,7 +62,7 @@ export class ChatGateway
 			const currentRoom = await this.chatService.getRoomByName(chat_user.room_name);
 			if (user && currentRoom) {
 				if (await this.chatService.updateStatus(user, currentRoom, chat_user.status, chat_user.time))
-				this.server.to(user.socketId).emit(`${chat_user.status}_added`);
+				this.server.to(user.socketId).emit(`${chat_user.status}_added`, chat_user.room_name);
 			}
 		}
 	}
