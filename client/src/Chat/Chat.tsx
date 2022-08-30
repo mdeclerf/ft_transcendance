@@ -24,8 +24,9 @@ export function Chat (props: IChatProps) {
 	const [messagesLoading, setMessagesLoading] = useState(true);
 	const [roomsLoading, setRoomsLoading] = useState(true);
 	const [connectedUsers, setConnectedUsers] = useState<User[]>([]);
-	const [ owner, setOwner ] = useState<boolean>(false);
-	const [ admin, setAdmin ] = useState<boolean>(false);
+	const [ owner, setOwner ] = React.useState<boolean>(false);
+	const [ admin, setAdmin ] = React.useState<boolean>(false);
+	const [ mute, setMute ] = React.useState<boolean>(false);
 
 	const prevRoomRef = useRef<Room>();
 	useEffect(() => {
@@ -42,8 +43,30 @@ export function Chat (props: IChatProps) {
 
 	// switch switch room in the backend when it changes in the frontend
 	useEffect(() => {
-		amIOwner().then((res: boolean) => {
-			setOwner(res);
+		getChatUserStatus().then((res: string | undefined) => {
+			if (res) {
+				console.log(res);
+				if (res === 'owner') {
+					setOwner(true);
+					setAdmin(true);
+					setMute(false);
+				}
+				if (res === 'admin') {
+					setAdmin(true);
+					setOwner(false);
+					setMute(false);
+				}
+				if (res === 'user') {
+					setAdmin(false);
+					setOwner(false);
+					setMute(false);
+				}
+				if (res === 'muted') {
+					setAdmin(false);
+					setOwner(false);
+					setMute(true);
+				}
+			}
 		});
 
 		if (!socketLoading) {
@@ -101,14 +124,22 @@ export function Chat (props: IChatProps) {
 		});
 	}, []);
 
-	useEffect(() => {
-		socket.on('admin_added', data => {
-			setAdmin(true);
-		})
-	}, [admin]);
 
+
+	useEffect(() => {
+		handleAdmin(room.name);
+	}, [admin, room.name]);
+	
 	const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setMessage(event.target.value);
+	}
+	
+	const handleAdmin = (name: string) => {
+		socket.on('admin_added', data => {
+			if (name === data) {
+				setAdmin(true);
+			}
+		})
 	}
 
 	const handleMessageSend = () => {
@@ -132,23 +163,22 @@ export function Chat (props: IChatProps) {
 		setRoom(targetRoom);
 	}
 
-	async function amIOwner(): Promise<boolean> {
+	async function getChatUserStatus(): Promise<string | undefined> {
 		if (user && room)
 		{
 			const response = await axios.get<string>(`http://localhost:3001/api/chat/rooms/${room.name}/${user.username}/get_chat_user_status`, { withCredentials: true });
-			if (response && response.data === 'owner')
-				return (true);
-			else
-				return (false);
+			if (response)
+				return response.data;
 		}
 		else
-			return (false);
+			return ;
 	}
 
 	if (roomsLoading) return <CenteredDiv><CircularProgress /></CenteredDiv>
 
 	return (
 		<VerticalTabs
+			mute={mute}
 			room={room}
 			admin={admin}
 			owner={owner}

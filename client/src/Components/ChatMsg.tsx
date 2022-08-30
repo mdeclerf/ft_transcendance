@@ -33,12 +33,26 @@ export function ChatMsg (props: IChatMsgProps) {
 
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [isHeAdmin, setIsHeAdmin] = useState<boolean>(false);
+	const [isHeMute, setIsHeMute] = useState<boolean>(false);
 	const open = Boolean(anchorEl);
 
 	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 		setAnchorEl(event.currentTarget);
-		fetchAdmin().then((res: boolean) => {
-			setIsHeAdmin(res);
+		fetchChatUserStatus().then((res: string | undefined) => {
+			if (res) {
+				if (res === 'admin') {
+					setIsHeAdmin(true);
+					setIsHeMute(false);
+				}
+				if (res === 'mute') {
+					setIsHeAdmin(false);
+					setIsHeMute(true);
+				}
+				if (res === 'user') {
+					setIsHeAdmin(false);
+					setIsHeMute(false);
+				}
+			}
 		});
 	};
 
@@ -57,17 +71,15 @@ export function ChatMsg (props: IChatMsgProps) {
 			});
 	}
 
-	async function fetchAdmin(): Promise<boolean> {
+	async function fetchChatUserStatus(): Promise<string | undefined> {
 		if (user && room)
 		{
 			const response = await axios.get<string>(`http://localhost:3001/api/chat/rooms/${room.name}/${user.username}/get_chat_user_status`, { withCredentials: true });
-			if (response && response.data === 'admin')
-				return (true);
-			else
-				return (false);
+			if (response)
+				return (response.data)
 		}
 		else
-			return (false);
+			return ;
 	}
 
 	return (
@@ -114,7 +126,7 @@ export function ChatMsg (props: IChatMsgProps) {
 							((user?.id !== currentUser?.id)) &&
 							<MenuItem onClick={handleBlock}>Block</MenuItem>
 						}
-						{owner && !isHeAdmin && <MenuItem onClick={() => 
+						{owner && !isHeAdmin && !isHeMute && <MenuItem onClick={() => 
 						{
 							if (user && room) {
 								socket.emit("set_status", {user_id: user.id, room_name: room.name, status: 'admin'});
@@ -128,6 +140,20 @@ export function ChatMsg (props: IChatMsgProps) {
 							}
 							setAnchorEl(null);
 						}} >Remove admin</MenuItem>}
+						{admin && !isHeMute && !isHeAdmin && <MenuItem onClick={() => 
+						{
+							if (user && room) {
+								socket.emit("set_status", {user_id: user.id, room_name: room.name, status: 'mute'});
+							}
+							setAnchorEl(null);
+						}} >Mute</MenuItem>}
+						{admin && isHeMute && <MenuItem onClick={() => 
+						{
+							if (user && room) {
+								socket.emit("set_status", {user_id: user.id, room_name: room.name, status: 'user'});
+							}
+							setAnchorEl(null);
+						}} >Unmute</MenuItem>}
 					</Menu>
 				</Grid>
 			)}
