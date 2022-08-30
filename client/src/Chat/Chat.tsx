@@ -45,7 +45,6 @@ export function Chat (props: IChatProps) {
 	useEffect(() => {
 		getChatUserStatus().then((res: string | undefined) => {
 			if (res) {
-				console.log(res);
 				if (res === 'owner') {
 					setOwner(true);
 					setAdmin(true);
@@ -104,7 +103,7 @@ export function Chat (props: IChatProps) {
 		});
 		
 		subscribeToRoomUserLeave((data) => {
-			setConnectedUsers((users) => users.filter(user => user && user.id !== data.id));
+			setConnectedUsers((users) => users.filter(user => user && data && user.id !== data.id));
 		});
 
 		subscribeToNewRoom((data) => {
