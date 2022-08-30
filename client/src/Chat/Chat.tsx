@@ -6,7 +6,7 @@ import { VerticalTabs } from '../Components/VerticalTabs';
 import { getIsBlocked } from '../utils/api';
 import { socket } from '../socket';
 import { useFetchCurrentUser } from '../utils/hooks/useFetchCurrentUser';
-import { fetchRoomMessages, fetchRooms, joinChat, leaveChat, sendMessage, subscribeToMessages, subscribeToNewRoom, subscribeToRoomUserJoin, subscribeToRoomUserLeave, subscribeToRoomUserList, switchRoom } from '../utils/socket_helpers';
+import { fetchRoomMessages, fetchRooms, leaveChat, sendMessage, subscribeToMessages, subscribeToNewRoom, subscribeToRoomUserJoin, subscribeToRoomUserLeave, subscribeToRoomUserList, switchRoom } from '../utils/socket_helpers';
 import { CenteredDiv } from '../utils/styles';
 import { Message, Room, User } from '../utils/types';
 
@@ -15,6 +15,7 @@ export interface IChatProps {
 }
 
 export function Chat (props: IChatProps) {
+
 	const { socketLoading } = props;
 	const { user } = useFetchCurrentUser();
 	const [message, setMessage] = useState("");
@@ -49,9 +50,6 @@ export function Chat (props: IChatProps) {
 			if (prevRoom && room) {
 				switchRoom(prevRoom.name, room.name);
 				setRoom(room);
-			} else if (room) {
-				joinChat(room.name);
-				// amIOwner();
 			}
 		}
 	// eslint-disable-next-line

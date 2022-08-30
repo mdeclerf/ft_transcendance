@@ -8,6 +8,8 @@ import { RoomSettings } from './RoomSettings';
 import { ChatMsg } from './ChatMsg';
 import LockIcon from '@mui/icons-material/Lock';
 import { ButtonJoinChannel } from './ButtonJoinChannel';
+import { useLocation } from 'react-router-dom';
+// import axios from "axios";
 
 interface ITabPanelProps {
 	owner: boolean
@@ -132,6 +134,7 @@ export interface IVerticalTabsProps {
 };
 
 export const VerticalTabs = (props: IVerticalTabsProps) => {
+	const location = useLocation();
 	const { room, admin, owner, rooms, message, messages, currentUser, switchRooms, messageChange, messageSend, roomUsers } = props;
 	const [value, setValue] = React.useState(0);
 	const [formattedMessages, setFormattedMessages] = React.useState<MessageGroup[]>([]);
@@ -154,6 +157,16 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 		setFormattedMessages([]);
 		setFormattedMessages(msgGrp);
 	}, [messages, currentUser?.id]);
+
+	React.useEffect(() => {
+		if (location.hash !== '') {
+			const hash = location.hash.slice(1);
+			switchRooms({ name: hash, type: 'private'});
+			const index = rooms.map((room) => { return (room.name) }).indexOf(hash);
+			setValue(index);
+		}
+	// eslint-disable-next-line
+	}, [location.hash, rooms]) // switchRooms in dependancy creates a glitch
 
 	React.useEffect(() => {
 		subscribeToAutoSwitchRoom((data) => {

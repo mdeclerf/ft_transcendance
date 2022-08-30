@@ -33,7 +33,6 @@ export function CustomAvatar (props: ICustomAvatarProps) {
 
 	useEffect(() => {
 		socket.on('color_change', (message:UpdateStatus) => {
-			console.log(`in use effect ${message.user.status}`)
 			if (message.user.id === user?.id)
 			{
 				if (message.status === "online") setStatusColor('#44b700');

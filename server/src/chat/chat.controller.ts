@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Inject, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
-import { CreateRoomDto } from 'src/typeorm';
+import { CreateRoomDto, User } from 'src/typeorm';
 import { AuthenticatedGuard } from '../auth/guards/intra-oauth.guard';
 import { ChatService } from './chat.service';
 import { PasswordDto } from '../utils/password.dto';
@@ -7,22 +7,28 @@ import * as bcrypt from 'bcrypt';
 import { RequestWithUser } from 'src/utils/types';
 import { Response } from 'express';
 import { ChannelOwner} from '../utils/channelOwner.dto';
+import { UserService } from 'src/user/user.service';
+import { ChatGateway } from './chat.gateway';
 
 @Controller('chat')
 export class ChatController {
 
 	constructor(
 		@Inject(ChatService) private readonly chatService: ChatService,
+		@Inject(UserService) private readonly userService: UserService,
+		private readonly chatGateway: ChatGateway,
 	) {}
 
 	@Get('get_rooms')
 	@UseGuards(AuthenticatedGuard)
 	async getRooms(@Req() req: RequestWithUser) {
 		const rooms = await this.chatService.getActiveRooms(req.user.id);
+		// console.log(rooms);
 		return rooms;
 	}
 
 	@Get('rooms/:room_name/messages')
+	@UseGuards(AuthenticatedGuard)
 	async getRoomMessages(@Param('room_name') room_name: string, @Req() req: RequestWithUser) {
 		const room = await this.chatService.getRoomByName(room_name);
 		return this.chatService.getRoomMessages(room.id, req.user);
@@ -78,5 +84,16 @@ export class ChatController {
 		const currentRoom = await this.chatService.getRoomByName(room_name);
 		const chatUser = await this.chatService.getUserByName(username);
 		return this.chatService.getChatUserStatus(chatUser, currentRoom);
+	}
+
+	@Get('rooms/check_dm')
+	@UseGuards(AuthenticatedGuard)
+	async checkDM(@Query('user') userId: number, @Req() req: RequestWithUser) {
+		const user = await this.userService.findUserById(userId);
+		const ret = await this.chatService.checkIfDmRoomExists(req.user, user);
+		if (ret.created) {
+			this.chatGateway.server.to(user.socketId).emit('new_room', { name: ret.name });
+		}
+		return ret.name;
 	}
 }
