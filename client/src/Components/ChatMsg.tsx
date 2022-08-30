@@ -117,10 +117,17 @@ export function ChatMsg (props: IChatMsgProps) {
 						{owner && !isHeAdmin && <MenuItem onClick={() => 
 						{
 							if (user && room) {
-								socket.emit("add_admin", {user_id: user.id, room_name: room.name, status: 'admin'});
+								socket.emit("set_status", {user_id: user.id, room_name: room.name, status: 'admin'});
 							}
 							setAnchorEl(null);
 						}} >Add admin</MenuItem>}
+						{owner && isHeAdmin && <MenuItem onClick={() => 
+						{
+							if (user && room) {
+								socket.emit("set_status", {user_id: user.id, room_name: room.name, status: 'user'});
+							}
+							setAnchorEl(null);
+						}} >Remove admin</MenuItem>}
 					</Menu>
 				</Grid>
 			)}

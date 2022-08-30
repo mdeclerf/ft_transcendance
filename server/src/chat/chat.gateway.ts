@@ -67,14 +67,14 @@ export class ChatGateway
 		// client.emit('room_users', users);
 	}
 
-	@SubscribeMessage('add_admin')
-	async addAdmin(client: Socket, chat_user: SetUserStatusDto) {
+	@SubscribeMessage('set_status')
+	async setStatus(client: Socket, chat_user: SetUserStatusDto) {
 		if (chat_user.user_id && chat_user.room_name) {
 			const chatUser = await this.chatService.getUserById(chat_user.user_id);
 			const currentRoom = await this.chatService.getRoomByName(chat_user.room_name);
 			if (chatUser && currentRoom)
-				if (await this.chatService.updateStatus(chatUser, currentRoom, 'admin'))
-					this.server.to(chatUser.socketId).emit('admin_added');
+				if (await this.chatService.updateStatus(chatUser, currentRoom, chat_user.status))
+					this.server.to(chatUser.socketId).emit(`${chat_user.status}_added`);
 		}
 	}
 
