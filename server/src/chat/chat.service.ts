@@ -4,7 +4,6 @@ import { Blocklist, Chat, ChatUser, CreateChatDto, CreateChatUserDto, CreateRoom
 import { Repository } from 'typeorm';
 import { PasswordDto } from 'src/utils/password.dto';
 import { v4 as uuidv4 } from 'uuid';
-import { ChannelOwner } from 'src/utils/channelOwner.dto';
 import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
 
 @Injectable()
@@ -93,11 +92,22 @@ export class ChatService {
 	}
 
 	async getActiveRooms(userId: number) {
-		return await this.roomRepo.createQueryBuilder('room')
+		const ret = await this.roomRepo.createQueryBuilder('room')
 			.leftJoinAndSelect('room.chat_user', 'chat_user')
 			.where('chat_user.user_id = :id', { id: userId })
 			.orderBy('chat_user.join_date', 'ASC')
 			.getMany();
+		const ret_with_user = await Promise.all(ret.map( async (room) => {
+			const user = await this.userRepo.createQueryBuilder('user')
+				.leftJoin('user.chat_user', 'chat_user')
+				.leftJoin('chat_user.room', 'room')
+				.where('room.type = :type', { type: 'private'})
+				.andWhere('chat_user.room_id = :room_id', { room_id: room.id })
+				.andWhere('chat_user.user_id != :user_id', { user_id: userId})
+				.getOne();
+			return { name : room.name, type : room.type, DM_user : user?.username}
+		}));
+		return ret_with_user;
 	}
 
 	async getRoomOrCreate(name: string): Promise<Room> {
@@ -178,9 +188,9 @@ export class ChatService {
 			const createdRoom = await this.createRoom({ name: uuidv4(), type: 'private', hash: '' });
 			this.createChatUserIfNotExists({ user_id: user1.id, room_id: createdRoom.id, status: 'user' });
 			this.createChatUserIfNotExists({ user_id: user2.id, room_id: createdRoom.id, status: 'user' });
-			return { created: true, name: createdRoom.name};
+			return { created: true, room : {name: createdRoom.name, type: createdRoom.type, DM_user: user1}};
 		} else {
-			return { created: false, name: room.name };
+			return { created: false, room : {name: room.name, type: room.type, DM_user: user1}};
 		}
 	}
 

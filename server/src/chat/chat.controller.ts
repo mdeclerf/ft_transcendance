@@ -92,8 +92,8 @@ export class ChatController {
 		const user = await this.userService.findUserById(userId);
 		const ret = await this.chatService.checkIfDmRoomExists(req.user, user);
 		if (ret.created) {
-			this.chatGateway.server.to(user.socketId).emit('new_room', { name: ret.name });
+			this.chatGateway.server.to(user.socketId).emit('new_room', ret.room);
 		}
-		return ret.name;
+		return ret.room;
 	}
 }

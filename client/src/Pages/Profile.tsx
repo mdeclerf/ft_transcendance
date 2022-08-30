@@ -1,7 +1,7 @@
 import { Box, Button, Grid, List, ListItem, ListItemText, Tooltip, Typography } from "@mui/material/";
 import React from "react";
 import { ProfileDiv } from "../utils/styles";
-import { Game, User, Result } from "../utils/types";
+import { Game, User, Result, Room } from "../utils/types";
 import { VictoryPie } from "victory-pie";
 import { CustomAvatar } from "../Components/CustomAvatar";
 import { useFetchCurrentUser } from "../utils/hooks/useFetchCurrentUser";
@@ -92,9 +92,9 @@ export const Profile = (props: IProfileProps) => {
 	}
 
 	const handleDM = async () => {
-		axios.get<string>(`http://localhost:3001/api/chat/rooms/check_dm?user=${user?.id}`, { withCredentials: true})
+		axios.get<Room>(`http://localhost:3001/api/chat/rooms/check_dm?user=${user?.id}`, { withCredentials: true})
 			.then(res => {
-				window.location.href = `http://localhost:3000/chat#${res.data}`;
+				window.location.href = `http://localhost:3000/chat#${res.data.name}`;
 			});
 	}
 
