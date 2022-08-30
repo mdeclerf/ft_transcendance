@@ -41,7 +41,6 @@ export function Chat (props: IChatProps) {
 	// eslint-disable-next-line
 	}, [])
 
-	// switch switch room in the backend when it changes in the frontend
 	useEffect(() => {
 		getChatUserStatus().then((res: string | undefined) => {
 			if (res) {
@@ -128,6 +127,7 @@ export function Chat (props: IChatProps) {
 	useEffect(() => {
 		handleAdmin(room.name);
 		handleMuted(room.name);
+		handleUser(room.name);
 	}, [admin, room.name]);
 	
 	const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -138,6 +138,15 @@ export function Chat (props: IChatProps) {
 		socket.on('muted_added', data => {
 			if (name === data) {
 				setMute(true);
+			}
+		})
+	}
+
+	const handleUser = (name: string) => {
+		socket.on('user_added', data => {
+			if (name === data) {
+				setMute(false);
+				setAdmin(false);
 			}
 		})
 	}

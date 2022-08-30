@@ -51,6 +51,7 @@ function Canvas(props: ICanvasProps) {
 	const [dialogOpen, setDialogOpen] = useState<boolean>(false);
 	const [ratio, setRatio] = useState<number>(1);
 	const [againstU, setAgainstU] = useState<boolean>(false);
+	const [invitationDeclined, setInvitationDeclined] = useState<boolean>(false);
 	const [back, setBack] = useState<string>("https://img.freepik.com/free-photo/white-paper-texture_1194-5998.jpg?w=1380&t=st=1659519955~exp=1659520555~hmac=a499219d876edb294bdebf8e768cddf59069e34d1c6f9ae680be92b4f17d7e92");
 
 	//////////////
@@ -120,6 +121,10 @@ function Canvas(props: ICanvasProps) {
 		socket.on('already_in_queue', (message:string) => {
 			setDisabled(true);
 			setAgainstU(true);
+		});
+
+		socket.on('invitation_declined', (message:string) => {
+			setInvitationDeclined(true);
 		});
 
 	}, [user]);
@@ -204,10 +209,17 @@ function Canvas(props: ICanvasProps) {
 		<Stack spacing={2}>
 		<br></br>
 
-		{(location.pathname === "/chatmode" && !isRunning && firstPScore === "0" && secondPScore === "0") &&
+		{(location.pathname === "/chatmode" && !isRunning && firstPScore === "0" && secondPScore === "0" && !invitationDeclined) &&
 			<Box justifyContent='center' sx={{ display: 'flex', }}>
 				<CircularProgress />
 			</Box>
+		}
+
+		{(location.pathname === "/chatmode" && !isRunning && firstPScore === "0" && secondPScore === "0" && invitationDeclined) &&
+			<>
+			<Alert severity="info">The person you invited declined the invitation...</Alert>
+			<Button component={Link} to="/" variant="contained" >Come back to the home page</Button>
+			</>
 		}
 
 		{(location.pathname === "/chatmode" && !isRunning && (firstPScore === winning_score || secondPScore === winning_score || disconnection)) &&

@@ -207,7 +207,7 @@ class Pong {
 			this.userService.setStatus(this.first_player.user.id, b ? 'offline' : 'online');
 			this.wss.sockets.emit("color_change", { status: b ? 'offline' : 'online', user: this.first_player.user});
 
-			if (this.second_player.user)
+			if (this.second_player && this.second_player.user)
 			{
 				this.userService.setStatus(this.second_player.user.id, 'online');
 				this.wss.sockets.emit("color_change", { status: 'online', user: this.second_player.user});
@@ -224,7 +224,7 @@ class Pong {
 			this.userService.setStatus(this.second_player.user.id, b ? 'offline' : 'online');
 			this.wss.sockets.emit("color_change", { status: b ? 'offline' : 'online', user: this.second_player.user});
 
-			if (this.first_player.user)
+			if (this.first_player && this.first_player.user)
 			{
 				this.wss.sockets.emit("color_change", { status: 'online', user: this.first_player.user});
 				this.userService.setStatus(this.first_player.user.id, 'online');
