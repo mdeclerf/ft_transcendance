@@ -53,8 +53,8 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 			axios.get<'public' | 'protected' | 'private'>(`http://localhost:3001/api/chat/rooms/${searchQuery}/type`, { withCredentials: true })
 				.then(res => {
 					setRoomType(res.data);
-					if (roomType === 'protected' && password !== '') {
-						axios.post('http://localhost:3001/api/chat/check_password', { name: searchQuery, password })
+					if (res.data === 'protected' && password !== '') {
+						axios.post('http://localhost:3001/api/chat/check_password', { name: searchQuery, password }, { withCredentials: true })
 							.then(() => {
 								setDialogOpen(false);
 								setPassAuthenticated(true);
@@ -63,7 +63,7 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 								setIncorrect(true);
 								setPassword("");
 							})
-					} else if (roomType === 'public') {
+					} else if (res.data === 'public') {
 						// console.log('here');
 						socket.emit('room_join', searchQuery);
 						setDialogOpen(false);
@@ -88,6 +88,13 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 
 	const handleClose = () => {
 		handleClick();
+	}
+
+	const handleCancel = () => {
+		setDialogOpen(false);
+		setPassword('');
+		setIncorrect(false);
+		setPassAuthenticated(false);
 	}
 
 	return (
@@ -154,7 +161,7 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 					)}
 				</DialogContent>
 				<DialogActions>
-					<Button onClick={handleClose}>Cancel</Button>
+					<Button onClick={handleCancel}>Cancel</Button>
 					<Button onClick={handleClose}>Join</Button>
 				</DialogActions>
 			</Dialog>

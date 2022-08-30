@@ -137,7 +137,6 @@ export class ChatService {
 			user: await this.userRepo.findOneBy({ id: chatUser.user_id}),
 			status: chatUser.status,
 		});
-		// console.log(entry.room);
 		this.chatUserRepo.createQueryBuilder()
 			.insert()
 			.orIgnore()
@@ -151,10 +150,17 @@ export class ChatService {
 		return this.roomRepo.update(room.id, { hash: data.password, type: 'protected' });
 	}
 
-	async complete(query: string) {
-		const result = await this.roomRepo.createQueryBuilder()
-			.where('name like :name', { name: `%${query}%` })
+	async complete(query: string, user: User) {
+		const alreadyJoined = (await this.chatUserRepo.find({ where: { user }})).map((chatUser) => {
+			return (chatUser.room.id);
+		})
+
+		const result = await this.roomRepo.createQueryBuilder('room')
+			.where('room.id NOT IN :(...ids)', { ids: alreadyJoined })
+			.andWhere('room.name LIKE :query', { query: `%${query}%` })
 			.getMany();
+
+		console.log(result);
 
 		return result.map(({ name, type }) => {
 			return ({ name, type })

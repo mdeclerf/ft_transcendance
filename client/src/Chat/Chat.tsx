@@ -1,7 +1,6 @@
 import { CircularProgress } from '@mui/material';
 import axios from 'axios';
-import React, { useEffect, useRef } from 'react';
-import { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { VerticalTabs } from '../Components/VerticalTabs';
 // import { socket } from '../socket';
 import { useFetchCurrentUser } from '../utils/hooks/useFetchCurrentUser';
@@ -23,7 +22,7 @@ export function Chat (props: IChatProps) {
 	const [messagesLoading, setMessagesLoading] = useState(true);
 	const [roomsLoading, setRoomsLoading] = useState(true);
 	const [connectedUsers, setConnectedUsers] = useState<User[]>([]);
-	const [ owner, setOwner ] = React.useState<boolean>(true);
+	const [ owner, setOwner ] = useState<boolean>(true);
 
 	const prevRoomRef = useRef<Room>();
 	useEffect(() => {
@@ -40,6 +39,10 @@ export function Chat (props: IChatProps) {
 
 	// switch switch room in the backend when it changes in the frontend
 	useEffect(() => {
+		amIOwner().then((res: boolean) => {
+			setOwner(res);
+		});
+
 		if (!socketLoading) {
 			if (prevRoom && room) {
 				switchRoom(prevRoom.name, room.name);
@@ -51,7 +54,7 @@ export function Chat (props: IChatProps) {
 			}
 		}
 	// eslint-disable-next-line
-	}, [room, socketLoading]);
+	}, [room, socketLoading, owner]);
 
 	// get available rooms
 	useEffect(() => {

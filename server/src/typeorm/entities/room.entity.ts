@@ -23,9 +23,9 @@ export class Room {
 	@UpdateDateColumn({ type: 'timestamp' })
 	public updated_at!: Date;
 
-	@OneToMany(() => Chat, (chat) => chat.room)
+	@OneToMany(() => Chat, (chat) => chat.room, { onDelete: 'CASCADE' })
 	chat: Chat[];
 
-	@OneToMany(() => ChatUser, (chat_user) => chat_user.room)
+	@OneToMany(() => ChatUser, (chat_user) => chat_user.room, { onDelete: 'CASCADE' })
 	chat_user : ChatUser[];
 }

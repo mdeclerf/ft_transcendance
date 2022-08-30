@@ -6,13 +6,14 @@ import { PasswordDto } from '../utils/password.dto';
 import * as bcrypt from 'bcrypt';
 import { RequestWithUser } from 'src/utils/types';
 import { Response } from 'express';
-import { ChannelOwner} from '../utils/channelOwner.dto';
+import { ChatGateway } from './chat.gateway';
 
 @Controller('chat')
 export class ChatController {
 
 	constructor(
 		@Inject(ChatService) private readonly chatService: ChatService,
+		@Inject(ChatGateway) private readonly chatGateway: ChatGateway,
 	) {}
 
 	@Get('get_rooms')
@@ -30,8 +31,8 @@ export class ChatController {
 
 	@Get('rooms/complete')
 	@UseGuards(AuthenticatedGuard)
-	complete(@Query('q') query: string) {
-		return this.chatService.complete(query);
+	complete(@Query('q') query: string, @Req() req: RequestWithUser) {
+		return this.chatService.complete(query, req.user);
 	}
 
 	@Get('rooms/:room_name/type')
@@ -63,10 +64,13 @@ export class ChatController {
 	}
 
 	@Post('check_password')
-	async checkPassword(@Body() data: PasswordDto, @Res() res: Response) {
+	@UseGuards(AuthenticatedGuard)
+	async checkPassword(@Body() data: PasswordDto, @Res() res: Response, @Req() req: RequestWithUser) {
 		const hashedPassword = bcrypt.hashSync(data.password, '$2a$10$CwTycUXWue0Thq9StjUM0u');
 		const { hash: roomHash } = await this.chatService.getRoomByName(data.name);
 		if (roomHash === hashedPassword) {
+			const client = this.chatGateway.server.sockets.sockets.get(req.user.socketId);
+			this.chatGateway.roomJoin(client, data.name);
 			return res.status(200).send();
 		} else {
 			return res.status(401).send();
