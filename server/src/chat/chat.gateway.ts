@@ -95,7 +95,6 @@ export class ChatGateway
 	async messageSend(client: Socket, message: CreateChatDto) {
 		const currentRoom = await this.chatService.getRoomByName(message.room.name);
 		const status = await this.chatService.getChatUserStatus(message.user, currentRoom);
-		console.log(status);
 		if (status !== "muted")
 		{
 			this.chatService.createMessage(message);
