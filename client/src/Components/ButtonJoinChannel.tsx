@@ -86,6 +86,7 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 	}
 
 	const handleClose = () => {
+		setDialogOpen(false);
 		handleClick();
 	}
 
