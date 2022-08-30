@@ -45,7 +45,6 @@ export function Chat (props: IChatProps) {
 	useEffect(() => {
 		getChatUserStatus().then((res: string | undefined) => {
 			if (res) {
-				console.log(res);
 				if (res === 'owner') {
 					setOwner(true);
 					setAdmin(true);

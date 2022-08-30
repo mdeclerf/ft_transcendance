@@ -11,9 +11,9 @@ import { ButtonJoinChannel } from './ButtonJoinChannel';
 import { useLocation } from 'react-router-dom';
 import ThreePIcon from '@mui/icons-material/ThreeP';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
-import axios from 'axios';
 
 interface ITabPanelProps {
+	mute: boolean;
 	owner: boolean;
 	title: string | undefined;
 	children?: React.ReactNode;
@@ -29,7 +29,7 @@ interface ITabPanelProps {
 }
 
 const TabPanel = (props: ITabPanelProps) => {
-	const { owner, title, message, children, value, index, messageChange, messageSend, roomUsers, currentUser} = props; // isProtected, passAuthenticated
+	const { mute, owner, title, message, children, value, index, messageChange, messageSend, roomUsers, currentUser} = props; // isProtected, passAuthenticated
 	const divRef = React.useRef<HTMLDivElement>(null);
 
 	const handleInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -60,23 +60,31 @@ const TabPanel = (props: ITabPanelProps) => {
 	}
 
 	const getChatAndInput = () => {
-		// if (isProtected && !passAuthenticated) {
-		// 	return <Box sx={{ flexGrow: 1, display: 'flex', justifyContent: 'center', alignItems: 'center' }} ><CircularProgress /></Box>
-		// } else {
-			return (
-				<>
-					<div style={{ flexGrow: 1, maxHeight: '80vh', overflowY: 'auto' }} ref={divRef}>
-						{children}
-					</div>
-					<form style={{ flexGrow: 0, display: 'flex', flexDirection: 'row' }}>
-							<TextField sx={{ flexGrow: 1 }} onChange={messageChange} value={message} onKeyDown={handleInput} autoComplete="off"/>
-							<Button variant="outlined" onClick={messageSend}>
-								<SendIcon />
-							</Button>
-					</form>
-				</>
-			)
-		// }
+		let defaultText;
+		let disable;
+		if (mute)
+		{
+			defaultText = "You are muted in this channel";
+			disable = true;
+		}
+		else
+		{
+			defaultText = "";
+			disable = false;
+		}
+		return (
+			<>
+				<div style={{ flexGrow: 1, maxHeight: '80vh', overflowY: 'auto' }} ref={divRef}>
+					{children}
+				</div>
+				<form style={{ flexGrow: 0, display: 'flex', flexDirection: 'row' }}>
+						<TextField sx={{ flexGrow: 1 }} disabled={disable} onChange={messageChange} placeholder={defaultText} value={message} onKeyDown={handleInput} autoComplete="off"/>
+						<Button variant="outlined" onClick={messageSend}>
+							<SendIcon />
+						</Button>
+				</form>
+			</>
+		)
 	}
 
 	return (
@@ -242,6 +250,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 			{rooms.map((room, i) => {
 				return (
 					<TabPanel
+						mute={mute}
 						owner={owner}
 						title={room.type === "private" ? room.DM_user : room.name}
 						value={value}

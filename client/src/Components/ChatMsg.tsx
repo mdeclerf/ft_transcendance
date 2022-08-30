@@ -147,13 +147,6 @@ export function ChatMsg (props: IChatMsgProps) {
 							}
 							setAnchorEl(null);
 						}} >Mute</MenuItem>}
-						{admin && isHeMute && <MenuItem onClick={() => 
-						{
-							if (user && room) {
-								socket.emit("set_status", {user_id: user.id, room_name: room.name, status: 'user'});
-							}
-							setAnchorEl(null);
-						}} >Unmute</MenuItem>}
 					</Menu>
 				</Grid>
 			)}
