@@ -74,6 +74,8 @@ export class ChatController {
 		const { hash: roomHash } = await this.chatService.getRoomByName(data.name);
 		if (roomHash === hashedPassword) {
 			const client = this.chatGateway.server.sockets.sockets.get(req.user.socketId);
+			if (!client)
+				return res.status(401).send();
 			this.chatGateway.roomJoin(client, data.name);
 			return res.status(200).send();
 		} else {

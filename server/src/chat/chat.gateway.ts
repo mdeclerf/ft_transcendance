@@ -39,6 +39,8 @@ export class ChatGateway
 	async roomInactive(client: Socket, room_name: string) {
 		client.leave(room_name);
 		const currentUser = await this.userService.findUserBySocketId(client.id);
+		if (!currentUser)
+			return;
 		client.broadcast.to(room_name).emit('room_user_inactive', currentUser);
 		console.log(`${currentUser.username} left ${room_name}`);
 	}
@@ -70,6 +72,8 @@ export class ChatGateway
 	async roomCreated(client: Socket, room: string) {
 		client.emit('new_room', { name: room });
 		const currentUser = await this.userService.findUserBySocketId(client.id);
+		if (!currentUser)
+			return;
 		const rooms = await this.chatService.getActiveRooms(currentUser.id);
 		let index = 0;
 		for (let i = 0; i < rooms.length; i++) {
