@@ -71,8 +71,8 @@ class Pong {
 	ball_y: number = CANVAS_HEIGHT / 2;
 	ball_angle: number = random_ball();
 	spectator: Player[] = [];
-	winning_score: number = 6;
-	ball_speed: number = 12;
+	winning_score: number = 4;
+	ball_speed: number = 10;
 	mode: string = "";
 	removed: boolean = false;
 

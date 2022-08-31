@@ -5,6 +5,7 @@ import { Repository, UpdateResult } from 'typeorm';
 import { PasswordDto } from 'src/utils/password.dto';
 import { v4 as uuidv4 } from 'uuid';
 import { SchedulerRegistry } from '@nestjs/schedule';
+import { ChatGateway } from './chat.gateway';
 
 @Injectable()
 export class ChatService {
@@ -15,7 +16,7 @@ export class ChatService {
 		@InjectRepository(User) private readonly userRepo: Repository<User>,
 		@InjectRepository(Blocklist) private readonly blockRepo: Repository<Blocklist>,
 		@InjectRepository(ChatUser) private readonly chatUserRepo: Repository<ChatUser>,
-		private schedulerRegistry: SchedulerRegistry
+		private schedulerRegistry: SchedulerRegistry,
 	) {
 		this.roomRepo.upsert({ name: 'general', type: 'public' }, ["name"]);
 	}
@@ -127,7 +128,7 @@ export class ChatService {
 		return this.roomRepo.save(room);
 	}
 
-	async getChatUserStatus(chatUser: User, currentRoom: Room): Promise<string> {
+	async getChatUserStatus(chatUser: User, currentRoom: Room) {
 		if (!chatUser || !currentRoom) return;
 		const chatU = await this.chatUserRepo.findOne({
 			where: {
@@ -138,7 +139,7 @@ export class ChatService {
 		if (!chatU) {
 			return ;
 		}
-		return chatU.status;
+		return { status: chatU.status, time: chatU.expirationDate};
 	}
 
 	async updateStatus(user: User, currentRoom: Room, newStatus: "user" | "owner" | "admin" | "muted" | "banned", time: '60000' | '300000' | '3600000'): Promise<boolean> {
@@ -150,15 +151,16 @@ export class ChatService {
 		});
 		if (!chatUser)
 			return false;
-		const updatedStatus = await this.chatUserRepo.update(chatUser.id, {status: newStatus});
+		const currentTime = new Date;
+		const updatedStatus = await this.chatUserRepo.update(chatUser.id, {status: newStatus, expirationDate: new Date(currentTime.getTime() + parseInt(time))});
 		if (updatedStatus && (newStatus === 'muted' || newStatus === 'banned')) {
 			const callback = () => {
 				this.chatUserRepo.update(chatUser.id, { status: 'user', expirationDate: null });
-				this.schedulerRegistry.deleteTimeout(`${user.username}-${newStatus}`);
+				this.schedulerRegistry.deleteTimeout(`${user.username}-${newStatus}-${currentRoom.name}`);
 			}
 
 			const timeout = setTimeout(callback, parseInt(time));
-			this.schedulerRegistry.addTimeout(`${user.username}-${newStatus}`, timeout);
+			this.schedulerRegistry.addTimeout(`${user.username}-${newStatus}-${currentRoom.name}`, timeout);
 			return true;
 		}
 		if (updatedStatus)

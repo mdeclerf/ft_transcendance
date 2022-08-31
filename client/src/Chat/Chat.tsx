@@ -24,9 +24,10 @@ export function Chat (props: IChatProps) {
 	const [messagesLoading, setMessagesLoading] = useState(true);
 	const [roomsLoading, setRoomsLoading] = useState(true);
 	const [connectedUsers, setConnectedUsers] = useState<User[]>([]);
-	const [ owner, setOwner ] = React.useState<boolean>(false);
-	const [ admin, setAdmin ] = React.useState<boolean>(false);
-	const [ mute, setMute ] = React.useState<boolean>(false);
+	const [ owner, setOwner ] = useState<boolean>(false);
+	const [ admin, setAdmin ] = useState<boolean>(false);
+	const [ mute, setMute ] = useState<boolean>(false);
+	const [ banned, setBanned ] = useState(false);
 
 	const prevRoomRef = useRef<Room>();
 	useEffect(() => {
@@ -41,27 +42,35 @@ export function Chat (props: IChatProps) {
 	}, [room.name]);
 
 	useEffect(() => {
-		getChatUserStatus().then((res: string | undefined) => {
+		getChatUserStatus().then((res) => {
+			const currentTime = new Date();
 			if (res) {
-				if (res === 'owner') {
+				setBanned(false);
+				setAdmin(false);
+				setOwner(false);
+				setMute(false);
+				if (res.status === 'owner') {
 					setOwner(true);
 					setAdmin(true);
-					setMute(false);
 				}
-				if (res === 'admin') {
+				if (res.status === 'admin')
 					setAdmin(true);
-					setOwner(false);
-					setMute(false);
-				}
-				if (res === 'user') {
-					setAdmin(false);
-					setOwner(false);
-					setMute(false);
-				}
-				if (res === 'muted') {
-					setAdmin(false);
-					setOwner(false);
+				if (res.status === 'muted') {
+					if (res.time) {
+						setTimeout(() => {
+							setMute(false);
+							console.log('UNMUTED');
+						}, (res.time.getTime() - currentTime.getTime()));
+					}
 					setMute(true);
+				}
+				if (res.status === 'banned') {
+					if (res.time) {
+						setTimeout(() => {
+							setBanned(false);
+						}, (res.time.getTime() - currentTime.getTime()));
+					}
+					setBanned(true);
 				}
 			}
 		});
@@ -149,16 +158,30 @@ export function Chat (props: IChatProps) {
 		handleAdmin(room.name);
 		handleMuted(room.name);
 		handleUser(room.name);
-	}, [admin, room.name]);
+	// eslint-disable-next-line
+	}, [admin]);
 	
 	const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setMessage(event.target.value);
 	}
 
 	const handleMuted = (name: string) => {
-		socket.on('muted_added', data => {
-			if (name === data) {
+		socket.on('muted_added', (data: { name: string, time: string}) => {
+			console.log(`name: ${name} | data.name: ${data.name} | data.time: ${data.time}`);
+			if (name === data.name) {
 				setMute(true);
+				setTimeout(() => {
+					setMute(false);
+					console.log('UNMUTED');
+				}, parseInt(data.time));
+			}
+		})
+	}
+
+	const handleBanned = (name: string) => {
+		socket.on('banned_added', data => {
+			if (name === data) {
+				setBanned(true);
 			}
 		})
 	}
@@ -201,10 +224,10 @@ export function Chat (props: IChatProps) {
 		setRoom(targetRoom);
 	}
 
-	async function getChatUserStatus(): Promise<string | undefined> {
+	async function getChatUserStatus() {
 		if (user && room)
 		{
-			const response = await axios.get<string>(`http://localhost:3001/api/chat/rooms/${room.name}/${user.username}/get_chat_user_status`, { withCredentials: true });
+			const response = await axios.get<{ status: string, time: Date}>(`http://localhost:3001/api/chat/rooms/${room.name}/${user.username}/get_chat_user_status`, { withCredentials: true });
 			if (response)
 				return response.data;
 		}

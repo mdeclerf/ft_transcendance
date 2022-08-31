@@ -58,7 +58,7 @@ export class ChatGateway
 			const currentRoom = await this.chatService.getRoomByName(chat_user.room_name);
 			if (user && currentRoom) {
 				if (await this.chatService.updateStatus(user, currentRoom, chat_user.status, chat_user.time))
-					this.server.to(user.socketId).emit(`${chat_user.status}_added`, chat_user.room_name);
+					this.server.to(user.socketId).emit(`${chat_user.status}_added`, { name: chat_user.room_name, time: chat_user.time});
 			}
 		}
 	}
@@ -86,7 +86,7 @@ export class ChatGateway
 	async leaveChannel(client: Socket, data: LeaveChannelDto) {
 		const room = await this.chatService.getRoomByName(data.room);
 		if (!room || room.name === 'general') return;
-		const status = await this.chatService.getChatUserStatus(data.user, room);
+		const { status } = await this.chatService.getChatUserStatus(data.user, room);
 		if (!status) return;
 
 		if (status === 'owner')
@@ -129,7 +129,7 @@ export class ChatGateway
 	@SubscribeMessage('message_send')
 	async messageSend(client: Socket, message: CreateChatDto) {
 		const currentRoom = await this.chatService.getRoomByName(message.room.name);
-		const status = await this.chatService.getChatUserStatus(message.user, currentRoom);
+		const { status } = await this.chatService.getChatUserStatus(message.user, currentRoom);
 		if (status !== "muted")
 		{
 			this.chatService.createMessage(message);

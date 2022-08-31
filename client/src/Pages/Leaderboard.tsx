@@ -49,9 +49,9 @@ export const LeaderBoard = (props: IBoardProps) => {
 				<ListItemText
 					sx={{ fontFamily: 'Work Sans, sans-serif', fontSize: 70, color: 'black'}}
 					primary={`${player.username} 
-                         | Succes ratio: ${Math.round(ratio * 100) / 100}
-                         | Number of matches won: ${victories}
-                         | Number of matches lost: ${losses}`}
+                         | Win ratio: ${Math.round(ratio * 100) / 100}
+                         | Wins: ${victories}
+                         | Losses: ${losses}`}
 				/>
 			</ListItem>
 		)
