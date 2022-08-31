@@ -58,11 +58,12 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 
 	// There's still a bug with password protection on channels. A user can join a channel that is protected without entering a password...
 	const handleClick = async () => {
-		if (searchQuery) {
+		if (searchQuery !== '') {
 			axios.get<'public' | 'protected' | 'private'>(`http://localhost:3001/api/chat/rooms/${searchQuery}/type`, { withCredentials: true })
 				.then(res => {
 					setRoomType(res.data);
 					if (res.data === 'protected' && password !== '') {
+						console.log('here');
 						axios.post('http://localhost:3001/api/chat/check_password', { name: searchQuery, password }, { withCredentials: true })
 							.then(() => {
 								fetchChatUserStatus().then((res: string | undefined) => {
@@ -74,6 +75,7 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 								});
 								setIncorrect(false);
 								setPassword('');
+								console.log(`room_join - protected ${searchQuery}`);
 								socket.emit('room_join', searchQuery);
 								switchRooms({ name: searchQuery, type: res.data});
 								setDialogOpen(false);

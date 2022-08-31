@@ -5,7 +5,7 @@ import { VerticalTabs } from '../Components/VerticalTabs';
 import { getIsBlocked } from '../utils/api';
 import { socket } from '../socket';
 import { useFetchCurrentUser } from '../utils/hooks/useFetchCurrentUser';
-import { fetchRoomMessages, fetchRooms, leaveChat, sendMessage, subscribeToMessages, subscribeToNewRoom, subscribeToRoomUserJoin, subscribeToRoomUserLeave, subscribeToRoomUserList, switchRoom } from '../utils/socket_helpers';
+import { fetchRoomMessages, fetchRooms, leaveChat, sendMessage, subscribeToDeleteRoom, subscribeToMessages, subscribeToNewRoom, subscribeToRoomUserJoin, subscribeToRoomUserLeave, subscribeToRoomUserList, subscribeToUpdateRoom, switchRoom } from '../utils/socket_helpers';
 import { CenteredDiv } from '../utils/styles';
 import { Message, Room, User } from '../utils/types';
 
@@ -107,6 +107,29 @@ export function Chat (props: IChatProps) {
 		subscribeToNewRoom((data) => {
 			setRooms((oldRooms) => [...oldRooms, data]);
 		});
+
+		subscribeToUpdateRoom((data) => {
+			setRooms((currRooms) => {
+				const nextRooms = [...currRooms];
+				for (const room of nextRooms) {
+					if (room.name === data.name) {
+						room.name = data.name;
+						room.type = data.type;
+						room.DM_user = data.DM_user;
+					}
+				}
+				return nextRooms;
+			})
+		});
+
+		subscribeToDeleteRoom((data) => {
+			setRooms((currRooms) => {
+				const nextRooms = [...currRooms];
+				const idx = nextRooms.findIndex(room => room.name === data.name);
+				if (idx > -1) nextRooms.splice(idx, 1);
+				return nextRooms;
+			})
+		})
 	// eslint-disable-next-line
 	}, []);
 

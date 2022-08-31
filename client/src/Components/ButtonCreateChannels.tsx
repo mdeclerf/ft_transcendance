@@ -49,7 +49,7 @@ function SimpleDialog(props: SimpleDialogProps) {
 					setTaken(true);
 				else {
 					setOpen(false);
-					socket.emit('room_created', name);
+					socket.emit('room_created', { name, type: 'public' });
 					switchRooms({ name, type: 'public' });
 				}
 			})

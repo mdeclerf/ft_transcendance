@@ -64,15 +64,15 @@ export class ChatGateway
 	}
 	
 	@SubscribeMessage('room_created')
-	async roomCreated(client: Socket, room: string) {
-		client.emit('new_room', { name: room });
+	async roomCreated(client: Socket, room: { name: string, type: 'public' | 'private' | 'protected'}) {
+		client.emit('new_room', { name: room.name, type: room.type });
 		this.userService.findUserBySocketId(client.id).then((currentUser) => {
 			if (!currentUser)
 				return ;
 			this.chatService.getActiveRooms(currentUser.id).then((rooms) => {	
 				let index = 0;
 				for (let i = 0; i < rooms.length; i++) {
-					if (rooms[i].name === room) {
+					if (rooms[i].name === room.name) {
 						index = i;
 						break;
 					}
@@ -97,17 +97,17 @@ export class ChatGateway
 
 	@SubscribeMessage('room_join')
 	async roomJoin(client: Socket, room_name: string) {
-		const currentUser = await this.userService.findUserBySocketId(client.id);
-		const room_entry = await this.chatService.getRoomByName(room_name);
-		if (currentUser) {
-			this.chatService.createChatUserIfNotExists({ room_id: room_entry.id, user_id: currentUser.id, status: 'user'})
-				.then((res) => {
-					if (!res) {
-						this.roomCreated(client, room_name);
-						// this.roomActive(client, room_name);
-					}
+		this.userService.findUserBySocketId(client.id).then((currentUser) => {
+			if (currentUser) {
+				this.chatService.getRoomByName(room_name).then((room_entry) => {
+					this.chatService.createChatUserIfNotExists({ room_id: room_entry.id, user_id: currentUser.id, status: 'user'}).then((res) => {
+						if (res.identifiers[0] !== undefined) {
+							this.roomCreated(client, room_entry);
+						}
+					})
 				})
-		}
+			}
+		})
 	}
 	
 	@SubscribeMessage('message_send')

@@ -21,7 +21,7 @@ function SettingsDialog(props: SettingsDialogProps) {
 	const handleClose = () => {
 		setOpen(false);
 		if (password !== '')
-			axios.post("http://localhost:3001/api/chat/set_password", {password: password, name: room})
+			axios.post("http://localhost:3001/api/chat/set_password", {password: password, name: room}, { withCredentials: true })
 				.catch(err => {
 					;
 				})
@@ -33,6 +33,13 @@ function SettingsDialog(props: SettingsDialogProps) {
 		setPassword("");
 	};
 
+	const handleEnter = (event: React.KeyboardEvent<HTMLInputElement>) => {
+		if (event.key === 'Enter') {
+			event.preventDefault();
+			handleClose();
+		}
+	}
+
 	return (
 		<Dialog onClose={handleCancel} open={open}>
 			<DialogTitle>Set up</DialogTitle>
@@ -40,7 +47,7 @@ function SettingsDialog(props: SettingsDialogProps) {
 				<DialogContentText>
 					Set up your channel
 				</DialogContentText>
-				<TextField value={password} onChange={handleChangePassword} label="Set password" autoFocus margin="normal" variant="standard" fullWidth sx={{mb:2}}/>
+				<TextField value={password} onChange={handleChangePassword} onKeyDown={handleEnter} type="password" label="Set password" autoFocus margin="normal" variant="standard" fullWidth sx={{mb:2}}/>
 				<Divider />
 				
 			</DialogContent>
