@@ -33,6 +33,14 @@ const random_ball = () => {
 	return Math.random() * Math.PI / 2 - Math.PI / 4 + getRandomInt(2) * Math.PI;
 }
 
+const check_angle = (angle : number ) => {
+	if (angle < 0)
+		return check_angle(angle + (2 * Math.PI));
+	else if (angle > 2 * Math.PI)
+		return check_angle(angle - (2 * Math.PI));
+	return angle;
+}
+
 class Player {
 
 	y_pos: number;
@@ -63,7 +71,7 @@ class Pong {
 	ball_y: number = CANVAS_HEIGHT / 2;
 	ball_angle: number = random_ball();
 	spectator: Player[] = [];
-	winning_score: number = 4;
+	winning_score: number = 6;
 	ball_speed: number = 12;
 	mode: string = "";
 	removed: boolean = false;
@@ -82,19 +90,10 @@ class Pong {
 		}
 	}
 
-	// touch_player(player: Player): boolean {
-	// 	let x: number = player == this.first_player ? PADDLE_MARGIN + PADDLE_WIDTH : CANVAS_WIDTH - PADDLE_WIDTH - PADDLE_MARGIN;
-	// 	const d: number = this.ball_angle + Math.PI;
-	// 	if ((this.first_player == player && (d > Math.PI / 2 && d < Math.PI / 2 * 3)) || (this.second_player == player && !(d > Math.PI / 2 && d < Math.PI / 2 * 3)) )
-	// 		return (false);
-	// 	return ((this.first_player == player && this.ball_x <= x) || (this.second_player == player && this.ball_x >= x))
-	// 	&& (this.ball_y >= player.y_pos && this.ball_y <= player.y_pos + PADDLE_HEIGHT + BALL_SIDE);
-	// }
-
 	touch_player(player: Player): boolean {
 		const x: number = player == this.first_player ? 5 : 670;
-		const d: number = this.ball_angle + Math.PI;
-		if ((this.first_player == player && (d > Math.PI / 2 && d < Math.PI / 2 * 3)) || (this.second_player == player && !(d > Math.PI / 2 && d < Math.PI / 2 * 3)) )
+		const d : number = check_angle(this.ball_angle + Math.PI);
+		if ((this.first_player == player && (d > Math.PI / 2 && d <= Math.PI / 2 * 3)) || (this.second_player == player && !(d > Math.PI / 2 && d <= Math.PI / 2 * 3)))
 			return (false);
 		return (this.ball_x >= x && this.ball_x <= x + 20) && (this.ball_y >= player.y_pos && this.ball_y <= player.y_pos + 70);
 	}
@@ -114,15 +113,15 @@ class Pong {
 			this.ball_angle = random_ball();
 		}
 		if (this.ball_y >= CANVAS_HEIGHT - (BALL_SIDE / 2)) {
-			this.ball_angle = -this.ball_angle;
+			this.ball_angle = check_angle(-this.ball_angle);
 		} else if (this.ball_y <= BALL_SIDE / 2) {
-			this.ball_angle = -this.ball_angle;
+			this.ball_angle = check_angle(-this.ball_angle);
 		}
 		if (this.touch_player(this.first_player)) {
-			this.ball_angle = Math.PI - this.ball_angle;
+			this.ball_angle = check_angle(Math.PI - this.ball_angle);
 		}
 		if (this.touch_player(this.second_player)) {
-			this.ball_angle = Math.PI - this.ball_angle;
+			this.ball_angle = check_angle(Math.PI - this.ball_angle);
 		}
 	}
 

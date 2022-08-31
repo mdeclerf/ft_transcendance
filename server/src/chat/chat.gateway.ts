@@ -90,15 +90,9 @@ export class ChatGateway
 		if (!status) return;
 
 		if (status === 'owner')
-		{
-			console.log("owner")
 			await this.chatService.deleteRoom(room);
-		}
 		else
-		{
-			console.log("not owner")
 			await this.chatService.removeUserFromRoom(data.user, room);
-		}
 	}
 
 	@SubscribeMessage('room_join')
