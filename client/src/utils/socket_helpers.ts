@@ -56,6 +56,7 @@ export const subscribeToDeleteRoom = (callback: (data: Room) => void) => {
 
 	socket.on('delete_room', (data) => {
 		callback(data);
+		// socket.emit('room_join', 'general');
 	})
 }
 

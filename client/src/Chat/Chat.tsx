@@ -129,6 +129,7 @@ export function Chat (props: IChatProps) {
 				if (idx > -1) nextRooms.splice(idx, 1);
 				return nextRooms;
 			})
+			handleSwitchRoom({ name: 'general', type: 'public'});
 		})
 	// eslint-disable-next-line
 	}, []);
@@ -143,8 +144,6 @@ export function Chat (props: IChatProps) {
 			setMessagesLoading(false);
 		});
 	}, []);
-
-
 
 	useEffect(() => {
 		handleAdmin(room.name);

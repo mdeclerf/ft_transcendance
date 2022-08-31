@@ -81,18 +81,34 @@ export class ChatGateway
 			})
 		})
 	}
-	
+
 	@SubscribeMessage('leave_channel')
 	async leaveChannel(client: Socket, data: LeaveChannelDto) {
 		const room = await this.chatService.getRoomByName(data.room);
-		if (!room) return;
+		if (!room || room.name === 'general') return;
 		const status = await this.chatService.getChatUserStatus(data.user, room);
 		if (!status) return;
 
 		if (status === 'owner')
+		{
 			await this.chatService.deleteRoom(room);
+			this.server.to(room.name).emit('autoswitch_room', 0);
+			this.server.emit("delete_room", room);
+			// const roomClients = this.server.sockets.adapter.rooms.get(room.name);
+			// for (const client of roomClients) {
+			// 	const clientSocket = this.server.sockets.sockets.get(client);
+			// 	clientSocket.leave(room.name);
+			// 	clientSocket.join('general');
+			// }
+		}
 		else
+		{
 			await this.chatService.removeUserFromRoom(data.user, room);
+			client.emit('autoswitch_room', 0);
+			client.emit("delete_room", room);
+			// client.leave(room.name);
+			// client.join('general');
+		}
 	}
 
 	@SubscribeMessage('room_join')

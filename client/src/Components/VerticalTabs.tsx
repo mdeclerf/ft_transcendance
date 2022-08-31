@@ -1,5 +1,5 @@
 import SendIcon from '@mui/icons-material/Send';
-import { Avatar, AvatarGroup, Box, Button, Divider, Tab, Tabs, TextField, Tooltip, Typography } from '@mui/material';
+import { /* Avatar, AvatarGroup, Tooltip*/ Box, Button, Divider, Tab, Tabs, TextField, Typography } from '@mui/material';
 import * as React from 'react';
 import { subscribeToAutoSwitchRoom } from '../utils/socket_helpers';
 import { Message, MessageGroup, Room, User } from '../utils/types';
@@ -29,7 +29,7 @@ interface ITabPanelProps {
 }
 
 const TabPanel = (props: ITabPanelProps) => {
-	const { mute, owner, title, message, children, value, index, messageChange, messageSend, roomUsers, currentUser, isPrivate} = props; // isProtected, passAuthenticated
+	const { mute, owner, title, message, children, value, index, messageChange, messageSend, currentUser, isPrivate} = props; // isProtected, passAuthenticated
 	const divRef = React.useRef<HTMLDivElement>(null);
 
 	const handleInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -49,19 +49,19 @@ const TabPanel = (props: ITabPanelProps) => {
 		}
 	}, [children])
 
-	const getFirstFourNonSelfUsers = () => {
-		if (roomUsers.length) {
-			const tmp = roomUsers.filter(user => user && currentUser && user.id !== currentUser.id).slice(0, 3);
+	// const getFirstFourNonSelfUsers = () => {
+	// 	if (roomUsers.length) {
+	// 		const tmp = roomUsers.filter(user => user && currentUser && user.id !== currentUser.id).slice(0, 3);
 
-			return tmp.map((user, i) => {
-				return (
-					<Tooltip title={user.username} key={i}>
-						<Avatar alt={user.username} src={user.photoURL} key={i}/>
-					</Tooltip>
-				)
-			})
-		}
-	}
+	// 		return tmp.map((user, i) => {
+	// 			return (
+	// 				<Tooltip title={user.username} key={i}>
+	// 					<Avatar alt={user.username} src={user.photoURL} key={i}/>
+	// 				</Tooltip>
+	// 			)
+	// 		})
+	// 	}
+	// }
 
 	const getChatAndInput = () => {
 		let defaultText;
@@ -109,12 +109,12 @@ const TabPanel = (props: ITabPanelProps) => {
 									<RoomSettings room={title}/>
 								)}
 								{
-									!isPrivate && (<Button variant="text" startIcon={<ExitToAppIcon />} size="small" onClick={handleLeaveRoom}>Leave</Button>)
+									!isPrivate && title !== 'general' &&(<Button variant="text" startIcon={<ExitToAppIcon />} size="small" onClick={handleLeaveRoom}>Leave</Button>)
 								}
 							</Box>
-							<AvatarGroup total={roomUsers.length}>
+							{/* <AvatarGroup total={roomUsers.length}>
 								{getFirstFourNonSelfUsers()}
-							</AvatarGroup>
+							</AvatarGroup> */}
 						</Box>
 						<Divider />
 						{getChatAndInput()}

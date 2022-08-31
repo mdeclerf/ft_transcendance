@@ -69,7 +69,7 @@ export class ChatController {
 	@Post('set_password')
 	@UseGuards(AuthenticatedGuard)
 	async sendPassword(@Body() data: PasswordDto, @Req() req: RequestWithUser) {
-		const hashedPassword = bcrypt.hashSync(data.password, '$2a$10$CwTycUXWue0Thq9StjUM0u');
+		const hashedPassword = bcrypt.hashSync(data.password, process.env.HASHKEY);
 		this.chatService.updateRoom({ name: data.name, password: hashedPassword });
 		this.chatGateway.server.emit('update_room', { name: data.name, type: 'protected' });
 	}
@@ -77,7 +77,7 @@ export class ChatController {
 	@Post('check_password')
 	@UseGuards(AuthenticatedGuard)
 	async checkPassword(@Body() data: PasswordDto, @Res() res: Response, @Req() req: RequestWithUser) {
-		const hashedPassword = bcrypt.hashSync(data.password, '$2a$10$CwTycUXWue0Thq9StjUM0u');
+		const hashedPassword = bcrypt.hashSync(data.password, process.env.HASHKEY);
 		const { hash: roomHash } = await this.chatService.getRoomByName(data.name);
 		if (roomHash === hashedPassword) {
 			const client = this.chatGateway.server.sockets.sockets.get(req.user.socketId);
