@@ -126,7 +126,7 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 	return (
 		<div>
 			<Button variant="outlined" onClick={handleClickOpen} startIcon={<ArrowRightIcon />} fullWidth>Join Channel</Button>
-			<Dialog open={dialogOpen} onClose={handleClose}>
+			<Dialog open={dialogOpen} onClose={handleCancel}>
 				<DialogTitle>Join Room</DialogTitle>
 				<DialogContent>
 					<Autocomplete

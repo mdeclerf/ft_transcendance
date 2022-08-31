@@ -130,7 +130,7 @@ export class ChatGateway
 	async messageSend(client: Socket, message: CreateChatDto) {
 		const currentRoom = await this.chatService.getRoomByName(message.room.name);
 		const { status } = await this.chatService.getChatUserStatus(message.user, currentRoom);
-		if (status !== "muted")
+		if (status !== "muted" && status !== "banned")
 		{
 			this.chatService.createMessage(message);
 			const { room } = message;
