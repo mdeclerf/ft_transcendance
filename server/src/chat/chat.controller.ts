@@ -58,13 +58,20 @@ export class ChatController {
 		if (room)
 			return true;
 		const created_room = await this.chatService.createRoom(roomDto);
-		return await this.chatService.createChatUserIfNotExists({ room_id: created_room.id, user_id: req.user.id, status: 'owner' });
+		const insertResult =  await this.chatService.createChatUserIfNotExists({ room_id: created_room.id, user_id: req.user.id, status: 'owner' });
+		if (insertResult.identifiers[0] !== undefined) {
+			return false;
+		} else {
+			return true;
+		}
 	}
 
 	@Post('set_password')
-	async sendPassword(@Body() data: PasswordDto) {
+	@UseGuards(AuthenticatedGuard)
+	async sendPassword(@Body() data: PasswordDto, @Req() req: RequestWithUser) {
 		const hashedPassword = bcrypt.hashSync(data.password, '$2a$10$CwTycUXWue0Thq9StjUM0u');
 		this.chatService.updateRoom({ name: data.name, password: hashedPassword });
+		this.chatGateway.server.emit('update_room', { name: data.name, type: 'protected' });
 	}
 
 	@Post('check_password')

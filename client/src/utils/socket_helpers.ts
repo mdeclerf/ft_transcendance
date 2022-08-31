@@ -13,6 +13,7 @@ export const leaveChat = (room: string) => {
 };
 
 export const switchRoom = (prevRoom: string, room: string) => {
+	console.log(`switching from ${prevRoom} to ${room}`);
 	if (socket) {
 		socket.emit("room_switch", { prevRoom, room });
 	}
@@ -38,10 +39,17 @@ export const subscribeToNewRoom = (callback: (data: Room) => void) => {
 	if (!socket) return;
 	
 	socket.on('new_room', (data) => {
-		console.log('new_room: ', data);
 		callback(data);
 	});
 };
+
+export const subscribeToUpdateRoom = (callback: (data: Room) => void) => {
+	if (!socket) return;
+
+	socket.on('update_room', (data) => {
+		callback(data);
+	})
+}
 
 export const subscribeToRoomUserList = (callback: (data: User[]) => void) => {
 	if (!socket) return;

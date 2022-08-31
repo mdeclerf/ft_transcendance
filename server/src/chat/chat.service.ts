@@ -171,13 +171,12 @@ export class ChatService {
 			user: await this.userRepo.findOneBy({ id: chatUser.user_id}),
 			status: chatUser.status,
 		});
-		this.chatUserRepo.createQueryBuilder()
+		return this.chatUserRepo.createQueryBuilder()
 			.insert()
 			.orIgnore()
 			.into(ChatUser)
 			.values(entry)
 			.execute();
-		return false;
 	}
 
 	async checkIfDmRoomExists(user1 : User, user2 : User) { /// HERE
@@ -198,8 +197,8 @@ export class ChatService {
 			.getOne();
 		if (!room) {
 			const createdRoom = await this.createRoom({ name: uuidv4(), type: 'private', hash: '' });
-			this.createChatUserIfNotExists({ user_id: user1.id, room_id: createdRoom.id, status: 'user' });
-			this.createChatUserIfNotExists({ user_id: user2.id, room_id: createdRoom.id, status: 'user' });
+			await this.createChatUserIfNotExists({ user_id: user1.id, room_id: createdRoom.id, status: 'user' });
+			await this.createChatUserIfNotExists({ user_id: user2.id, room_id: createdRoom.id, status: 'user' });
 			return { created: true, room : {name: createdRoom.name, type: createdRoom.type, DM_user: user1.username}};
 		} else {
 			return { created: false, room : {name: room.name, type: room.type, DM_user: user1.username}};
