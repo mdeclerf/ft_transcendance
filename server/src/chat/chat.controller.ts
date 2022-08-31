@@ -58,8 +58,7 @@ export class ChatController {
 		if (room)
 			return true;
 		const created_room = await this.chatService.createRoom(roomDto);
-		this.chatService.createChatUserIfNotExists({ room_id: created_room.id, user_id: req.user.id, status: 'owner' });
-		return false;
+		return await this.chatService.createChatUserIfNotExists({ room_id: created_room.id, user_id: req.user.id, status: 'owner' });
 	}
 
 	@Post('set_password')

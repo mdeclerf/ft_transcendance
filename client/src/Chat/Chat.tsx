@@ -31,17 +31,15 @@ export function Chat (props: IChatProps) {
 	const prevRoomRef = useRef<Room>();
 	useEffect(() => {
 		prevRoomRef.current = room;
-	});
+	}, [room, prevRoomRef]);
 	const prevRoom = prevRoomRef.current;
 
-	useEffect(() => {
-		return (() => {
-			leaveChat(room.name);
-		})
-	// eslint-disable-next-line
-	}, [])
+	// useEffect(() => {
+	// 	return (() => {
+	// 		leaveChat(room.name);
+	// 	})
+	// }, [room.name])
 
-	// switch switch room in the backend when it changes in the frontend
 	useEffect(() => {
 		getChatUserStatus().then((res: string | undefined) => {
 			if (res) {
@@ -75,7 +73,7 @@ export function Chat (props: IChatProps) {
 			}
 		}
 	// eslint-disable-next-line
-	}, [room, socketLoading, owner]);
+	}, [room, socketLoading, owner, prevRoom]);
 
 	// get available rooms
 	useEffect(() => {
@@ -103,7 +101,7 @@ export function Chat (props: IChatProps) {
 		});
 		
 		subscribeToRoomUserLeave((data) => {
-			setConnectedUsers((users) => users.filter(user => user && user.id !== data.id));
+			setConnectedUsers((users) => users.filter(user => user && data && user.id !== data.id));
 		});
 
 		subscribeToNewRoom((data) => {
@@ -127,12 +125,31 @@ export function Chat (props: IChatProps) {
 
 	useEffect(() => {
 		handleAdmin(room.name);
+		handleMuted(room.name);
+		handleUser(room.name);
 	}, [admin, room.name]);
 	
 	const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 		setMessage(event.target.value);
 	}
-	
+
+	const handleMuted = (name: string) => {
+		socket.on('muted_added', data => {
+			if (name === data) {
+				setMute(true);
+			}
+		})
+	}
+
+	const handleUser = (name: string) => {
+		socket.on('user_added', data => {
+			if (name === data) {
+				setMute(false);
+				setAdmin(false);
+			}
+		})
+	}
+
 	const handleAdmin = (name: string) => {
 		socket.on('admin_added', data => {
 			if (name === data) {

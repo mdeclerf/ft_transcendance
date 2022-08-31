@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Grid, Typography, AvatarTypeMap, Box, Avatar, IconButton, MenuItem, Menu } from "@mui/material";
+import { Grid, Typography, AvatarTypeMap, Box, Avatar, IconButton, MenuItem, Menu, Dialog, DialogTitle, DialogContent, Select, SelectChangeEvent, DialogActions, Button, InputLabel, FormControl, Divider } from "@mui/material";
 import { Link } from 'react-router-dom';
 import { User } from '../utils/types';
 import { socket } from "../socket";
@@ -34,17 +34,19 @@ export function ChatMsg (props: IChatMsgProps) {
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
 	const [isHeAdmin, setIsHeAdmin] = useState<boolean>(false);
 	const [isHeMute, setIsHeMute] = useState<boolean>(false);
+	const [muteDialogOpen, setMuteDialogOpen] = useState(false);
+	const [time, setTime] = useState('60000');
 	const open = Boolean(anchorEl);
 
 	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 		setAnchorEl(event.currentTarget);
 		fetchChatUserStatus().then((res: string | undefined) => {
 			if (res) {
-				if (res === 'admin') {
+				if (res === 'admin' || res === 'owner') {
 					setIsHeAdmin(true);
 					setIsHeMute(false);
 				}
-				if (res === 'mute') {
+				if (res === 'muted') {
 					setIsHeAdmin(false);
 					setIsHeMute(true);
 				}
@@ -55,9 +57,21 @@ export function ChatMsg (props: IChatMsgProps) {
 			}
 		});
 	};
-
+	
 	const handleClose = () => {
 		setAnchorEl(null);
+	};
+
+	const handleTimeChange = (event: SelectChangeEvent) => {
+		setTime(event.target.value);
+	};
+
+	const handleTimeSubmit = () => {
+		setMuteDialogOpen(false); 
+		setAnchorEl(null); 
+		if (user && room) {
+			socket.emit("set_status", {user_id: user.id, room_name: room.name, status: 'muted', time});
+		}
 	};
 
 	const handleBlock = () => {
@@ -83,6 +97,7 @@ export function ChatMsg (props: IChatMsgProps) {
 	}
 
 	return (
+		<>
 		<Grid
 			container
 			spacing={2}
@@ -126,7 +141,7 @@ export function ChatMsg (props: IChatMsgProps) {
 							((user?.id !== currentUser?.id)) &&
 							<MenuItem onClick={handleBlock}>Block</MenuItem>
 						}
-						{owner && !isHeAdmin && !isHeMute && <MenuItem onClick={() => 
+						{owner && !isHeAdmin && <MenuItem onClick={() => 
 						{
 							if (user && room) {
 								socket.emit("set_status", {user_id: user.id, room_name: room.name, status: 'admin'});
@@ -140,25 +155,12 @@ export function ChatMsg (props: IChatMsgProps) {
 							}
 							setAnchorEl(null);
 						}} >Remove admin</MenuItem>}
-						{admin && !isHeMute && !isHeAdmin && <MenuItem onClick={() => 
-						{
-							if (user && room) {
-								socket.emit("set_status", {user_id: user.id, room_name: room.name, status: 'mute'});
-							}
-							setAnchorEl(null);
-						}} >Mute</MenuItem>}
-						{admin && isHeMute && <MenuItem onClick={() => 
-						{
-							if (user && room) {
-								socket.emit("set_status", {user_id: user.id, room_name: room.name, status: 'user'});
-							}
-							setAnchorEl(null);
-						}} >Unmute</MenuItem>}
-						{admin && <MenuItem onClick={() => 
+						{admin && !isHeMute && !isHeAdmin && <MenuItem onClick={() => {setMuteDialogOpen(true);}} >Mute</MenuItem>}
+						{admin && !isHeAdmin && <MenuItem onClick={() => 
 						{
 							if (user && room) {
 								socket.emit("set_status", {user_id: user.id, room_name: room.name, status: 'banned'});
-								socket.emit("leave_channel", {room: room.name, user: user.id});
+								// socket.emit("leave_channel", {room: room.name, user: user.id});
 							}
 							setAnchorEl(null);
 						}} >Ban</MenuItem>}
@@ -218,5 +220,31 @@ export function ChatMsg (props: IChatMsgProps) {
 				})}
 			</Grid>
 		</Grid>
+		<Dialog
+		open={muteDialogOpen}
+		onClose={() => {setMuteDialogOpen(false)}}>
+			<DialogTitle>Mute time</DialogTitle>
+			<Divider/>
+			<DialogContent>
+				<FormControl fullWidth>
+					<InputLabel id="demo-simple-select-label">Time</InputLabel>
+					<Select
+						labelId='demo-simple-select-label'
+						label="time"
+						value={time}
+						onChange={handleTimeChange}
+					>
+						<MenuItem value={60000}>One minute</MenuItem>
+						<MenuItem value={300000}>Five minutes</MenuItem>
+						<MenuItem value={3600000}>One hour</MenuItem>
+					</Select>
+				</FormControl>
+			</DialogContent>
+			<DialogActions>
+				<Button variant="contained" onClick={() => {setMuteDialogOpen(false); setTime("60000"); setAnchorEl(null);}}>Cancel</Button>
+				<Button variant="contained" onClick={handleTimeSubmit} >Submit</Button>
+			</DialogActions>
+		</Dialog>
+		</>
 	);
 }

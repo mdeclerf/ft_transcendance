@@ -8,12 +8,13 @@ import { socket } from '../socket';
 
 export interface IButtonJoinChannelProps {
 	setPassAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+	switchRooms: (room: Room) => void;
 	user: User | undefined;
 	room: Room | undefined;
 }
 
 export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
-	const { setPassAuthenticated, user, room } = props;
+	const { setPassAuthenticated, switchRooms, user, room } = props;
 	const [searchQuery, setSearchQuery] = useState('');
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [complete, setComplete] = useState<Room[]>([]);
@@ -92,6 +93,7 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 							}
 						});
 						socket.emit('room_join', searchQuery);
+						switchRooms({ name: searchQuery, type: res.data});
 						setDialogOpen(false);
 					}
 				})

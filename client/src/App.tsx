@@ -174,7 +174,10 @@ function App() {
 							setInvitation(false); 
 							socket.emit('invitation_accepted', [invitingUser?.id, user?.id]) }}
 						>Accept</Button>
-						<Button onClick={() => { setInvitation(false)}} autoFocus>Decline</Button>
+						<Button onClick={() => { 
+							setInvitation(false);
+							socket.emit('invitation_declined', invitingUser?.id) }}
+						>Decline</Button>
 					</DialogActions>
 				</Dialog>
 

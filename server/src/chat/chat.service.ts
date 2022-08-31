@@ -1,10 +1,10 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Blocklist, Chat, ChatUser, CreateChatDto, CreateChatUserDto, CreateRoomDto, Room, User } from '../typeorm/';
-import { Repository } from 'typeorm';
+import { Repository, UpdateResult } from 'typeorm';
 import { PasswordDto } from 'src/utils/password.dto';
 import { v4 as uuidv4 } from 'uuid';
-import { QueryDeepPartialEntity } from 'typeorm/query-builder/QueryPartialEntity';
+import { SchedulerRegistry } from '@nestjs/schedule';
 
 @Injectable()
 export class ChatService {
@@ -14,7 +14,8 @@ export class ChatService {
 		@InjectRepository(Room) private readonly roomRepo: Repository<Room>,
 		@InjectRepository(User) private readonly userRepo: Repository<User>,
 		@InjectRepository(Blocklist) private readonly blockRepo: Repository<Blocklist>,
-		@InjectRepository(ChatUser) private readonly chatUserRepo: Repository<ChatUser>
+		@InjectRepository(ChatUser) private readonly chatUserRepo: Repository<ChatUser>,
+		private schedulerRegistry: SchedulerRegistry
 	) {
 		this.roomRepo.upsert({ name: 'general', type: 'public' }, ["name"]);
 	}
@@ -92,6 +93,7 @@ export class ChatService {
 	}
 
 	async getActiveRooms(userId: number) {
+		// console.log(await this.roomRepo.createQueryBuilder('room').leftJoin('room.chat_user', 'chat_user').where('chat_user.user_id = :id', {id: userId}).getMany());
 		const ret = await this.roomRepo.createQueryBuilder('room')
 			.leftJoinAndSelect('room.chat_user', 'chat_user')
 			.where('chat_user.user_id = :id', { id: userId })
@@ -138,17 +140,29 @@ export class ChatService {
 		return chatU.status;
 	}
 
-	async updateStatus(chatUser: User, currentRoom: Room, newStatus: (() => string) | QueryDeepPartialEntity<"user" | "owner" | "admin" | "muted" | "banned">): Promise<boolean> {
-		const chatU = await this.chatUserRepo.findOne({
+	async updateStatus(user: User, currentRoom: Room, newStatus: "user" | "owner" | "admin" | "muted" | "banned", time: '60000' | '300000' | '3600000'): Promise<boolean> {
+		const chatUser = await this.chatUserRepo.findOne({
 			where: {
 				room: { id: currentRoom.id },
-				user: { id: chatUser.id}
+				user: { id: user.id}
 			},
 		});
-		if (!chatU)
+		if (!chatUser)
 			return false;
-		if (await this.chatUserRepo.update(chatU.id, {status: newStatus}))
+		const updatedStatus = await this.chatUserRepo.update(chatUser.id, {status: newStatus});
+		if (updatedStatus && newStatus === 'muted') {
+			const callback = () => {
+				this.chatUserRepo.update(chatUser.id, { status: 'user', expirationDate: null });
+				this.schedulerRegistry.deleteTimeout(`${user.username}-${newStatus}`);
+			}
+
+			const timeout = setTimeout(callback, parseInt(time));
+			this.schedulerRegistry.addTimeout(`${user.username}-${newStatus}`, timeout);
 			return true;
+		}
+		if (updatedStatus)
+			return true;
+		return false;
 	}
 
 	async createChatUserIfNotExists(chatUser: CreateChatUserDto) {
@@ -163,10 +177,8 @@ export class ChatService {
 			.into(ChatUser)
 			.values(entry)
 			.execute();
+		return false;
 	}
-
-	// select * from room left join chat_user on room.id=chat_user.room_id where chat_user.user_id = 2 and room.id IN 
-	// (select chat_user.room_id from chat_user left join room on chat_user.room_id=room.id where user_id = 1 and room.type='private');
 
 	async checkIfDmRoomExists(user1 : User, user2 : User) { /// HERE
 		const room = await this.roomRepo.createQueryBuilder('room')
@@ -200,16 +212,20 @@ export class ChatService {
 	}
 
 	async complete(query: string, user: User) {
-		const alreadyJoined = (await this.chatUserRepo.find({ where: { user }})).map((chatUser) => {
-			return (chatUser.room.id);
-		})
+		const alreadyJoined = (await this.roomRepo.createQueryBuilder('room')
+			.leftJoin('room.chat_user', 'chat_user')
+			.where('chat_user.user_id = :id', { id: user.id })
+			.getMany())
+			.map((room) => { return (room.id) });
+
+		// console.log(alreadyJoined);
 
 		const result = await this.roomRepo.createQueryBuilder('room')
-			.where('room.id NOT IN :(...ids)', { ids: alreadyJoined })
+			.where('room.id NOT IN (:...ids)', { ids: alreadyJoined })
 			.andWhere('room.name LIKE :query', { query: `%${query}%` })
 			.getMany();
 
-		console.log(result);
+		// console.log(result);
 
 		return result.map(({ name, type }) => {
 			return ({ name, type })
