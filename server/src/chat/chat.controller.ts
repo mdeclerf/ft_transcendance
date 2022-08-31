@@ -92,6 +92,7 @@ export class ChatController {
 	}
 
 	@Get('rooms/:room_name/:username/get_chat_user_status')
+	@UseGuards(AuthenticatedGuard)
 	async getChatUserStatus(@Param('room_name') room_name: string, @Param('username') username: string, @Req() req: RequestWithUser) {
 		const currentRoom = await this.chatService.getRoomByName(room_name);
 		const chatUser = await this.chatService.getUserByName(username);
