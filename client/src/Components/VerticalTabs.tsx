@@ -24,9 +24,7 @@ interface ITabPanelProps {
 	messageSend: () => void;
 	roomUsers: User[];
 	currentUser: User | undefined;
-	isProtected: boolean;
 	isPrivate: boolean;
-	passAuthenticated: boolean;
 }
 
 const TabPanel = (props: ITabPanelProps) => {
@@ -153,7 +151,6 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 	const { mute, room, admin, owner, rooms, message, messages, currentUser, switchRooms, messageChange, messageSend, roomUsers } = props;
 	const [value, setValue] = React.useState(0);
 	const [formattedMessages, setFormattedMessages] = React.useState<MessageGroup[]>([]);
-	const [passAuthenticated, setPassAuthenticated] = React.useState(false);
 
 	React.useEffect(() => {
 		const msgGrp: MessageGroup[] = [];
@@ -222,7 +219,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 		>
 			<Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, gap: '2px' }}>
 				<ButtonCreateChannels currentUser={currentUser} switchRooms={switchRooms}/>
-				<ButtonJoinChannel setPassAuthenticated={setPassAuthenticated} switchRooms={switchRooms}/>
+				<ButtonJoinChannel switchRooms={switchRooms}/>
 				<Tabs
 					orientation='vertical'
 					variant="scrollable"
@@ -264,9 +261,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 						message={message}
 						roomUsers={roomUsers}
 						currentUser={currentUser}
-						isProtected={room.type === 'protected'}
 						isPrivate={room.type === 'private'}
-						passAuthenticated={passAuthenticated}
 					>
 						{mapChatBubbles()}
 					</TabPanel>
