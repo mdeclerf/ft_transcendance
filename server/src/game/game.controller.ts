@@ -1,7 +1,7 @@
-import { Controller, Inject, Get, Res} from '@nestjs/common';
+import { Controller, Inject, Get, Res, UseGuards} from '@nestjs/common';
 import { GameService } from './game.service';
 import { Game } from '../typeorm/entities/game.entity';
-import { Response } from 'express';
+import { AuthenticatedGuard } from 'src/auth/guards/intra-oauth.guard';
 
 @Controller('game')
 export class GameController {
@@ -9,6 +9,7 @@ export class GameController {
 	private readonly service: GameService;
 
 	@Get("")
+	@UseGuards(AuthenticatedGuard)
 	public getChat() : Promise<Game[]> {
 		return this.service.getGame();
 	}

@@ -23,7 +23,6 @@ export class ChatController {
 	@UseGuards(AuthenticatedGuard)
 	async getRooms(@Req() req: RequestWithUser) {
 		const rooms = await this.chatService.getActiveRooms(req.user.id);
-		// console.log(rooms);
 		return rooms;
 	}
 
@@ -41,12 +40,14 @@ export class ChatController {
 	}
 
 	@Get('rooms/:room_name/type')
+	@UseGuards(AuthenticatedGuard)
 	async getRoomInfo(@Param('room_name') room_name: string) {
 		const room = await this.chatService.getRoomByName(room_name);
 		return room.type;
 	}
 
 	@Post('rooms/:room_name/join_room')
+	@UseGuards(AuthenticatedGuard)
 	joinRoom(@Param('room_name') room_name: string) {
 
 	}
