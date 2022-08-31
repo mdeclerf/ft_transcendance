@@ -37,6 +37,7 @@ export class UserController {
 	}
 
 	@Get('profile_image/:imagename')
+	@UseGuards(AuthenticatedGuard)
 	findProfileImage(@Param('imagename') imagename: string, @Res() res: Response) {
 		return res.sendFile(join(process.cwd(), 'uploads/profile_pictures/' + imagename));
 	}
