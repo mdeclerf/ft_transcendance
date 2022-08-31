@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Inject, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { CreateRoomDto, User } from 'src/typeorm';
 import { AuthenticatedGuard } from '../auth/guards/intra-oauth.guard';
 import { ChatService } from './chat.service';
+import { Body, Controller, Get, Inject, Param, Post, Query, Req, Res, UseGuards } from '@nestjs/common';
 import { PasswordDto } from '../utils/password.dto';
 import * as bcrypt from 'bcrypt';
 import { RequestWithUser } from 'src/utils/types';
@@ -81,6 +81,8 @@ export class ChatController {
 		const { hash: roomHash } = await this.chatService.getRoomByName(data.name);
 		if (roomHash === hashedPassword) {
 			const client = this.chatGateway.server.sockets.sockets.get(req.user.socketId);
+			if (!client)
+				return res.status(401).send();
 			this.chatGateway.roomJoin(client, data.name);
 			return res.status(200).send();
 		} else {

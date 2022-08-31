@@ -4,7 +4,7 @@ import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 import { UserService } from '../user/user.service';
 import { RoomInfo } from '../utils/types';
-import { CreateChatDto, User, SetUserStatusDto } from '../typeorm/';
+import { CreateChatDto, User, SetUserStatusDto, LeaveChannelDto } from '../typeorm/';
 import { v4 as uuidv4 } from 'uuid';
 
 @WebSocketGateway({
@@ -39,6 +39,8 @@ export class ChatGateway
 	async roomInactive(client: Socket, room_name: string) {
 		client.leave(room_name);
 		const currentUser = await this.userService.findUserBySocketId(client.id);
+		if (!currentUser)
+			return ;
 		client.broadcast.to(room_name).emit('room_user_inactive', currentUser);
 	}
 
@@ -60,11 +62,13 @@ export class ChatGateway
 			}
 		}
 	}
-
+	
 	@SubscribeMessage('room_created')
 	async roomCreated(client: Socket, room: { name: string, type: 'public' | 'private' | 'protected'}) {
 		client.emit('new_room', { name: room.name, type: room.type });
 		this.userService.findUserBySocketId(client.id).then((currentUser) => {
+			if (!currentUser)
+				return ;
 			this.chatService.getActiveRooms(currentUser.id).then((rooms) => {	
 				let index = 0;
 				for (let i = 0; i < rooms.length; i++) {
@@ -76,6 +80,19 @@ export class ChatGateway
 				client.emit('autoswitch_room', index);
 			})
 		})
+	}
+	
+	@SubscribeMessage('leave_channel')
+	async leaveChannel(client: Socket, data: LeaveChannelDto) {
+		const room = await this.chatService.getRoomByName(data.room);
+		if (!room) return;
+		const status = await this.chatService.getChatUserStatus(data.user, room);
+		if (!status) return;
+
+		if (status === 'owner')
+			await this.chatService.deleteRoom(room);
+		else
+			await this.chatService.removeUserFromRoom(data.user, room);
 	}
 
 	@SubscribeMessage('room_join')
@@ -92,7 +109,7 @@ export class ChatGateway
 			}
 		})
 	}
-
+	
 	@SubscribeMessage('message_send')
 	async messageSend(client: Socket, message: CreateChatDto) {
 		const currentRoom = await this.chatService.getRoomByName(message.room.name);

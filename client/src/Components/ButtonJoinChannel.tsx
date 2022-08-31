@@ -1,17 +1,19 @@
 import { Autocomplete, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
 import React, { useState } from 'react';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
-import { Room } from '../utils/types';
+import { Room, User } from '../utils/types';
 import LockIcon from '@mui/icons-material/Lock';
 import axios from 'axios';
 import { socket } from '../socket';
 
 export interface IButtonJoinChannelProps {
 	switchRooms: (room: Room) => void;
+	user: User | undefined;
+	room: Room | undefined;
 }
 
 export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
-	const { switchRooms } = props;
+	const { switchRooms, user, room } = props;
 	const [searchQuery, setSearchQuery] = useState('');
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [complete, setComplete] = useState<Room[]>([]);
@@ -20,6 +22,17 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const [password, setPassword] = useState('');
 	const [incorrect, setIncorrect] = useState(false);
+
+	async function fetchChatUserStatus(): Promise<string | undefined> {
+		if (user && room)
+		{
+			const response = await axios.get<string>(`http://localhost:3001/api/chat/rooms/${room.name}/${user.username}/get_chat_user_status`, { withCredentials: true });
+			if (response)
+				return (response.data)
+		}
+		else
+			return ;
+	}
 
 	const handleChange = (event: React.SyntheticEvent, value: string) => {
 		setSearchQuery(value);
@@ -53,19 +66,32 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 						console.log('here');
 						axios.post('http://localhost:3001/api/chat/check_password', { name: searchQuery, password }, { withCredentials: true })
 							.then(() => {
-								setDialogOpen(false);
+								fetchChatUserStatus().then((res: string | undefined) => {
+									if (res) {
+										if (res === 'banned')
+											setIncorrect(true);
+											return ;
+									}
+								});
 								setIncorrect(false);
 								setPassword('');
 								console.log(`room_join - protected ${searchQuery}`);
 								socket.emit('room_join', searchQuery);
 								switchRooms({ name: searchQuery, type: res.data});
+								setDialogOpen(false);
 							})
 							.catch(err => {
 								setIncorrect(true);
 								setPassword("");
 							})
 					} else if (res.data === 'public') {
-						console.log('room_join - public');
+						fetchChatUserStatus().then((res: string | undefined) => {
+							if (res) {
+								if (res === 'banned')
+									setIncorrect(true);
+									return ;
+							}
+						});
 						socket.emit('room_join', searchQuery);
 						switchRooms({ name: searchQuery, type: res.data});
 						setDialogOpen(false);

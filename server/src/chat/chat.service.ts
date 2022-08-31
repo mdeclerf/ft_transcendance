@@ -179,7 +179,7 @@ export class ChatService {
 			.execute();
 	}
 
-	async checkIfDmRoomExists(user1 : User, user2 : User) { /// HERE
+	async checkIfDmRoomExists(user1 : User, user2 : User) { 
 		const room = await this.roomRepo.createQueryBuilder('room')
 			.leftJoin('room.chat_user', 'chat_user')
 			.where('chat_user.user_id = :id', {id: user1.id})
@@ -229,5 +229,34 @@ export class ChatService {
 		return result.map(({ name, type }) => {
 			return ({ name, type })
 		});
+	}
+
+	async removeUserFromRoom(user : User, room : Room) {
+		await this.chatUserRepo.createQueryBuilder('chat_user')
+			.delete()
+			.from(ChatUser)
+			.where('room_id = :room_id', { room_id: room.id })
+			.andWhere('user_id = :user_id', { user_id: user.id})
+			.execute()
+	}
+
+	async deleteRoom(room : Room) {
+		await this.chatUserRepo.createQueryBuilder('chat_user')
+		.delete()
+		.from(ChatUser)
+		.where('room_id = :room_id', { room_id: room.id })
+		.execute()
+
+		await this.chatRepo.createQueryBuilder('chat')
+		.delete()
+		.from(Chat)
+		.where('room_id = :room_id', { room_id: room.id })
+		.execute()
+
+		await this.roomRepo.createQueryBuilder('room')
+			.delete()
+			.from(Room)
+			.where('id = :id', { id: room.id })
+			.execute()
 	}
 }

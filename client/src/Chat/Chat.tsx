@@ -31,7 +31,7 @@ export function Chat (props: IChatProps) {
 	const prevRoomRef = useRef<Room>();
 	useEffect(() => {
 		prevRoomRef.current = room;
-	});
+	}, [room, prevRoomRef]);
 	const prevRoom = prevRoomRef.current;
 
 	useEffect(() => {
@@ -39,10 +39,6 @@ export function Chat (props: IChatProps) {
 			leaveChat(room.name);
 		})
 	}, [room.name]);
-
-	// useEffect(() => {
-	// 	console.log(rooms);
-	// }, [rooms]);
 
 	useEffect(() => {
 		getChatUserStatus().then((res: string | undefined) => {
@@ -77,7 +73,7 @@ export function Chat (props: IChatProps) {
 			}
 		}
 	// eslint-disable-next-line
-	}, [room, socketLoading, owner]);
+	}, [room, socketLoading, owner, prevRoom]);
 
 	// get available rooms
 	useEffect(() => {

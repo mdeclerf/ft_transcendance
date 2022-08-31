@@ -42,7 +42,7 @@ export function ChatMsg (props: IChatMsgProps) {
 		setAnchorEl(event.currentTarget);
 		fetchChatUserStatus().then((res: string | undefined) => {
 			if (res) {
-				if (res === 'admin') {
+				if (res === 'admin' || res === 'owner') {
 					setIsHeAdmin(true);
 					setIsHeMute(false);
 				}
@@ -156,6 +156,14 @@ export function ChatMsg (props: IChatMsgProps) {
 							setAnchorEl(null);
 						}} >Remove admin</MenuItem>}
 						{admin && !isHeMute && !isHeAdmin && <MenuItem onClick={() => {setMuteDialogOpen(true);}} >Mute</MenuItem>}
+						{admin && !isHeAdmin && <MenuItem onClick={() => 
+						{
+							if (user && room) {
+								socket.emit("set_status", {user_id: user.id, room_name: room.name, status: 'banned'});
+								// socket.emit("leave_channel", {room: room.name, user: user.id});
+							}
+							setAnchorEl(null);
+						}} >Ban</MenuItem>}
 					</Menu>
 				</Grid>
 			)}
