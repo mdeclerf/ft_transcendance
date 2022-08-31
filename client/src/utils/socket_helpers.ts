@@ -48,6 +48,14 @@ export const subscribeToUpdateRoom = (callback: (data: Room) => void) => {
 
 	socket.on('update_room', (data) => {
 		callback(data);
+	});
+};
+
+export const subscribeToDeleteRoom = (callback: (data: Room) => void) => {
+	if (!socket) return;
+
+	socket.on('delete_room', (data) => {
+		callback(data);
 	})
 }
 
