@@ -32,32 +32,33 @@ export function ChatMsg (props: IChatMsgProps) {
 	const { user: currentUser } = useFetchCurrentUser();
 
 	const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
-	const [isHeAdmin, setIsHeAdmin] = useState<boolean>(false);
-	const [isHeMute, setIsHeMute] = useState<boolean>(false);
+	const [isAdmin, setIsAdmin] = useState<boolean>(false);
+	const [isMuted, setIsMuted] = useState<boolean>(false);
+	const [isBanned, setIsBanned] = useState<boolean>(false);
 	const [muteDialogOpen, setMuteDialogOpen] = useState(false);
+	const [banDialogOpen, setBanDialogOpen] = useState(false);
 	const [time, setTime] = useState('60000');
 	const open = Boolean(anchorEl);
 
 	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 		setAnchorEl(event.currentTarget);
 		fetchChatUserStatus().then((res: string | undefined) => {
+			
 			if (res) {
-				if (res === 'admin' || res === 'owner') {
-					setIsHeAdmin(true);
-					setIsHeMute(false);
-				}
-				if (res === 'muted') {
-					setIsHeAdmin(false);
-					setIsHeMute(true);
-				}
-				if (res === 'user') {
-					setIsHeAdmin(false);
-					setIsHeMute(false);
+				setIsAdmin(false);
+				setIsBanned(false);
+				setIsMuted(false);
+				if (res === 'admin' || res === 'owner')
+					setIsAdmin(true);
+				if (res === 'muted')
+					setIsMuted(true);
+				if (res === 'banned') {
+					setIsBanned(true);
 				}
 			}
 		});
 	};
-	
+
 	const handleClose = () => {
 		setAnchorEl(null);
 	};
@@ -66,11 +67,19 @@ export function ChatMsg (props: IChatMsgProps) {
 		setTime(event.target.value);
 	};
 
-	const handleTimeSubmit = () => {
+	const handleTimeSubmitMute = () => {
 		setMuteDialogOpen(false); 
 		setAnchorEl(null); 
 		if (user && room) {
 			socket.emit("set_status", {user_id: user.id, room_name: room.name, status: 'muted', time});
+		}
+	};
+
+	const handleTimeSubmitBan = () => {
+		setBanDialogOpen(false); 
+		setAnchorEl(null); 
+		if (user && room) {
+			socket.emit("set_status", {user_id: user.id, room_name: room.name, status: 'banned', time});
 		}
 	};
 
@@ -141,29 +150,22 @@ export function ChatMsg (props: IChatMsgProps) {
 							((user?.id !== currentUser?.id)) &&
 							<MenuItem onClick={handleBlock}>Block</MenuItem>
 						}
-						{owner && !isHeAdmin && <MenuItem onClick={() => 
+						{owner && !isAdmin && !isBanned && !isMuted && <MenuItem onClick={() => 
 						{
 							if (user && room) {
 								socket.emit("set_status", {user_id: user.id, room_name: room.name, status: 'admin'});
 							}
 							setAnchorEl(null);
 						}} >Add admin</MenuItem>}
-						{owner && isHeAdmin && <MenuItem onClick={() => 
+						{owner && isAdmin && <MenuItem onClick={() => 
 						{
 							if (user && room) {
 								socket.emit("set_status", {user_id: user.id, room_name: room.name, status: 'user'});
 							}
 							setAnchorEl(null);
 						}} >Remove admin</MenuItem>}
-						{admin && !isHeMute && !isHeAdmin && <MenuItem onClick={() => {setMuteDialogOpen(true);}} >Mute</MenuItem>}
-						{admin && !isHeAdmin && <MenuItem onClick={() => 
-						{
-							if (user && room) {
-								socket.emit("set_status", {user_id: user.id, room_name: room.name, status: 'banned'});
-								// socket.emit("leave_channel", {room: room.name, user: user.id});
-							}
-							setAnchorEl(null);
-						}} >Ban</MenuItem>}
+						{admin && !isMuted && !isAdmin && !isBanned && <MenuItem onClick={() => {setMuteDialogOpen(true);}} >Mute</MenuItem>}
+						{admin && !isAdmin && !isBanned && !isMuted && <MenuItem onClick={() => { setBanDialogOpen(true);}} >Ban</MenuItem>}
 					</Menu>
 				</Grid>
 			)}
@@ -242,7 +244,33 @@ export function ChatMsg (props: IChatMsgProps) {
 			</DialogContent>
 			<DialogActions>
 				<Button variant="contained" onClick={() => {setMuteDialogOpen(false); setTime("60000"); setAnchorEl(null);}}>Cancel</Button>
-				<Button variant="contained" onClick={handleTimeSubmit} >Submit</Button>
+				<Button variant="contained" onClick={handleTimeSubmitMute} >Submit</Button>
+			</DialogActions>
+		</Dialog>
+
+		<Dialog
+		open={banDialogOpen}
+		onClose={() => {setBanDialogOpen(false)}}>
+			<DialogTitle>Ban time</DialogTitle>
+			<Divider/>
+			<DialogContent>
+				<FormControl fullWidth>
+					<InputLabel id="demo-simple-select-label">Time</InputLabel>
+					<Select
+						labelId='demo-simple-select-label'
+						label="time"
+						value={time}
+						onChange={handleTimeChange}
+					>
+						<MenuItem value={60000}>One minute</MenuItem>
+						<MenuItem value={300000}>Five minutes</MenuItem>
+						<MenuItem value={3600000}>One hour</MenuItem>
+					</Select>
+				</FormControl>
+			</DialogContent>
+			<DialogActions>
+				<Button variant="contained" onClick={() => {setBanDialogOpen(false); setTime("60000"); setAnchorEl(null);}}>Cancel</Button>
+				<Button variant="contained" onClick={handleTimeSubmitBan} >Submit</Button>
 			</DialogActions>
 		</Dialog>
 		</>

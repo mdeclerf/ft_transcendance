@@ -97,6 +97,7 @@ export class ChatService {
 		const ret = await this.roomRepo.createQueryBuilder('room')
 			.leftJoinAndSelect('room.chat_user', 'chat_user')
 			.where('chat_user.user_id = :id', { id: userId })
+			.andWhere('chat_user.status != :banned', { banned: "banned" })
 			.orderBy('chat_user.join_date', 'ASC')
 			.getMany();
 		const ret_with_user = await Promise.all(ret.map( async (room) => {
@@ -150,7 +151,7 @@ export class ChatService {
 		if (!chatUser)
 			return false;
 		const updatedStatus = await this.chatUserRepo.update(chatUser.id, {status: newStatus});
-		if (updatedStatus && newStatus === 'muted') {
+		if (updatedStatus && (newStatus === 'muted' || newStatus === 'banned')) {
 			const callback = () => {
 				this.chatUserRepo.update(chatUser.id, { status: 'user', expirationDate: null });
 				this.schedulerRegistry.deleteTimeout(`${user.username}-${newStatus}`);
