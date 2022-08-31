@@ -7,12 +7,11 @@ import axios from 'axios';
 import { socket } from '../socket';
 
 export interface IButtonJoinChannelProps {
-	setPassAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
 	switchRooms: (room: Room) => void;
 }
 
 export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
-	const { setPassAuthenticated, switchRooms } = props;
+	const { switchRooms } = props;
 	const [searchQuery, setSearchQuery] = useState('');
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [complete, setComplete] = useState<Room[]>([]);
@@ -21,10 +20,6 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 	const [isOpen, setIsOpen] = useState(false);
 	const [password, setPassword] = useState('');
 	const [incorrect, setIncorrect] = useState(false);
-
-	// const filterOptions = createFilterOptions({
-	// 	stringify: (option: Room) => `${option.name} ${option.type}`
-	// });
 
 	const handleChange = (event: React.SyntheticEvent, value: string) => {
 		setSearchQuery(value);
@@ -58,7 +53,10 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 						axios.post('http://localhost:3001/api/chat/check_password', { name: searchQuery, password }, { withCredentials: true })
 							.then(() => {
 								setDialogOpen(false);
-								setPassAuthenticated(true);
+								setIncorrect(false);
+								setPassword('');
+								socket.emit('room_join', searchQuery);
+								switchRooms({ name: searchQuery, type: res.data});
 							})
 							.catch(err => {
 								setIncorrect(true);
@@ -88,7 +86,6 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 	}
 
 	const handleClose = () => {
-		setDialogOpen(false);
 		handleClick();
 	}
 
@@ -96,7 +93,6 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 		setDialogOpen(false);
 		setPassword('');
 		setIncorrect(false);
-		setPassAuthenticated(false);
 	}
 
 	return (

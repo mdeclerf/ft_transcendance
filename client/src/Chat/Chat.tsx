@@ -38,7 +38,11 @@ export function Chat (props: IChatProps) {
 		return (() => {
 			leaveChat(room.name);
 		})
-	}, [room.name])
+	}, [room.name]);
+
+	// useEffect(() => {
+	// 	console.log(rooms);
+	// }, [rooms]);
 
 	useEffect(() => {
 		getChatUserStatus().then((res: string | undefined) => {
