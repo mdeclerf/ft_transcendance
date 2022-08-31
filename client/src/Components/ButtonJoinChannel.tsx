@@ -1,17 +1,19 @@
 import { Autocomplete, Box, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
 import React, { useState } from 'react';
 import ArrowRightIcon from '@mui/icons-material/ArrowRight';
-import { Room } from '../utils/types';
+import { Room, User } from '../utils/types';
 import LockIcon from '@mui/icons-material/Lock';
 import axios from 'axios';
 import { socket } from '../socket';
 
 export interface IButtonJoinChannelProps {
 	setPassAuthenticated: React.Dispatch<React.SetStateAction<boolean>>;
+	user: User | undefined;
+	room: Room | undefined;
 }
 
 export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
-	const { setPassAuthenticated } = props;
+	const { setPassAuthenticated, user, room } = props;
 	const [searchQuery, setSearchQuery] = useState('');
 	const [dialogOpen, setDialogOpen] = useState(false);
 	const [complete, setComplete] = useState<Room[]>([]);
@@ -24,6 +26,17 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 	// const filterOptions = createFilterOptions({
 	// 	stringify: (option: Room) => `${option.name} ${option.type}`
 	// });
+
+	async function fetchChatUserStatus(): Promise<string | undefined> {
+		if (user && room)
+		{
+			const response = await axios.get<string>(`http://localhost:3001/api/chat/rooms/${room.name}/${user.username}/get_chat_user_status`, { withCredentials: true });
+			if (response)
+				return (response.data)
+		}
+		else
+			return ;
+	}
 
 	const handleChange = (event: React.SyntheticEvent, value: string) => {
 		setSearchQuery(value);
@@ -56,6 +69,13 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 					if (res.data === 'protected' && password !== '') {
 						axios.post('http://localhost:3001/api/chat/check_password', { name: searchQuery, password }, { withCredentials: true })
 							.then(() => {
+								fetchChatUserStatus().then((res: string | undefined) => {
+									if (res) {
+										if (res === 'banned')
+											setIncorrect(true);
+											return ;
+									}
+								});
 								setDialogOpen(false);
 								setPassAuthenticated(true);
 							})
@@ -64,6 +84,13 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 								setPassword("");
 							})
 					} else if (res.data === 'public') {
+						fetchChatUserStatus().then((res: string | undefined) => {
+							if (res) {
+								if (res === 'banned')
+									setIncorrect(true);
+									return ;
+							}
+						});
 						socket.emit('room_join', searchQuery);
 						setDialogOpen(false);
 					}

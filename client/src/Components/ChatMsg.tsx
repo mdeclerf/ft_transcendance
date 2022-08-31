@@ -154,6 +154,14 @@ export function ChatMsg (props: IChatMsgProps) {
 							}
 							setAnchorEl(null);
 						}} >Unmute</MenuItem>}
+						{admin && <MenuItem onClick={() => 
+						{
+							if (user && room) {
+								socket.emit("set_status", {user_id: user.id, room_name: room.name, status: 'banned'});
+								socket.emit("leave_channel", {room: room.name, user: user.id});
+							}
+							setAnchorEl(null);
+						}} >Ban</MenuItem>}
 					</Menu>
 				</Grid>
 			)}

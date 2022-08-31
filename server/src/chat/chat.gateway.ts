@@ -4,7 +4,7 @@ import { Server, Socket } from 'socket.io';
 import { ChatService } from './chat.service';
 import { UserService } from '../user/user.service';
 import { RoomInfo } from '../utils/types';
-import { CreateChatDto, User, SetUserStatusDto } from '../typeorm/';
+import { CreateChatDto, User, SetUserStatusDto, LeaveChannelDto } from '../typeorm/';
 import { v4 as uuidv4 } from 'uuid';
 
 @WebSocketGateway({
@@ -61,17 +61,19 @@ export class ChatGateway
 			const chatUser = await this.chatService.getUserById(chat_user.user_id);
 			const currentRoom = await this.chatService.getRoomByName(chat_user.room_name);
 			if (chatUser && currentRoom)
-				if (await this.chatService.updateStatus(chatUser, currentRoom, chat_user.status))
-					this.server.to(chatUser.socketId).emit(`${chat_user.status}_added`, currentRoom.name);
+			if (await this.chatService.updateStatus(chatUser, currentRoom, chat_user.status))
+			this.server.to(chatUser.socketId).emit(`${chat_user.status}_added`, currentRoom.name);
 		}
 	}
-
+	
 	@SubscribeMessage('room_created')
 	async roomCreated(client: Socket, room: string) {
 		client.emit('new_room', { name: room });
 		const currentUser = await this.userService.findUserBySocketId(client.id);
 		const rooms = await this.chatService.getActiveRooms(currentUser.id);
 		let index = 0;
+		if (!rooms)
+			return ;
 		for (let i = 0; i < rooms.length; i++) {
 			if (rooms[i].name === room) {
 				index = i;
@@ -80,17 +82,30 @@ export class ChatGateway
 		}
 		client.emit('autoswitch_room', index);
 	}
+	
+	// @SubscribeMessage('leave_channel')
+	// async leaveChannel(client: Socket, data: LeaveChannelDto) {
+	// 	const currentUser = await this.userService.findUserById(data.user);
+	// 	const rooms = await this.chatService.getActiveRooms(currentUser.id);
+	// 	let index = 0;
+	// 	for (let i = 0; i < rooms.length; i++) {
+	// 		if (rooms[i].name === data.room) {
+	// 			index = i;
+	// 			break;
+	// 		}
+	// 	}
+	// }
 
 	@SubscribeMessage('room_join')
 	async roomJoin(client: Socket, room_name: string) {
 		const currentUser = await this.userService.findUserBySocketId(client.id);
 		const room_entry = await this.chatService.getRoomByName(room_name);
 		if (currentUser) // Fix or not fix I do not know.....
-			await this.chatService.createChatUserIfNotExists({ room_id: room_entry.id, user_id: currentUser.id, status: 'user'});
+		await this.chatService.createChatUserIfNotExists({ room_id: room_entry.id, user_id: currentUser.id, status: 'user'});
 		this.roomCreated(client, room_name);
 		this.roomActive(client, room_name);
 	}
-
+	
 	@SubscribeMessage('message_send')
 	messageSend(socket: Socket, message: CreateChatDto) {
 		this.chatService.createMessage(message);
