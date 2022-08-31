@@ -11,6 +11,7 @@ import { ButtonJoinChannel } from './ButtonJoinChannel';
 import { useLocation } from 'react-router-dom';
 import ThreePIcon from '@mui/icons-material/ThreeP';
 import ExitToAppIcon from '@mui/icons-material/ExitToApp';
+import { socket } from '../socket';
 
 interface ITabPanelProps {
 	mute: boolean;
@@ -24,9 +25,7 @@ interface ITabPanelProps {
 	messageSend: () => void;
 	roomUsers: User[];
 	currentUser: User | undefined;
-	isProtected: boolean;
 	isPrivate: boolean;
-	passAuthenticated: boolean;
 }
 
 const TabPanel = (props: ITabPanelProps) => {
@@ -38,6 +37,10 @@ const TabPanel = (props: ITabPanelProps) => {
 			event.preventDefault();
 			messageSend();
 		}
+	};
+
+	const handleLeaveRoom = () => {
+		socket.emit("leave_channel", { user: currentUser, room: title});
 	};
 
 	React.useEffect(() => {
@@ -106,7 +109,7 @@ const TabPanel = (props: ITabPanelProps) => {
 									<RoomSettings room={title}/>
 								)}
 								{
-									!isPrivate && (<Button variant="text" startIcon={<ExitToAppIcon />} size="small">Leave</Button>)
+									!isPrivate && (<Button variant="text" startIcon={<ExitToAppIcon />} size="small" onClick={handleLeaveRoom}>Leave</Button>)
 								}
 							</Box>
 							<AvatarGroup total={roomUsers.length}>
@@ -153,7 +156,6 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 	const { mute, room, admin, owner, rooms, message, messages, currentUser, switchRooms, messageChange, messageSend, roomUsers } = props;
 	const [value, setValue] = React.useState(0);
 	const [formattedMessages, setFormattedMessages] = React.useState<MessageGroup[]>([]);
-	const [passAuthenticated, setPassAuthenticated] = React.useState(false);
 
 	React.useEffect(() => {
 		const msgGrp: MessageGroup[] = [];
@@ -222,7 +224,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 		>
 			<Box sx={{ display: 'flex', flexDirection: 'column', flexGrow: 1, gap: '2px' }}>
 				<ButtonCreateChannels currentUser={currentUser} switchRooms={switchRooms}/>
-				<ButtonJoinChannel setPassAuthenticated={setPassAuthenticated} switchRooms={switchRooms} user={currentUser} room={room}/>
+				<ButtonJoinChannel switchRooms={switchRooms} user={currentUser} room={room}/>
 				<Tabs
 					orientation='vertical'
 					variant="scrollable"
@@ -264,9 +266,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 						message={message}
 						roomUsers={roomUsers}
 						currentUser={currentUser}
-						isProtected={room.type === 'protected'}
 						isPrivate={room.type === 'private'}
-						passAuthenticated={passAuthenticated}
 					>
 						{mapChatBubbles()}
 					</TabPanel>

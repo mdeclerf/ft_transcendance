@@ -42,18 +42,13 @@ export class ChatGateway
 		if (!currentUser)
 			return ;
 		client.broadcast.to(room_name).emit('room_user_inactive', currentUser);
-		console.log(`${currentUser.username} left ${room_name}`);
 	}
 
 	@SubscribeMessage('room_switch')
 	async roomSwitch(client: Socket, roomInfo: RoomInfo) {
 		const { prevRoom, room } = roomInfo;
-		if (prevRoom) {
-			this.roomInactive(client, prevRoom);
-		}
-		if (room) {
-			this.roomActive(client, room);
-		}
+		if (prevRoom) this.roomInactive(client, prevRoom);
+		if (room) this.roomActive(client, room);
 	}
 
 	@SubscribeMessage('set_status')
@@ -71,41 +66,54 @@ export class ChatGateway
 	@SubscribeMessage('room_created')
 	async roomCreated(client: Socket, room: string) {
 		client.emit('new_room', { name: room });
-		const currentUser = await this.userService.findUserBySocketId(client.id);
-		const rooms = await this.chatService.getActiveRooms(currentUser.id);
-		let index = 0;
-		if (!rooms)
-			return ;
-		for (let i = 0; i < rooms.length; i++) {
-			if (rooms[i].name === room) {
-				index = i;
-				break;
-			}
-		}
-		client.emit('autoswitch_room', index);
+		this.userService.findUserBySocketId(client.id).then((currentUser) => {
+			if (!currentUser)
+				return ;
+			this.chatService.getActiveRooms(currentUser.id).then((rooms) => {	
+				let index = 0;
+				for (let i = 0; i < rooms.length; i++) {
+					if (rooms[i].name === room) {
+						index = i;
+						break;
+					}
+				}
+				client.emit('autoswitch_room', index);
+			})
+		})
 	}
 	
-	// @SubscribeMessage('leave_channel')
-	// async leaveChannel(client: Socket, data: LeaveChannelDto) {
-	// 	const currentUser = await this.userService.findUserById(data.user);
-	// 	const rooms = await this.chatService.getActiveRooms(currentUser.id);
-	// 	let index = 0;
-	// 	for (let i = 0; i < rooms.length; i++) {
-	// 		if (rooms[i].name === data.room) {
-	// 			index = i;
-	// 			break;
-	// 		}
-	// 	}
-	// }
+	@SubscribeMessage('leave_channel')
+	async leaveChannel(client: Socket, data: LeaveChannelDto) {
+		const room = await this.chatService.getRoomByName(data.room);
+		if (!room) return;
+		const status = await this.chatService.getChatUserStatus(data.user, room);
+		if (!status) return;
+
+		if (status === 'owner')
+		{
+			console.log("owner")
+			await this.chatService.deleteRoom(room);
+		}
+		else
+		{
+			console.log("not owner")
+			await this.chatService.removeUserFromRoom(data.user, room);
+		}
+	}
 
 	@SubscribeMessage('room_join')
 	async roomJoin(client: Socket, room_name: string) {
 		const currentUser = await this.userService.findUserBySocketId(client.id);
 		const room_entry = await this.chatService.getRoomByName(room_name);
-		if (currentUser) // Fix or not fix I do not know.....
-		await this.chatService.createChatUserIfNotExists({ room_id: room_entry.id, user_id: currentUser.id, status: 'user'});
-		this.roomCreated(client, room_name);
-		this.roomActive(client, room_name);
+		if (currentUser) {
+			this.chatService.createChatUserIfNotExists({ room_id: room_entry.id, user_id: currentUser.id, status: 'user'})
+				.then((res) => {
+					if (!res) {
+						this.roomCreated(client, room_name);
+						// this.roomActive(client, room_name);
+					}
+				})
+		}
 	}
 	
 	@SubscribeMessage('message_send')

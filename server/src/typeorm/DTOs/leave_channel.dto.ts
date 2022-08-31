@@ -1,10 +1,9 @@
 import { IsIn, IsInt, IsNotEmpty, IsPositive, IsString } from "class-validator";
+import { User } from "../entities/user.entity";
 
 export class LeaveChannelDto {
 
-	@IsInt()
-	@IsPositive()
-	public user: number;
+	public user: User;
 
 	@IsString()
 	@IsNotEmpty()

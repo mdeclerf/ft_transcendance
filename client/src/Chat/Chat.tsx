@@ -34,11 +34,11 @@ export function Chat (props: IChatProps) {
 	}, [room, prevRoomRef]);
 	const prevRoom = prevRoomRef.current;
 
-	// useEffect(() => {
-	// 	return (() => {
-	// 		leaveChat(room.name);
-	// 	})
-	// }, [room.name])
+	useEffect(() => {
+		return (() => {
+			leaveChat(room.name);
+		})
+	}, [room.name]);
 
 	useEffect(() => {
 		getChatUserStatus().then((res: string | undefined) => {

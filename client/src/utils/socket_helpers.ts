@@ -38,6 +38,7 @@ export const subscribeToNewRoom = (callback: (data: Room) => void) => {
 	if (!socket) return;
 	
 	socket.on('new_room', (data) => {
+		console.log('new_room: ', data);
 		callback(data);
 	});
 };
