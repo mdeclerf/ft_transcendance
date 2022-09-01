@@ -29,7 +29,6 @@ export function SearchBar (props: ISearchBarProps) {
 			axios.get(`http://localhost:3001/api/user/complete?q=${value}`, { withCredentials: true })
 				.then(res => {
 					setLoading(false);
-					// console.log('data: ', res.data);
 					setComplete(res.data);
 				})
 				.catch(err => {
@@ -43,7 +42,6 @@ export function SearchBar (props: ISearchBarProps) {
 
 	const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
 		if (event.key === 'Enter' && !isOpen) {
-			// event.preventDefault();
 			handleClick();
 		}
 	}

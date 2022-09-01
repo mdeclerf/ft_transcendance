@@ -48,7 +48,7 @@ export const MyAccount = (props: IMyAccountProps) => {
 		}).then(res => {
 			window.location.reload();
 		}).catch(err => {
-			console.log(err);
+			console.error(err);
 		});
 	};
 

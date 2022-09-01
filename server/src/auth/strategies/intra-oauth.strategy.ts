@@ -19,7 +19,6 @@ export class IntraStrategy extends PassportStrategy(Strategy, '42') {
 		const { id: intraId, username, displayName, photos } = profile;
 		const photoURL = photos[0].value;
 		const details = { intraId, username, displayName, photoURL };
-		// console.log(profile);
 		return this.authService.validateUser(details);
 	}
 }

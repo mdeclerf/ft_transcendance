@@ -22,7 +22,6 @@ export class UserService {
 		});
 		if (user) {
 			this.userRepo.update({ intraId }, details);
-			// console.log(`${details.username} updated`);
 		}
 	}
 

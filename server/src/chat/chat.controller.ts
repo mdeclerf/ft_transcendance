@@ -70,7 +70,6 @@ export class ChatController {
 	@Post('set_password')
 	@UseGuards(AuthenticatedGuard)
 	async sendPassword(@Body() data: PasswordDto, @Req() req: RequestWithUser) {
-		console.log(process.env.SALT);
 		const hashedPassword = bcrypt.hashSync(data.password, process.env.SALT);
 		this.chatService.updateRoom({ name: data.name, password: hashedPassword });
 		this.chatGateway.server.emit('update_room', { name: data.name, type: 'protected' });

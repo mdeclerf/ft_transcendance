@@ -56,16 +56,15 @@ export function Chat (props: IChatProps) {
 				if (res.status === 'admin')
 					setAdmin(true);
 				if (res.status === 'muted') {
-					if (res.time) {
+					if (typeof res.time === 'object' && res.time !== null && 'getTime' in res.time) {
 						setTimeout(() => {
 							setMute(false);
-							console.log('UNMUTED');
 						}, (res.time.getTime() - currentTime.getTime()));
 					}
 					setMute(true);
 				}
 				if (res.status === 'banned') {
-					if (res.time) {
+					if (typeof res.time === 'object' && res.time !== null && 'getTime' in res.time) {
 						setTimeout(() => {
 							setBanned(false);
 						}, (res.time.getTime() - currentTime.getTime()));
@@ -82,7 +81,7 @@ export function Chat (props: IChatProps) {
 			}
 		}
 	// eslint-disable-next-line
-	}, [room, socketLoading, owner, prevRoom]);
+	}, [room, socketLoading, owner, banned, mute, admin,prevRoom]);
 
 	// get available rooms
 	useEffect(() => {
@@ -156,34 +155,37 @@ export function Chat (props: IChatProps) {
 
 	useEffect(() => {
 		handleAdmin(room.name);
-		handleMuted(room.name);
-		handleUser(room.name);
-	// eslint-disable-next-line
-	}, [admin]);
-	
-	const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setMessage(event.target.value);
-	}
-
-	const handleMuted = (name: string) => {
 		socket.on('muted_added', (data: { name: string, time: string}) => {
-			console.log(`name: ${name} | data.name: ${data.name} | data.time: ${data.time}`);
-			if (name === data.name) {
+			if (room.name === data.name) {
 				setMute(true);
 				setTimeout(() => {
 					setMute(false);
-					console.log('UNMUTED');
-				}, parseInt(data.time));
+				}, (parseInt(data.time)));
 			}
 		})
-	}
 
-	const handleBanned = (name: string) => {
-		socket.on('banned_added', data => {
-			if (name === data) {
+		socket.on('banned_added', (data: { name: string, time: string}) => {
+			setRooms((currRooms) => {
+				const nextRooms = [...currRooms];
+				const idx = nextRooms.findIndex(room => room.name === data.name);
+				if (idx > -1) nextRooms.splice(idx, 1);
+				return nextRooms;
+			})
+			if (room.name === data.name) {
 				setBanned(true);
+				handleSwitchRoom({ name: 'general', type: 'public' });
+				setTimeout(() => {
+					setBanned(false);
+				}, (parseInt(data.time)));
 			}
 		})
+		handleUser(room.name);
+
+	// eslint-disable-next-line
+	}, [admin, mute, banned, room.name]);
+	
+	const handleMessageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+		setMessage(event.target.value);
 	}
 
 	const handleUser = (name: string) => {

@@ -94,7 +94,6 @@ export class ChatService {
 	}
 
 	async getActiveRooms(userId: number) {
-		// console.log(await this.roomRepo.createQueryBuilder('room').leftJoin('room.chat_user', 'chat_user').where('chat_user.user_id = :id', {id: userId}).getMany());
 		const ret = await this.roomRepo.createQueryBuilder('room')
 			.leftJoinAndSelect('room.chat_user', 'chat_user')
 			.where('chat_user.user_id = :id', { id: userId })
@@ -151,20 +150,29 @@ export class ChatService {
 		});
 		if (!chatUser)
 			return false;
-		const currentTime = new Date;
-		const updatedStatus = await this.chatUserRepo.update(chatUser.id, {status: newStatus, expirationDate: new Date(currentTime.getTime() + parseInt(time))});
-		if (updatedStatus && (newStatus === 'muted' || newStatus === 'banned')) {
-			const callback = () => {
-				this.chatUserRepo.update(chatUser.id, { status: 'user', expirationDate: null });
-				this.schedulerRegistry.deleteTimeout(`${user.username}-${newStatus}-${currentRoom.name}`);
-			}
-
-			const timeout = setTimeout(callback, parseInt(time));
-			this.schedulerRegistry.addTimeout(`${user.username}-${newStatus}-${currentRoom.name}`, timeout);
-			return true;
+		if (newStatus !== 'muted' && newStatus !== 'banned') {
+			const updatedStatus = await this.chatUserRepo.update(chatUser.id, {status: newStatus});
+			if (updatedStatus)
+				return true;
 		}
-		if (updatedStatus)
-			return true;
+		else {
+			const currentTime = new Date;
+			const updatedStatus = await this.chatUserRepo.update(chatUser.id, {status: newStatus, expirationDate: new Date(currentTime.getTime() + parseInt(time))});
+			if (updatedStatus && (newStatus === 'muted' || newStatus === 'banned')) {
+				const callback = () => {
+					if (newStatus === 'muted')
+						this.chatUserRepo.update(chatUser.id, { status: 'user', expirationDate: null });
+					else {
+						this.chatUserRepo.delete(chatUser.id);
+					}
+					this.schedulerRegistry.deleteTimeout(`${user.username}-${newStatus}-${currentRoom.name}`);
+				}
+				
+				const timeout = setTimeout(callback, parseInt(time));
+				this.schedulerRegistry.addTimeout(`${user.username}-${newStatus}-${currentRoom.name}`, timeout);
+				return true;
+			}
+		}
 		return false;
 	}
 
@@ -220,14 +228,10 @@ export class ChatService {
 			.getMany())
 			.map((room) => { return (room.id) });
 
-		// console.log(alreadyJoined);
-
 		const result = await this.roomRepo.createQueryBuilder('room')
 			.where('room.id NOT IN (:...ids)', { ids: alreadyJoined })
 			.andWhere('room.name LIKE :query', { query: `%${query}%` })
 			.getMany();
-
-		// console.log(result);
 
 		return result.map(({ name, type }) => {
 			return ({ name, type })

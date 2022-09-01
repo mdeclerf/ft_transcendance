@@ -10,7 +10,7 @@ export function useFetchQRCode() {
 				setQRCode(URL.createObjectURL(data));
 			})
 			.catch(err => {
-				console.log(err);
+				console.error(err);
 			})
 	}, [])
 

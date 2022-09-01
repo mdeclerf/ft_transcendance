@@ -42,17 +42,19 @@ export function ChatMsg (props: IChatMsgProps) {
 
 	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 		setAnchorEl(event.currentTarget);
-		fetchChatUserStatus().then((res: string | undefined) => {
+		fetchChatUserStatus().then((res) => {
 			
 			if (res) {
 				setIsAdmin(false);
 				setIsBanned(false);
 				setIsMuted(false);
-				if (res === 'admin' || res === 'owner')
+				if (res.status === 'admin' || res.status === 'owner') {
 					setIsAdmin(true);
-				if (res === 'muted')
+				}
+				if (res.status === 'muted') {
 					setIsMuted(true);
-				if (res === 'banned') {
+				}
+				if (res.status === 'banned') {
 					setIsBanned(true);
 				}
 			}
@@ -94,14 +96,25 @@ export function ChatMsg (props: IChatMsgProps) {
 			});
 	}
 
-	async function fetchChatUserStatus(): Promise<string | undefined> {
+	async function fetchChatUserStatus() {
 		if (user && room)
 		{
-			const response = await axios.get<string>(`http://localhost:3001/api/chat/rooms/${room.name}/${user.username}/get_chat_user_status`, { withCredentials: true });
-			if (response)
-				return (response.data)
-		}
-		else
+			const response = await axios.get<{
+				status: "user" | "owner" | "admin" | "muted" | "banned";
+				time: Date;
+				}>(`http://localhost:3001/api/chat/rooms/${room.name}/${user.username}/get_chat_user_status`, { withCredentials: true });
+		// 		.then(() => {
+		// 			if (response)
+		// 				return (response.data)
+
+		// 		})
+		// 		.catch(err => {
+		// 			if (err) throw err;
+		// 		});
+		// }
+		if (response)
+		return (response.data)
+	}
 			return ;
 	}
 

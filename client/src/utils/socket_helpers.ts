@@ -13,7 +13,6 @@ export const leaveChat = (room: string) => {
 };
 
 export const switchRoom = (prevRoom: string, room: string) => {
-	console.log(`switching from ${prevRoom} to ${room}`);
 	if (socket) {
 		socket.emit("room_switch", { prevRoom, room });
 	}

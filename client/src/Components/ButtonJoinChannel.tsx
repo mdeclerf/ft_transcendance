@@ -63,7 +63,6 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 				.then(res => {
 					setRoomType(res.data);
 					if (res.data === 'protected' && password !== '') {
-						console.log('here');
 						axios.post('http://localhost:3001/api/chat/check_password', { name: searchQuery, password }, { withCredentials: true })
 							.then(() => {
 								// fetchChatUserStatus().then((res: string | undefined) => {

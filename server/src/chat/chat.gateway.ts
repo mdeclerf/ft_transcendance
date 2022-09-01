@@ -58,7 +58,25 @@ export class ChatGateway
 			const currentRoom = await this.chatService.getRoomByName(chat_user.room_name);
 			if (user && currentRoom) {
 				if (await this.chatService.updateStatus(user, currentRoom, chat_user.status, chat_user.time))
+				{
+					if (chat_user.status === 'banned')
+					{
+						const bannedSocket = this.server.sockets.sockets.get(user.socketId);
+						const rooms = await this.chatService.getActiveRooms(user.id);
+						const it = bannedSocket.rooms.values();
+						it.next();
+						const bannedUserCurrentRoom = it.next().value;
+						let idx: number;
+						if (bannedSocket.rooms.has(chat_user.room_name)) {
+							idx = rooms.findIndex(room => room.name === 'general');
+						} else {
+							idx = rooms.findIndex(room => room.name === bannedUserCurrentRoom);
+						}
+						this.server.to(user.socketId).emit(`autoswitch_room`, idx);
+					}
 					this.server.to(user.socketId).emit(`${chat_user.status}_added`, { name: chat_user.room_name, time: chat_user.time});
+				}
+
 			}
 		}
 	}
