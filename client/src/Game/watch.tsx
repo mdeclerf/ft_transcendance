@@ -113,7 +113,6 @@ function Watch() {
 		draw_watched_players(context, PADDLE_MARGIN, PADDLE_MARGIN, CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
 
 		socket.on('getPosition', (message: string) => {
-			console.log('problem');
 			let data = message.split(" ");
 			draw_watched_players(context, parseInt(data[0]), parseInt(data[1]), parseInt(data[2]), parseInt(data[3]));
 			setFirstPScore(data[4]);
