@@ -251,7 +251,6 @@ class Pong {
 		for (let index = 0; index < this.spectator.length; index++) {
 			const element: Player = this.spectator[index];
 			if (element.id == id) {
-				console.log('removed');
 				this.spectator.splice(index, 1);
 				break;
 			}
@@ -323,7 +322,6 @@ export class GameGateway implements OnGatewayDisconnect {
 
 	@SubscribeMessage("remove_spectator")
 	RemoveSpectator(client: Socket, message: any) : void {
-		console.log(`removed ${client.id} from ${message}`)
 		if (this.Game.has(message))
 			this.Game.get(message).remove_spectator(client.id);
 	}
