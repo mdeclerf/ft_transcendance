@@ -199,7 +199,7 @@ export const Profile = (props: IProfileProps) => {
 					}}>
 					<VictoryPie
 					style={{ labels: { fill: "white", fontSize: 20} }}
-					colorScale={['#49c860', '#c84949' ]} // #49c860
+					colorScale={['#49c860', '#c84949' ]}
 					innerRadius={50}
 					data={create_game_pie()}
 					/>

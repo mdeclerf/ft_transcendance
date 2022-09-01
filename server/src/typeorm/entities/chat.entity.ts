@@ -6,9 +6,7 @@ export class Chat {
 
 	@PrimaryGeneratedColumn()
 	public message_id!: number;
-	
-	/*@Column ({type: 'integer'})
-	public room_number: number;*/
+
 	@ManyToOne(() => Room, (room) => room.chat)
 	@JoinColumn({ name: 'room_id'})
 	public room: Room;

@@ -6,7 +6,6 @@ import { socket } from "../socket";
 import { useFetchCurrentUser } from '../utils/hooks/useFetchCurrentUser';
 import axios from 'axios';
 import { Room } from '../utils/types';
-// import axios from 'axios';
 
 export interface IChatMsgProps {
 	room?: Room;
@@ -103,15 +102,6 @@ export function ChatMsg (props: IChatMsgProps) {
 				status: "user" | "owner" | "admin" | "muted" | "banned";
 				time: Date;
 				}>(`http://localhost:3001/api/chat/rooms/${room.name}/${user.username}/get_chat_user_status`, { withCredentials: true });
-		// 		.then(() => {
-		// 			if (response)
-		// 				return (response.data)
-
-		// 		})
-		// 		.catch(err => {
-		// 			if (err) throw err;
-		// 		});
-		// }
 		if (response)
 		return (response.data)
 	}

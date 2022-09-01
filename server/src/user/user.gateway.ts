@@ -4,7 +4,6 @@ import { Server, Socket } from 'socket.io';
 import { ChatService } from 'src/chat/chat.service';
 import { UserService } from './user.service';
 
-// @WebSocketGateway({ cors: true })
 @WebSocketGateway({
 	cors: {
 		origin: "http://localhost:3000",

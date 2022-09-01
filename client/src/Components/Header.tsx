@@ -1,4 +1,3 @@
-// import { AppBar, Button, Menu, MenuItem, Stack, SvgIcon, Toolbar, Typography } from '@mui/material';
 import { AppBar, Button, IconButton, Stack, SvgIcon, Toolbar, Typography } from '@mui/material';
 import Svg42Logo from './Svg42Logo';
 import { styled } from '@mui/material/styles';
@@ -7,7 +6,6 @@ import { User } from '../utils/types';
 import { Link } from 'react-router-dom';
 import { SearchBar } from './Search';
 import ColorLensIcon from '@mui/icons-material/ColorLens';
-// import React, { useState } from 'react';
 
 const StyledToolbar = styled(Toolbar)`
 	display: flex;

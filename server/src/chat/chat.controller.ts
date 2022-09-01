@@ -6,7 +6,6 @@ import { PasswordDto } from '../utils/password.dto';
 import * as bcrypt from 'bcrypt';
 import { RequestWithUser } from 'src/utils/types';
 import { Response } from 'express';
-import { ChannelOwner} from '../utils/channelOwner.dto';
 import { UserService } from 'src/user/user.service';
 import { ChatGateway } from './chat.gateway';
 

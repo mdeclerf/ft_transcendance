@@ -56,7 +56,6 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 		setPassword(event.currentTarget.value);
 	}
 
-	// There's still a bug with password protection on channels. A user can join a channel that is protected without entering a password...
 	const handleClick = async () => {
 		if (searchQuery !== '') {
 			axios.get<'public' | 'protected' | 'private'>(`http://localhost:3001/api/chat/rooms/${searchQuery}/type`, { withCredentials: true })
@@ -96,7 +95,6 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 
 	const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
 		if (event.key === 'Enter' && !isOpen) {
-			// event.preventDefault();
 			handleClick();
 		}
 	}
