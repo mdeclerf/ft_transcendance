@@ -119,6 +119,7 @@ function Watch() {
 			setSecondPScore(data[5]);
 		});
 		return (() => {
+			socket.emit('remove_spectator', currentlyWatched.key);
 			socket.off('getPosition');
 		})
 	// eslint-disable-next-line
