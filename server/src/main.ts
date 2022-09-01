@@ -8,11 +8,11 @@ import { Session } from './typeorm/';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  const PORT = process.env.PORT || 3001;
+  const PORT = process.env.NESTJS_PORT || 3001;
   const sessionRepo = app.get(getRepositoryToken(Session));
   app.setGlobalPrefix('api');
   app.enableCors({
-    origin: ['http://localhost:3000'],
+    origin: [`http://${process.env.REACT_APP_IP}:3000`],
     credentials: true,
   });
   app.use(

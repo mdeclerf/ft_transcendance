@@ -229,7 +229,7 @@ export function Chat (props: IChatProps) {
 	async function getChatUserStatus() {
 		if (user && room)
 		{
-			const response = await axios.get<{ status: string, time: Date}>(`http://localhost:3001/api/chat/rooms/${room.name}/${user.username}/get_chat_user_status`, { withCredentials: true });
+			const response = await axios.get<{ status: string, time: Date}>(`http://${process.env.REACT_APP_IP}:3001/api/chat/rooms/${room.name}/${user.username}/get_chat_user_status`, { withCredentials: true });
 			if (response)
 				return response.data;
 		}

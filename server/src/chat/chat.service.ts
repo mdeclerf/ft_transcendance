@@ -143,7 +143,7 @@ export class ChatService {
 			},
 		});
 		if (!chatU) {
-			return ;
+			return;
 		}
 		return { status: chatU.status, time: chatU.expirationDate};
 	}

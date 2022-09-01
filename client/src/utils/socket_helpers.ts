@@ -90,13 +90,13 @@ export const sendMessage = (data: Message) => {
 };
 
 export const fetchRooms = async () => {
-	const response = await axios.get<Room[]>('http://localhost:3001/api/chat/get_rooms', { withCredentials: true });
+	const response = await axios.get<Room[]>(`http://${process.env.REACT_APP_IP}:3001/api/chat/get_rooms`, { withCredentials: true });
 
 	return response.data;
 };
 
 export const fetchRoomMessages = async (room: string) => {
-	const response = await axios.get<Message[]>(`http://localhost:3001/api/chat/rooms/${room}/messages`, { withCredentials: true });
+	const response = await axios.get<Message[]>(`http://${process.env.REACT_APP_IP}:3001/api/chat/rooms/${room}/messages`, { withCredentials: true });
 
 	return response.data;
 };

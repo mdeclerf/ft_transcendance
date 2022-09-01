@@ -22,7 +22,7 @@ export function Account(props: IAccountProps) {
 	};
 
 	const logout = () => {
-		axios.get('http://localhost:3001/api/auth/logout', { withCredentials: true });
+		axios.get(`http://${process.env.REACT_APP_IP}:3001/api/auth/logout`, { withCredentials: true });
 		window.location.reload();
 	}
 

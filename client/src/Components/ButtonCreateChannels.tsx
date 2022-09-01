@@ -39,7 +39,7 @@ function SimpleDialog(props: SimpleDialogProps) {
 
 	const handleClose = async () => {
 		await axios
-			.post('http://localhost:3001/api/chat/create_channel', {
+			.post(`http://${process.env.REACT_APP_IP}:3001/api/chat/create_channel`, {
 				name: name.toLowerCase(),
 				type: 'public',
 				hash: '',

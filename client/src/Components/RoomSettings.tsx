@@ -21,7 +21,7 @@ function SettingsDialog(props: SettingsDialogProps) {
 	const handleClose = () => {
 		setOpen(false);
 		if (password !== '')
-			axios.post("http://localhost:3001/api/chat/set_password", {password: password, name: room}, { withCredentials: true })
+			axios.post(`http://${process.env.REACT_APP_IP}:3001/api/chat/set_password`, {password: password, name: room}, { withCredentials: true })
 				.catch(err => {
 					;
 				})

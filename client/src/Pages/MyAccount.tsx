@@ -17,7 +17,7 @@ export const MyAccount = (props: IMyAccountProps) => {
 
 	const handleNameChange = (event: React.KeyboardEvent<HTMLInputElement>) => {
 		if (event.key === 'Enter') {
-			axios.get<NameChangeResponse>(`http://localhost:3001/api/user/name_change?username=${event.target.value}`, { withCredentials: true })
+			axios.get<NameChangeResponse>(`http://${process.env.REACT_APP_IP}:3001/api/user/name_change?username=${event.target.value}`, { withCredentials: true })
 				.then(res => {
 					setTaken(res.data.taken);
 					if (setUser) setUser(res.data.user);
@@ -40,7 +40,7 @@ export const MyAccount = (props: IMyAccountProps) => {
 		const formData = new FormData();
 		formData.append("file", fileSelected, fileSelected.name);
 
-		axios.post('http://localhost:3001/api/user/upload', formData, {
+		axios.post(`http://${process.env.REACT_APP_IP}:3001/api/user/upload`, formData, {
 			headers: {
 				"Content-Type": "multipart-form/data",
 			},

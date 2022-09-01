@@ -26,7 +26,7 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 	async function fetchChatUserStatus(): Promise<string | undefined> {
 		if (user && room)
 		{
-			const response = await axios.get<string>(`http://localhost:3001/api/chat/rooms/${room.name}/${user.username}/get_chat_user_status`, { withCredentials: true });
+			const response = await axios.get<string>(`http://${process.env.REACT_APP_IP}:3001/api/chat/rooms/${room.name}/${user.username}/get_chat_user_status`, { withCredentials: true });
 			if (response)
 				return (response.data)
 		}
@@ -38,7 +38,7 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 		setSearchQuery(value);
 		if (value) {
 			setLoading(true);
-			axios.get(`http://localhost:3001/api/chat/rooms/complete?q=${value}`, { withCredentials: true })
+			axios.get(`http://${process.env.REACT_APP_IP}:3001/api/chat/rooms/complete?q=${value}`, { withCredentials: true })
 				.then(res => {
 					setLoading(false);
 					setComplete(res.data);
@@ -58,11 +58,11 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 
 	const handleClick = async () => {
 		if (searchQuery !== '') {
-			axios.get<'public' | 'protected' | 'private'>(`http://localhost:3001/api/chat/rooms/${searchQuery}/type`, { withCredentials: true })
+			axios.get<'public' | 'protected' | 'private'>(`http://${process.env.REACT_APP_IP}:3001/api/chat/rooms/${searchQuery}/type`, { withCredentials: true })
 				.then(res => {
 					setRoomType(res.data);
 					if (res.data === 'protected' && password !== '') {
-						axios.post('http://localhost:3001/api/chat/check_password', { name: searchQuery, password }, { withCredentials: true })
+						axios.post(`http://${process.env.REACT_APP_IP}:3001/api/chat/check_password`, { name: searchQuery, password }, { withCredentials: true })
 							.then(() => {
 								setIncorrect(false);
 								setPassword('');

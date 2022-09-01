@@ -21,7 +21,7 @@ export function Header (props: IHeaderProps) {
 	const { user, setColors } = props;
 
 	const redirect = () => {
-		window.location.href = "http://localhost:3001/api/auth/login";
+		window.location.href = `http://${process.env.REACT_APP_IP}:3001/api/auth/login`;
 	}
 
 	const loginButton = (user) ? (

@@ -19,14 +19,14 @@ export function SearchBar (props: ISearchBarProps) {
 	});
 
 	const handleClick = () => {
-		if (searchQuery) window.location.href = `http://localhost:3000/user/${searchQuery}`;
+		if (searchQuery) window.location.href = `http://${process.env.REACT_APP_IP}:3000/user/${searchQuery}`;
 	}
 
 	const handleChange = (event: React.SyntheticEvent, value: string) => {
 		setSearchQuery(value);
 		if (value) {
 			setLoading(true);
-			axios.get(`http://localhost:3001/api/user/complete?q=${value}`, { withCredentials: true })
+			axios.get(`http://${process.env.REACT_APP_IP}:3001/api/user/complete?q=${value}`, { withCredentials: true })
 				.then(res => {
 					setLoading(false);
 					setComplete(res.data);

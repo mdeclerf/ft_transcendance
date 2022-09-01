@@ -85,7 +85,7 @@ export function ChatMsg (props: IChatMsgProps) {
 	};
 
 	const handleBlock = () => {
-		axios.get(`http://localhost:3001/api/user/block_user?id=${user?.id}`, { withCredentials: true })
+		axios.get(`http://${process.env.REACT_APP_IP}:3001/api/user/block_user?id=${user?.id}`, { withCredentials: true })
 			.then(() => {
 				setAnchorEl(null);
 				window.location.reload();
@@ -101,7 +101,7 @@ export function ChatMsg (props: IChatMsgProps) {
 			const response = await axios.get<{
 				status: "user" | "owner" | "admin" | "muted" | "banned";
 				time: Date;
-				}>(`http://localhost:3001/api/chat/rooms/${room.name}/${user.username}/get_chat_user_status`, { withCredentials: true });
+				}>(`http://${process.env.REACT_APP_IP}:3001/api/chat/rooms/${room.name}/${user.username}/get_chat_user_status`, { withCredentials: true });
 		if (response)
 		return (response.data)
 	}

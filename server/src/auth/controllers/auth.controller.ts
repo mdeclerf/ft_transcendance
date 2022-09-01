@@ -20,7 +20,7 @@ export class AuthController {
 	@Get('redirect')
 	@UseGuards(IntraAuthGuard)
 	redirect(@Res() res: Response) {
-		res.redirect('http://localhost:3000/');
+		res.redirect(`http://${process.env.REACT_APP_IP}:3000/`);
 	}
 
 	@Get('status')

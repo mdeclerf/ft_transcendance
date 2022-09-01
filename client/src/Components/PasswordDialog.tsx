@@ -29,7 +29,7 @@ export function PasswordDialog (props: IPasswordDialogProps) {
 	}
 
 	const handleClick = () => {
-		axios.post('http://localhost:3001/api/chat/check_password', { name: title, password })
+		axios.post(`http://${process.env.REACT_APP_IP}:3001/api/chat/check_password`, { name: title, password })
 			.then(() => {
 				setOpen(false);
 				setPassAuthenticated(true);

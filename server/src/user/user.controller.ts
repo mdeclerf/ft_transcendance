@@ -31,7 +31,7 @@ export class UserController {
 	uploadFile(@UploadedFile() file: Express.Multer.File, @Req() req: Request) {
 		const user: UserDetails = req.user;
 
-		user.photoURL = "http://localhost:3001/api/user/profile_image/" + file.filename;
+		user.photoURL = `http://${process.env.REACT_APP_IP}:3001/api/user/profile_image/` + file.filename;
 
 		return this.userService.updateOne(user);
 	}
