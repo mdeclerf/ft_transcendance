@@ -39,6 +39,7 @@ export class ChatService {
 			return this.getRoomMessagesNoBlocks(room_id);
 	}
 
+	//Return every message from a room exept those send by blocked users
 	public async getRoomMessagesBlocks(room_id: number, blocklist: User[])
 	{
 		return await this.chatRepo.createQueryBuilder('chat')
@@ -49,6 +50,7 @@ export class ChatService {
 			.getMany();
 	}
 
+	//Same as getRoomMessages ?
 	public async getRoomMessagesNoBlocks(room_id: number)
 	{
 		return await this.chatRepo.createQueryBuilder('chat')
@@ -58,6 +60,7 @@ export class ChatService {
 			.getMany();
 	}
 
+	//Return a single message from his id
 	getMessage(id: number): Promise<Chat> {
 		return this.chatRepo.findOneBy({ message_id : id, });
 	}
@@ -77,18 +80,22 @@ export class ChatService {
 			});
 	}
 
+	//Return a user with a given name
 	getUserByName(name: string): Promise<User> {
 		return this.userRepo.findOneBy({ username: name });
 	}
 
+	//Return a user
 	getUserById(num: number): Promise<User> {
 		return this.userRepo.findOneBy({ id: num });
 	}
 
+	//Return a room with a given name
 	getRoomByName(name: string): Promise<Room> {
 		return this.roomRepo.findOneBy({ name: name });
 	}
 
+	//Return a room
 	getRoomById(id: number): Promise<Room> {
 		return this.roomRepo.findOneBy({ id: id });
 	}
