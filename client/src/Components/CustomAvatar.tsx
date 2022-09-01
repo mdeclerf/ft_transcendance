@@ -33,7 +33,7 @@ export function CustomAvatar (props: ICustomAvatarProps) {
 
 	useEffect(() => {
 		socket.on('color_change', (message:UpdateStatus) => {
-			if (message.user.id === user?.id)
+			if (message && message.user && message.user.id === user?.id)
 			{
 				if (message.status === "online") setStatusColor('#44b700');
 				if (message.status === "offline") setStatusColor('#b71f00');
