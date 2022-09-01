@@ -232,6 +232,7 @@ export class ChatService {
 		const alreadyJoined = (await this.roomRepo.createQueryBuilder('room')
 			.leftJoin('room.chat_user', 'chat_user')
 			.where('chat_user.user_id = :id', { id: user.id })
+			.andWhere('room.type != :type', { type: 'private' })
 			.getMany())
 			.map((room) => { return (room.id) });
 
