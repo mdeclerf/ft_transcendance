@@ -407,7 +407,9 @@ export class GameGateway implements OnGatewayDisconnect {
 
 	@SubscribeMessage('get_current_games')
 	getCurrentGames(client: Socket) : void {
-		for (let value of this.Game.values())
+		for (let value of this.Game.values()) {
+			if (value.first_player && value.second_player && value.first_player.user && value.second_player.user && value.first_player.user.username && value.second_player.user.username)
 			client.emit("current_games_list", [value.key, value.first_player.user.username, value.second_player.user.username]);
+		}
 	}
 }
