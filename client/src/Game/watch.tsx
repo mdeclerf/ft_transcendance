@@ -122,8 +122,6 @@ function Watch() {
 	// eslint-disable-next-line
 	}, []);
 
-	///////////////////////////////////
-
 	return (
 	<>
 		<Stack spacing={2}>

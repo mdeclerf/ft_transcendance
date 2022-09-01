@@ -4,7 +4,6 @@ import { Server, Socket } from 'socket.io';
 import { ChatService } from 'src/chat/chat.service';
 import { UserService } from './user.service';
 
-// @WebSocketGateway({ cors: true })
 @WebSocketGateway({
 	cors: {
 		origin: `http://${process.env.REACT_APP_IP}:3000`,
@@ -25,7 +24,7 @@ export class UserGateway {
 		client.emit('socket_saved');
 		this.userService.setStatus(user_id, 'online');
 		const ConnectedUser = await this.userService.findUserById(user_id);
-		this.wss.sockets.emit("color_change", { status: 'online', user: ConnectedUser});
+		this.wss.emit("color_change", { status: 'online', user: ConnectedUser});
 		const general = await this.chatService.getRoomByName('general');
 		this.chatService.createChatUserIfNotExists({ user_id, room_id: general.id, status: 'user' });
 	}

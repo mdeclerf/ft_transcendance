@@ -1,6 +1,5 @@
 import { Controller, Get, Inject, Req, Res, UseGuards } from '@nestjs/common';
 import { Response } from 'express';
-import { ChatService } from 'src/chat/chat.service';
 import { UserService } from 'src/user/user.service';
 import { RequestWithUser } from 'src/utils/types';
 import { AuthenticatedGuard, IntraAuthGuard } from '../guards/intra-oauth.guard';

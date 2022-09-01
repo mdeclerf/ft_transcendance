@@ -23,7 +23,7 @@ import { PlayGame } from './Game/Leave';
 import { Chat } from './Chat/Chat';
 import { Friends } from './Components/Friends';
 import { socket } from './socket';
-import { User } from './utils/types';
+import { User, UpdateStatus } from './utils/types';
 import { Link } from 'react-router-dom';
 
 function App() {
@@ -55,15 +55,25 @@ function App() {
 		if (user && socket) {
 			socket.emit('identity', user?.id);
 		}
-	}, [user]);
-
-	useEffect(() => {
 		if (socket) {
 			socket.on('socket_saved', () => {
 				setSocketLoading(false);
 			});
+			socket.on('color_change', (message:UpdateStatus) => {
+				if (message.user.id === user?.id)
+				{
+					setUser((oldUser) => {
+						if (oldUser) {
+							const newUser = oldUser;
+							newUser.status = message.status;
+							return newUser;
+						}
+						return oldUser;
+					})
+				}
+			});
 		}
-	}, [])
+	}, [user, setUser])
 	
 	useEffect(() => {
 		socket.on('invitation_alert', (message:User) => {
