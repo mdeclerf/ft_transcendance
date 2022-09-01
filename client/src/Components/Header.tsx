@@ -115,7 +115,6 @@ export function Header (props: IHeaderProps) {
 		return (
 			<StyledToolbar>
 				{transcendenceLogo}
-				{/* {homeButton} */}
 				<div>{buttons}</div>
 				<div style={{ flexGrow: 1, display: 'flex', justifyContent: 'center' }}><SearchBar /></div>
 				<IconButton onClick={() => setColors((prev: any) => !prev)} sx={{ backgroundColor: '#E6EEE8', '&:hover': { backgroundColor: '#e6eee8bc'}}}>
