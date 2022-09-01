@@ -189,8 +189,8 @@ export function Chat (props: IChatProps) {
 	}
 
 	const handleUser = (name: string) => {
-		socket.on('user_added', data => {
-			if (name === data) {
+		socket.on('user_added', (data: { name: string, time: string}) => {
+			if (name === data.name) {
 				setMute(false);
 				setAdmin(false);
 			}
@@ -198,8 +198,8 @@ export function Chat (props: IChatProps) {
 	}
 
 	const handleAdmin = (name: string) => {
-		socket.on('admin_added', data => {
-			if (name === data) {
+		socket.on('admin_added',  (data: { name: string, time: string}) => {
+			if (name === data.name) {
 				setAdmin(true);
 			}
 		})

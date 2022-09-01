@@ -74,7 +74,7 @@ export class ChatGateway
 						}
 						this.server.to(user.socketId).emit(`autoswitch_room`, idx);
 					}
-					this.server.to(user.socketId).emit(`${chat_user.status}_added`, { name: chat_user.room_name, time: chat_user.time});
+					this.server.to(user.socketId).emit(`${chat_user.status}_added`, { name: chat_user.room_name, time: chat_user.time ? chat_user.time : null});
 				}
 
 			}
