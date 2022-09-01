@@ -60,7 +60,7 @@ function App() {
 				setSocketLoading(false);
 			});
 			socket.on('color_change', (message:UpdateStatus) => {
-				if (message.user.id === user?.id)
+				if ( message && message.user && message.user.id === user?.id)
 				{
 					setUser((oldUser) => {
 						if (oldUser) {
