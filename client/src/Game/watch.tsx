@@ -118,7 +118,9 @@ function Watch() {
 			setFirstPScore(data[4]);
 			setSecondPScore(data[5]);
 		});
-
+		return (() => {
+			socket.off('getPosition');
+		})
 	// eslint-disable-next-line
 	}, []);
 
