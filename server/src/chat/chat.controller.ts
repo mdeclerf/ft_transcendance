@@ -77,6 +77,13 @@ export class ChatController {
 		this.chatGateway.server.emit('update_room', { name: data.name, type: 'protected' });
 	}
 
+	@Post('delete_password')
+	@UseGuards(AuthenticatedGuard)
+	async deletePassword(@Body() data: PasswordDto, @Req() req: RequestWithUser) {
+		this.chatService.updateRoom({ name: data.name, password: undefined });
+		this.chatGateway.server.emit('update_room', { name: data.name, type: 'public' });
+	}
+
 	@Post('check_password')
 	@UseGuards(AuthenticatedGuard)
 	async checkPassword(@Body() data: PasswordDto, @Res() res: Response, @Req() req: RequestWithUser) {

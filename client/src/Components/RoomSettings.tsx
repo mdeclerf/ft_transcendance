@@ -2,15 +2,17 @@ import { Button, TextField, Dialog, DialogTitle, DialogContent, DialogContentTex
 import SettingsIcon from '@mui/icons-material/Settings';
 import * as React from 'react';
 import axios from 'axios';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export interface SettingsDialogProps {
+	isProtected: boolean;
 	open: boolean;
 	setOpen: (value: boolean) => void;
 	room: string | undefined;
 }
 
 function SettingsDialog(props: SettingsDialogProps) {
-	const { setOpen, open, room } = props;
+	const { isProtected, setOpen, open, room } = props;
 
 	const [password, setPassword] = React.useState<string>('');
 
@@ -27,6 +29,15 @@ function SettingsDialog(props: SettingsDialogProps) {
 				})
 		setPassword("");
 	};
+
+	const passwordDelete = async () => {
+		setOpen(false);
+			await axios.post(`http://${process.env.REACT_APP_IP}:3001/api/chat/delete_password`, {name: room}, { withCredentials: true })
+				.catch(err => {
+					;
+				})
+		setPassword("");
+	}
 
 	const handleCancel = () => {
 		setOpen(false);
@@ -48,6 +59,9 @@ function SettingsDialog(props: SettingsDialogProps) {
 					Set up your channel
 				</DialogContentText>
 				<TextField value={password} onChange={handleChangePassword} onKeyDown={handleEnter} type="password" label="Set password" autoFocus margin="normal" variant="standard" fullWidth sx={{mb:2}}/>
+				{isProtected && <Button variant="outlined" onClick={passwordDelete}>
+							<DeleteIcon />
+						</Button>}
 				<Divider />
 				
 			</DialogContent>
@@ -61,10 +75,11 @@ function SettingsDialog(props: SettingsDialogProps) {
 
 export interface IRoomSettingsProps {
 	room: string | undefined;
+	isProtected: boolean;
 };
 
 export const RoomSettings = (props: IRoomSettingsProps) => {
-	const { room } = props;
+	const { room, isProtected } = props;
 	const [open, setOpen] = React.useState(false);
 
 	const handleClickOpen = () => {
@@ -77,6 +92,7 @@ export const RoomSettings = (props: IRoomSettingsProps) => {
 				<SettingsIcon />
 			</IconButton>
 			<SettingsDialog
+				isProtected={isProtected}
 				open={open}
 				setOpen={setOpen}
 				room={room}

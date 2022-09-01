@@ -26,10 +26,11 @@ interface ITabPanelProps {
 	roomUsers: User[];
 	currentUser: User | undefined;
 	isPrivate: boolean;
+	isProtected: boolean;
 }
 
 const TabPanel = (props: ITabPanelProps) => {
-	const { mute, owner, title, message, children, value, index, messageChange, messageSend, currentUser, isPrivate} = props; // isProtected, passAuthenticated
+	const { mute, owner, title, message, children, value, index, messageChange, messageSend, currentUser, isPrivate, isProtected} = props; // isProtected, passAuthenticated
 	const divRef = React.useRef<HTMLDivElement>(null);
 
 	const handleInput = (event: React.KeyboardEvent<HTMLInputElement>) => {
@@ -106,7 +107,7 @@ const TabPanel = (props: ITabPanelProps) => {
 							<Box sx={{ display: 'flex', flexDirection: 'row', gap: '10px'}}>
 								<Typography sx={{ flexGrow: 0 }} variant="h4">{title}</Typography>
 								{owner === true && (
-									<RoomSettings room={title}/>
+									<RoomSettings room={title} isProtected={isProtected}/>
 								)}
 								{
 									!isPrivate && title !== 'general' &&(<Button variant="text" startIcon={<ExitToAppIcon />} size="small" onClick={handleLeaveRoom}>Leave</Button>)
@@ -267,6 +268,7 @@ export const VerticalTabs = (props: IVerticalTabsProps) => {
 						roomUsers={roomUsers}
 						currentUser={currentUser}
 						isPrivate={room.type === 'private'}
+						isProtected={room.type === 'protected'}
 					>
 						{mapChatBubbles()}
 					</TabPanel>

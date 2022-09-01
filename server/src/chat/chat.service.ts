@@ -225,6 +225,8 @@ export class ChatService {
 
 	async updateRoom(data: PasswordDto) {
 		const room = await this.roomRepo.findOneBy({ name: data.name });
+		if (!data.password)
+			return this.roomRepo.update(room.id, { hash: undefined, type: 'public' });
 		return this.roomRepo.update(room.id, { hash: data.password, type: 'protected' });
 	}
 
