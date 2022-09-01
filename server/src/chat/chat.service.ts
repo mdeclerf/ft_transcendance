@@ -230,7 +230,7 @@ export class ChatService {
 		return this.roomRepo.update(room.id, { hash: data.password, type: 'protected' });
 	}
 
-	async complete(query: string, user: User) {
+	async complete(query: string, user: User) { 
 		const alreadyJoined = (await this.roomRepo.createQueryBuilder('room')
 			.leftJoin('room.chat_user', 'chat_user')
 			.where('chat_user.user_id = :id', { id: user.id })
@@ -239,6 +239,7 @@ export class ChatService {
 
 		const result = await this.roomRepo.createQueryBuilder('room')
 			.where('room.id NOT IN (:...ids)', { ids: alreadyJoined })
+			.andWhere('room.type != :type', { type : "private"})
 			.andWhere('room.name LIKE :query', { query: `%${query}%` })
 			.getMany();
 
