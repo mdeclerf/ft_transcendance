@@ -123,7 +123,7 @@ function Watch() {
 			socket.off('getPosition');
 		})
 	// eslint-disable-next-line
-	}, []);
+	}, [currentlyWatched.key]);
 
 	return (
 	<>
