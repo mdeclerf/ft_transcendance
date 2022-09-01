@@ -124,6 +124,8 @@ function Watch() {
 			setSecondPScore(data[5]);
 		});
 		return (() => {
+			setArray([]);
+			setToAdd({key:"", player_1:"", player_2:""});
 			socket.emit('remove_spectator', currentlyWatched.key);
 			socket.off('getPosition');
 		})
