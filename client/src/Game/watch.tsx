@@ -69,25 +69,30 @@ function Watch() {
 
 	useEffect(() => {
 		socket.on("add_ongoing_game", (message:string[]) => {
+			console.log('add_ongoing_game')
 			setToAdd({key:message[0], player_1:message[1], player_2:message[2]});
 		});
 
 		if (array.some(e => e.key === toAdd.key) === false && toAdd.key !== "")
 		{
+			console.log("in between")
 			setArray(oldArray => [...oldArray, toAdd]);
 			setToAdd({key:"", player_1:"", player_2:""});
 		}
 
 		socket.on("current_games_list", (message:string[]) => {
+			console.log('current_games_list')
 			setArray(oldArray => [...oldArray, {key:message[0], player_1:message[1], player_2:message[2]}]);
 		});
 
 		socket.on("remove_ongoing_game", (message:string) => {
+			console.log('remove_ongoing_game')
 			setDialogOpen(true);
 			setArray((prev: CurrentMatch[]) => prev.filter(item => item.key !== message));
 		});
 
 		socket.on("disconnection_of_player", (message:string) => {
+			console.log('disconnection of player')
 			if (message === currentlyWatched.key)
 			{
 				setDisconnection(true);
