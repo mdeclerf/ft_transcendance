@@ -18,7 +18,7 @@ export function Friends (props: IFriendsProps) {
 		if (currentUser)
 		{
 			axios
-				.get<User[]>(`http://localhost:3001/api/user/get_friends`, { withCredentials: true })
+				.get<User[]>(`http://${process.env.REACT_APP_IP}:3001/api/user/get_friends`, { withCredentials: true })
 				.then(res => {
 					setUserList(res.data);
 				})

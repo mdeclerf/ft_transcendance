@@ -26,7 +26,7 @@ export function TwoFactor (props: ITwoFactorProps) {
 
 	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 		event.preventDefault();
-		const url: string = `http://localhost:3001/api/2fa/turn_${user.isTwoFactorAuthenticationEnabled ? 'off' : 'on' }`
+		const url: string = `http://${process.env.REACT_APP_IP}:3001/api/2fa/turn_${user.isTwoFactorAuthenticationEnabled ? 'off' : 'on' }`
 		axios.post(url, { twoFactorAuthCode: message }, { withCredentials: true })
 			.then(() => {
 				window.location.reload();

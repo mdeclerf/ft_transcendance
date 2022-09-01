@@ -11,9 +11,21 @@ services:
     networks:
       - mynetwork
     restart: always
-    env_file: 
+    env_file:
       - .env
     container_name: backend
+
+  frontend:
+    build:
+      context: ./client
+    ports:
+      - "3000:3000"
+    networks:
+      - mynetwork
+    restart: always
+    env_file:
+      - .env
+    container_name: frontend
   
   postgres:
     image: postgres

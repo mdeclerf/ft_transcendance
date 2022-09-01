@@ -62,7 +62,7 @@ export const Profile = (props: IProfileProps) => {
 	}
 
 	const handleAddFriend = (event: React.MouseEvent<HTMLButtonElement>) => {
-		axios.get(`http://localhost:3001/api/user/add_friend?id=${user?.id}`, { withCredentials: true })
+		axios.get(`http://${process.env.REACT_APP_IP}:3001/api/user/add_friend?id=${user?.id}`, { withCredentials: true })
 			.then(() => {
 				window.location.reload();
 			})
@@ -72,7 +72,7 @@ export const Profile = (props: IProfileProps) => {
 	}
 
 	const handleRemoveFriend = (event: React.MouseEvent<HTMLButtonElement>) => {
-		axios.get(`http://localhost:3001/api/user/remove_friend?id=${user?.id}`, { withCredentials: true })
+		axios.get(`http://${process.env.REACT_APP_IP}:3001/api/user/remove_friend?id=${user?.id}`, { withCredentials: true })
 			.then(() => {
 				window.location.reload();
 			})
@@ -82,7 +82,7 @@ export const Profile = (props: IProfileProps) => {
 	}
 
 	const handleBlock = (event: React.MouseEvent<HTMLButtonElement>) => {
-		axios.get(`http://localhost:3001/api/user/block_user?id=${user?.id}`, { withCredentials: true })
+		axios.get(`http://${process.env.REACT_APP_IP}:3001/api/user/block_user?id=${user?.id}`, { withCredentials: true })
 			.then(() => {
 				window.location.reload();
 			})
@@ -92,14 +92,14 @@ export const Profile = (props: IProfileProps) => {
 	}
 
 	const handleDM = async () => {
-		axios.get<Room>(`http://localhost:3001/api/chat/rooms/check_dm?user=${user?.id}`, { withCredentials: true})
+		axios.get<Room>(`http://${process.env.REACT_APP_IP}:3001/api/chat/rooms/check_dm?user=${user?.id}`, { withCredentials: true})
 			.then(res => {
-				window.location.href = `http://localhost:3000/chat#${res.data.name}`;
+				window.location.href = `http://${process.env.REACT_APP_IP}:3000/chat#${res.data.name}`;
 			});
 	}
 
 	const handleUnblock = (event: React.MouseEvent<HTMLButtonElement>) => {
-		axios.get(`http://localhost:3001/api/user/unblock_user?id=${user?.id}`, { withCredentials: true })
+		axios.get(`http://${process.env.REACT_APP_IP}:3001/api/user/unblock_user?id=${user?.id}`, { withCredentials: true })
 			.then(() => {
 				window.location.reload();
 			})

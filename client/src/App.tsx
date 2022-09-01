@@ -79,7 +79,7 @@ function App() {
 
 	const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
 		axios
-			.post('http://localhost:3001/api/2fa/authenticate', { twoFactorAuthCode: twoFactorCode }, { withCredentials: true})
+			.post(`http://${process.env.REACT_APP_IP}:3001/api/2fa/authenticate`, { twoFactorAuthCode: twoFactorCode }, { withCredentials: true})
 			.then(() => {
 				window.location.reload();
 			})
