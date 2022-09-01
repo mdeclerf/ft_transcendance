@@ -25,7 +25,7 @@ export class UserGateway {
 		client.emit('socket_saved');
 		this.userService.setStatus(user_id, 'online');
 		const ConnectedUser = await this.userService.findUserById(user_id);
-		this.wss.sockets.emit("color_change", { status: 'online', user: ConnectedUser});
+		this.wss.emit("color_change", { status: 'online', user: ConnectedUser});
 		const general = await this.chatService.getRoomByName('general');
 		this.chatService.createChatUserIfNotExists({ user_id, room_id: general.id, status: 'user' });
 	}
