@@ -9,7 +9,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 @WebSocketGateway({
 		cors: {
-			origin: "http://localhost:3000",
+			origin: `http://${process.env.REACT_APP_IP}:3000`,
 			methods: ["GET", "POST"],
 		},
 	})
@@ -147,8 +147,11 @@ export class ChatGateway
 	@SubscribeMessage('message_send')
 	async messageSend(client: Socket, message: CreateChatDto) {
 		const currentRoom = await this.chatService.getRoomByName(message.room.name);
-		const { status } = await this.chatService.getChatUserStatus(message.user, currentRoom);
-		if (status !== "muted" && status !== "banned")
+		const response = await this.chatService.getChatUserStatus(message.user, currentRoom);
+		if (! response)
+			return;
+		
+		if (response.status !== "muted" && response.status !== "banned")
 		{
 			this.chatService.createMessage(message);
 			const { room } = message;

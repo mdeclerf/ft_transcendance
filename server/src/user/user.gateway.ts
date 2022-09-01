@@ -7,7 +7,7 @@ import { UserService } from './user.service';
 // @WebSocketGateway({ cors: true })
 @WebSocketGateway({
 	cors: {
-		origin: "http://localhost:3000",
+		origin: `http://${process.env.REACT_APP_IP}:3000`,
 		methods: ["GET", "POST"],
 	},
 })
