@@ -30,6 +30,8 @@ export class ChatController {
 	@UseGuards(AuthenticatedGuard)
 	async getRoomMessages(@Param('room_name') room_name: string, @Req() req: RequestWithUser) {
 		const room = await this.chatService.getRoomByName(room_name);
+		if (!room)
+			return ;
 		return this.chatService.getRoomMessages(room.id, req.user);
 	}
 
@@ -43,7 +45,8 @@ export class ChatController {
 	@UseGuards(AuthenticatedGuard)
 	async getRoomInfo(@Param('room_name') room_name: string) {
 		const room = await this.chatService.getRoomByName(room_name);
-		return room.type;
+		if (room)
+			return room.type;
 	}
 
 	@Post('rooms/:room_name/join_room')

@@ -65,13 +65,6 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 					if (res.data === 'protected' && password !== '') {
 						axios.post('http://localhost:3001/api/chat/check_password', { name: searchQuery, password }, { withCredentials: true })
 							.then(() => {
-								// fetchChatUserStatus().then((res: string | undefined) => {
-								// 	if (res) {
-								// 		if (res === 'banned')
-								// 			setIncorrect(true);
-								// 			return ;
-								// 	}
-								// });
 								setIncorrect(false);
 								setPassword('');
 								socket.emit('room_join', searchQuery);
@@ -120,6 +113,7 @@ export function ButtonJoinChannel (props: IButtonJoinChannelProps) {
 		setDialogOpen(false);
 		setPassword('');
 		setIncorrect(false);
+		setRoomType('public');
 	}
 
 	return (
