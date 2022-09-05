@@ -1,0 +1,17 @@
+Canvas {
+	border-radius: 10px;}
+
+.outsideWrapper{ 
+	width:100%; height:100%;
+	position:relative;
+	border-radius: 10px;}
+
+.insideWrapper{ 
+	width:100%; height:100%; 
+	border-radius: 10px;}
+
+.coveredImage{ 
+	width:100%; height:100%; 
+	position:absolute; top:0px; left:0px;
+	border-radius: 10px;
+	z-index: -1;}

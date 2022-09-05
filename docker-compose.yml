@@ -1,0 +1,40 @@
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: ./server
+    depends_on:
+      - postgres
+    ports:
+      - "3001:3001"
+    networks:
+      - mynetwork
+    restart: always
+    env_file:
+      - .env
+    container_name: backend
+
+  frontend:
+    build:
+      context: ./client
+    ports:
+      - "3000:3000"
+    networks:
+      - mynetwork
+    restart: always
+    env_file:
+      - .env
+    container_name: frontend
+  
+  postgres:
+    image: postgres
+    restart: always
+    networks:
+      - mynetwork
+    env_file:
+      - .env
+    container_name: postgres
+
+networks:
+  mynetwork:
