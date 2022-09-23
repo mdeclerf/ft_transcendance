@@ -9,20 +9,20 @@ The website backend is wrote in NestJs and the front in typescript, using React.
 
 <h4>Installation</h4>
 
-The first thing to do is adding .env with the following :
+The first thing to do is adding a .env file with the following :
 <code>
-POSTGRES_HOST=...<br>
-POSTGRES_PORT=...<br>
-POSTGRES_USER=...<br>
-POSTGRES_PASSWORD=...<br>
-POSTGRES_DB=...<br>
-NESTJS_PORT=...<br>
-COOKIE_SECRET=...<br>
-INTRA_CLIENT_ID=...<br>
-INTRA_CLIENT_SECRET=...<br>
-INTRA_CALLBACK_URL=...<br>
-SALT=...<br>
-REACT_APP_IP=...<br>
+POSTGRES_HOST=...
+POSTGRES_PORT=...
+POSTGRES_USER=...
+POSTGRES_PASSWORD=...
+POSTGRES_DB=...
+NESTJS_PORT=...
+COOKIE_SECRET=...
+INTRA_CLIENT_ID=...
+INTRA_CLIENT_SECRET=...
+INTRA_CALLBACK_URL=...
+SALT=...
+REACT_APP_IP=...
 </code>
 
 Run the containers : 
@@ -37,7 +37,7 @@ Inspect the database :
 
 <h6>User account</h6>
 
-* The user login using the OAuth System of 42 Intranet
+* The user login using the OAuth System of 42 Intranet.
 
 * In his user page, they can change their name (the default one is the one from the 42Intranet) and picture.
 
