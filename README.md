@@ -1,13 +1,11 @@
 <h1>FT_TRANSCENDENCE</h1>
-<br></br>
+
 <h6>Done in collaboration with the amazing goffauxs, adidion19, 2BDia and Viforget</h6>
 
-<br></br>
 <h4>Summary</h4>
 Ft_transcendence is a website where users can play real-time multiplayer Pong. They connect with the OAuth system of 42 intranet and have access to a chat, a leaderboard, a profile page etc...
 
 The website backend is wrote in NestJs and the front in typescript, using React. The database used for this project is PostgreSQL
-<br></br>
 
 <h4>Installation</h4>
 
@@ -32,8 +30,6 @@ Run the containers :
 
 Inspect the database : 
 <code>docker exec -it srcs_mariadb_1 bash</code>
-
-<br></br>
 
 <h4>Features</h4>
 
@@ -68,15 +64,12 @@ Inspect the database :
 ![Screenshot](screenshots_Readme/chat.png)
 ![Screenshot](screenshots_Readme/chat_bis.png)
 
-<br></br>
-
 <h6>Game</h6>
 
 * Users can play a live Pong game versus one another. There is a matchmaking system, where the users can join a queue until they get matched with another player.
 
 * The users can also watch live games.
 ![Screenshot](screenshots_Readme/game.png)
-<br></br>
 
 <h6>Leaderboard</h6>
 
